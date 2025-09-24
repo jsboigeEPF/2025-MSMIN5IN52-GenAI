@@ -5,9 +5,9 @@
     "description": "Application for generating musical loops based on ambiance types using external APIs"
   },
   "api_keys": {
-    "suno": "",
-    "udio": "",
-    "stable_audio": ""
+    "suno": "sk-placeholder-suno-1234567890abcdef",
+    "udio": "sk-placeholder-udio-1234567890abcdef",
+    "stable_audio": "sk-placeholder-stable-1234567890abcdef"
   },
   "api_endpoints": {
     "suno": "https://api.suno.ai/v1/music",

@@ -4,6 +4,7 @@ Module pour parser les CVs au format PDF et DOCX.
 
 import os
 from typing import Dict, List
+from src.parsers.entity_extractor import extract_entities_from_cv
 
 def extract_text_from_pdf(file_path: str) -> str:
     """
@@ -21,8 +22,11 @@ def extract_text_from_pdf(file_path: str) -> str:
             reader = PyPDF2.PdfReader(file)
             text = ''
             for page in reader.pages:
-                text += page.extract_text()
-            return text
+                # Extraire le texte de la page
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+            return text.strip()
     except Exception as e:
         print(f"Erreur lors de la lecture du PDF {file_path}: {e}")
         return ""
@@ -40,7 +44,20 @@ def extract_text_from_docx(file_path: str) -> str:
     try:
         from docx import Document
         doc = Document(file_path)
-        return '\n'.join([para.text for para in doc.paragraphs])
+        # Extraire le texte des paragraphes et des tableaux
+        text = []
+        for para in doc.paragraphs:
+            if para.text.strip():
+                text.append(para.text)
+        
+        # Extraire le texte des tableaux
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    if cell.text.strip():
+                        text.append(cell.text)
+        
+        return '\n'.join(text)
     except Exception as e:
         print(f"Erreur lors de la lecture du DOCX {file_path}: {e}")
         return ""
@@ -64,9 +81,13 @@ def parse_cv(cv_path: str) -> Dict[str, str]:
     else:
         print(f"Format non supporté : {ext}")
     
+    # Extraire les entités structurées
+    entities = extract_entities_from_cv(text)
+    
     return {
         "filename": os.path.basename(cv_path),
-        "text": text
+        "text": text,
+        "entities": entities
     }
 
 def load_all_cvs(cv_folder: str) -> List[Dict[str, str]]:

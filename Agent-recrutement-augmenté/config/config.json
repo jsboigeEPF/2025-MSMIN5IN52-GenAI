@@ -1,0 +1,94 @@
+{
+  "model": {
+    "name": "gpt-3.5-turbo",
+    "temperature": 0.3,
+    "max_tokens": 1000
+  },
+  "scoring": {
+    "weights": {
+      "skills": 0.3999999999999999,
+      "experience": 0.3,
+      "education": 0.19999999999999996,
+      "certifications": 0.09999999999999998
+    },
+    "confidence_threshold": 0.5
+  },
+  "entity_extraction": {
+    "skills": [
+      "python",
+      "java",
+      "javascript",
+      "c++",
+      "c#",
+      "ruby",
+      "php",
+      "go",
+      "rust",
+      "sql",
+      "nosql",
+      "mongodb",
+      "postgresql",
+      "mysql",
+      "redis",
+      "elasticsearch",
+      "aws",
+      "azure",
+      "gcp",
+      "docker",
+      "kubernetes",
+      "linux",
+      "git",
+      "machine learning",
+      "deep learning",
+      "nlp",
+      "computer vision",
+      "tensorflow",
+      "pytorch",
+      "keras",
+      "scikit-learn",
+      "pandas",
+      "numpy",
+      "react",
+      "angular",
+      "vue",
+      "node.js",
+      "django",
+      "flask",
+      "spring",
+      "hadoop",
+      "spark",
+      "kafka",
+      "airflow",
+      "jenkins",
+      "ansible"
+    ],
+    "education_levels": [
+      "bac",
+      "bachelor",
+      "licence",
+      "master",
+      "phd",
+      "doctorat",
+      "diplôme",
+      "certificat",
+      "formation"
+    ],
+    "certifications": [
+      "aws certified",
+      "azure certified",
+      "google cloud certified",
+      "scrum master",
+      "pmp",
+      "six sigma",
+      "cissp",
+      "ceh",
+      "oracle certified",
+      "microsoft certified",
+      "cisco certified"
+    ]
+  },
+  "ui": {
+    "theme": "light",
+    "language": "fr"
+  }
+}

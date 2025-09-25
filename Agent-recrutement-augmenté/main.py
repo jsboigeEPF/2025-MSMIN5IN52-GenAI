@@ -5,6 +5,7 @@ Point d'entrée principal pour l'Agent de Recrutement Augmenté.
 from src.parsers.cv_parser import load_all_cvs
 from src.models.ranking_model import rank_candidates
 from src.utils.report_generator import generate_csv_report, generate_html_report
+from src.parsers.entity_extractor import extract_entities_from_cv
 
 def main():
     # Chemins
@@ -26,6 +27,13 @@ def main():
     if not cvs:
         print("Aucun CV chargé. Vérifiez le dossier data/cv_samples.")
         return
+        
+    # Afficher les entités extraites pour vérification
+    for cv in cvs:
+        print(f"\nEntités extraites pour {cv['filename']}:")
+        entities = cv.get('entities', {})
+        for entity_type, entity_data in entities.items():
+            print(f"  {entity_type}: {entity_data}")
     
     # Classer les candidats
     ranked = rank_candidates(cvs, job_description)

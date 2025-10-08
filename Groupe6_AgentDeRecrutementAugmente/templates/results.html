@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Résultats</title>
+</head>
+<body>
+    <h1>Résultats du classement</h1>
+    <ol>
+    {% for res in results %}
+        <li>{{ res.text }} - Score: {{ res.score }}</li>
+    {% endfor %}
+    </ol>
+    <a href="/">Retour</a>
+</body>
+</html>

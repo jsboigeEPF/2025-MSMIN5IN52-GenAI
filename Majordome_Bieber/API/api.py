@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from Gmail_API import readMail
 from Calendar_API import get_credentials, list_events, create_event
+from login import get_credentials as auth_credentials
 from googleapiclient.discovery import build
 import datetime
 
@@ -20,7 +21,8 @@ def get_emails():
         return jsonify({"emails": results})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route('/api/calendar/events')
 def get_calendar_events():
     try:
@@ -30,7 +32,8 @@ def get_calendar_events():
         return jsonify({"events": events})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route('/api/calendar/events', methods=['POST'])
 def create_calendar_event():
     try:
@@ -42,11 +45,24 @@ def create_calendar_event():
         location = data.get("location", "")
         creds = get_credentials()
         service = build("calendar", "v3", credentials=creds)
-        event_id = create_event(service, summary, date, start_time, end_time, location)
+        event_id = create_event(service, summary, date,
+                                start_time, end_time, location)
         return jsonify({"success": True, "event_id": event_id})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-    
-    
+
+
+@app.route('/auth/login', methods=['POST'])
+def login():
+    try:
+        # Tentative d'authentification avec Google
+        creds = auth_credentials()
+        if creds and creds.valid:
+            return jsonify({"success": True, "message": "Authentification réussie"})
+        return jsonify({"success": False, "message": "Échec de l'authentification"}), 401
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

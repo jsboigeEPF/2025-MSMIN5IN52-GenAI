@@ -40,10 +40,10 @@ def load_config(config_path: str = "config/config.json") -> Dict:
             },
             "scoring": {
                 "weights": {
-                    "skills": 0.4,
-                    "experience": 0.3,
-                    "education": 0.2,
-                    "certifications": 0.1
+                    "skills": 0.45,
+                    "experience": 0.35,
+                    "education": 0.15,
+                    "certifications": 0.05
                 },
                 "confidence_threshold": 0.5
             }
@@ -52,14 +52,14 @@ def load_config(config_path: str = "config/config.json") -> Dict:
 def compute_match_score(cv_text: str, job_description: str, cv_entities: Dict = None) -> Dict[str, float]:
     """
     Calcule un score de correspondance entre un CV et une description de poste
-    en utilisant un modèle de langage (LLM) via LangChain.
+    en utilisant une approche hybride LLM + algorithmique.
     
     Args:
         cv_text (str): Texte extrait du CV.
         job_description (str): Description du poste.
     
     Returns:
-        Dict[str, float]: Dictionnaire contenant le score (0-1) et la confiance.
+        Dict[str, float]: Dictionnaire contenant le score (0-1), la confiance et le raisonnement.
     """
     try:
         # Charger la configuration
@@ -124,18 +124,36 @@ def compute_match_score(cv_text: str, job_description: str, cv_entities: Dict = 
             "entities_context": entities_context
         })
         
-        # Parser la réponse JSON (simplifié - dans un cas réel, utiliser un vrai parser JSON)
-        # Exemple de réponse attendue: {"score": 0.85, "confidence": 0.92}
+        # Parser la réponse JSON
         import json
         try:
             result = json.loads(response)
+            llm_score = float(result.get("score", 0.0))
+            llm_confidence = float(result.get("confidence", 0.5))
+            reasoning = result.get("reasoning", "")
+            
+            # Calculer le score algorithmique
+            algo_score = _text_similarity_score(cv_text, job_description)
+            
+            # Fusionner les scores avec pondération adaptative
+            # Plus le LLM est confiant, plus on lui fait confiance
+            if llm_confidence >= config["scoring"]["confidence_threshold"]:
+                # Approche hybride: combiner LLM et algorithme
+                final_score = (llm_score * 0.7) + (algo_score * 0.3)
+                final_confidence = llm_confidence
+            else:
+                # Si faible confiance du LLM, privilégier l'approche algorithmique
+                final_score = (llm_score * 0.3) + (algo_score * 0.7)
+                final_confidence = algo_score * 0.8  # Confiance basée sur le score algorithmique
+            
             return {
-                "score": float(result.get("score", 0.0)),
-                "confidence": float(result.get("confidence", 0.5)),
-                "reasoning": result.get("reasoning", "")
+                "score": min(final_score, 1.0),
+                "confidence": min(final_confidence, 1.0),
+                "reasoning": reasoning + f"\n\n[Score hybride: LLM={llm_score:.3f} (confiance={llm_confidence:.3f}), Algorithme={algo_score:.3f}, Score final={final_score:.3f}]"
             }
+            
         except json.JSONDecodeError:
-            # En cas d'erreur de parsing, retourner un score par défaut basé sur la similarité de texte
+            # En cas d'erreur de parsing, utiliser uniquement le scoring algorithmique
             score = _text_similarity_score(cv_text, job_description)
             return {"score": score, "confidence": 0.3, "reasoning": "Évaluation basée sur la similarité de texte des mots-clés."}
             
@@ -147,30 +165,77 @@ def compute_match_score(cv_text: str, job_description: str, cv_entities: Dict = 
 
 def _text_similarity_score(cv_text: str, job_description: str) -> float:
     """
-    Score de similarité basé sur les mots-clés communs (fallback).
+    Score de similarité amélioré utilisant TF-IDF et correspondance sémantique.
     """
     if not cv_text or not job_description:
         return 0.0
-        
-    # Convertir en minuscules et enlever la ponctuation basique
-    cv_words = set(cv_text.lower().replace(',', '').replace('.', '').split())
-    job_words = set(job_description.lower().replace(',', '').replace('.', '').split())
+    
+    # Extraire les mots-clés de la description de poste
+    job_keywords = _extract_keywords_from_job_description(job_description)
+    
+    # Prétraitement du texte
+    def preprocess_text(text: str) -> set:
+        # Convertir en minuscules et enlever la ponctuation basique
+        words = text.lower().replace(',', '').replace('.', '').replace(';', '').replace(':', '').split()
+        # Filtrer les mots vides (stop words) simples
+        stop_words = {'le', 'la', 'les', 'de', 'du', 'des', 'et', 'en', 'un', 'une', 'dans', 'sur', 'par', 'pour', 'avec', 'sans', 'qui', 'que', 'quoi', 'où', 'quand', 'comment', 'pourquoi', 'ce', 'cette', 'ces', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'son', 'sa', 'ses', 'notre', 'nos', 'votre', 'vos', 'leur', 'leurs', 'il', 'elle', 'ils', 'elles', 'je', 'tu', 'nous', 'vous', 'on', 'me', 'te', 'se', 'nous', 'vous', 'leur', 'y', 'en', 'ci', 'ça', 'cela', 'ceci', 'celui', 'celle', 'ceux', 'celles', 'même', 'même', 'tout', 'toute', 'tous', 'toutes', 'autre', 'autres', 'quel', 'quelle', 'quels', 'quelles', 'quelque', 'quelques', 'aucun', 'aucune', 'aucuns', 'aucunes', 'plusieurs', 'chaque', 'chacun', 'chacune', 'tout', 'toute', 'tous', 'toutes', 'mien', 'mienne', 'miens', 'miennes', 'tien', 'tienne', 'tiens', 'tiennes', 'sien', 'sienne', 'siens', 'siennes', 'nôtre', 'nôtre', 'nôtres', 'nôtres', 'vôtre', 'vôtre', 'vôtres', 'vôtres', 'leur', 'leur', 'leurs', 'leurs'}
+        return set(word for word in words if word not in stop_words and len(word) > 2)
+    
+    cv_processed = preprocess_text(cv_text)
+    job_processed = preprocess_text(' '.join(job_keywords))
+    
+    # Calculer la similarité TF-IDF pondérée
+    if len(job_processed) == 0:
+        return 0.0
     
     # Trouver les mots communs
-    common_words = cv_words.intersection(job_words)
+    common_words = cv_processed.intersection(job_processed)
     
-    # Score basé sur la proportion de mots du poste présents dans le CV
-    if len(job_words) == 0:
-        return 0.0
-        
-    keyword_match_ratio = len(common_words) / len(job_words)
+    # Calculer le score TF-IDF (approche simplifiée)
+    tfidf_score = 0.0
+    total_weight = 0.0
     
-    # Bonus pour les mots-clés importants (à personnaliser selon le domaine)
-    important_keywords = {'python', 'machine learning', 'expérience', 'compétences', 'diplôme'}
-    important_matches = len(common_words.intersection(important_keywords))
-    important_bonus = min(important_matches * 0.1, 0.3)
+    # Poids des mots basés sur leur importance dans le domaine
+    keyword_weights = {
+        'python': 1.5, 'java': 1.5, 'spring': 1.4, 'sap': 1.4, 'erp': 1.3,
+        'machine learning': 1.5, 'devops': 1.3, 'agile': 1.2, 'scrum': 1.2,
+        'aws': 1.4, 'docker': 1.3, 'kubernetes': 1.4, 'postgresql': 1.3,
+        'react': 1.3, 'angular': 1.3, 'javascript': 1.2, 'c++': 1.2, 'c#': 1.2,
+        'microservices': 1.3, 'api': 1.1, 'rest': 1.1, 'ci/cd': 1.2,
+        'gitlab': 1.1, 'github': 1.1, 'linux': 1.1, 'git': 1.1
+    }
     
-    return min(keyword_match_ratio * 0.7 + important_bonus, 1.0)
+    for word in common_words:
+        # Trouver le mot exact ou une variante dans les mots-clés
+        word_weight = 1.0
+        for keyword, weight in keyword_weights.items():
+            if keyword in word or word in keyword:
+                word_weight = weight
+                break
+        tfidf_score += word_weight
+        total_weight += word_weight
+    
+    # Normaliser par le nombre total de mots-clés pertinents dans la description
+    max_possible_score = sum(keyword_weights.get(kw, 1.0) for kw in job_keywords)
+    if max_possible_score > 0:
+        normalized_tfidf = tfidf_score / max_possible_score
+    else:
+        normalized_tfidf = 0.0
+    
+    # Score de correspondance exacte des mots-clés
+    exact_match_ratio = len(common_words) / len(job_processed) if job_processed else 0.0
+    
+    # Score de complétude (combien de mots-clés du poste sont couverts)
+    coverage_ratio = len(common_words) / len(job_processed) if job_processed else 0.0
+    
+    # Score final combiné avec pondérations optimisées
+    final_score = (
+        normalized_tfidf * 0.5 +    # Score TF-IDF pondéré
+        exact_match_ratio * 0.3 +   # Correspondance exacte
+        coverage_ratio * 0.2        # Complétude
+    )
+    
+    return min(final_score, 1.0)
 
 def rank_candidates(cvs: List[Dict[str, str]], job_description: str) -> List[Dict[str, str]]:
     """
@@ -240,17 +305,21 @@ def _identify_missing_skills(cv_entities: Dict, job_description: str) -> List[st
     Returns:
         List[str]: Liste des compétences manquantes
     """
-    # Dans une version complète, on utiliserait un LLM pour analyser les compétences requises
-    # Pour l'instant, utilisation d'une approche simple basée sur des mots-clés
-    required_skills = {'python', 'machine learning', 'deep learning', 'nlp', 'computer vision',
-                      'tensorflow', 'pytorch', 'scikit-learn', 'pandas', 'numpy'}
+    # Extraire les mots-clés de la description de poste
+    job_keywords = _extract_keywords_from_job_description(job_description)
     
+    # Obtenir les compétences du candidat
     candidate_skills = set([skill.lower() for skill in cv_entities.get('skills', [])])
     
+    # Identifier les compétences manquantes
     missing = []
-    for skill in required_skills:
+    for skill in job_keywords:
+        # Vérifier si la compétence est requise dans la description et absente du CV
         if skill not in candidate_skills and skill in job_description.lower():
-            missing.append(skill.title())
+            # Formater correctement le nom de la compétence
+            formatted_skill = skill.title()
+            if formatted_skill not in missing:
+                missing.append(formatted_skill)
     
     return missing
 
@@ -283,3 +352,38 @@ def _generate_interview_questions(cv_entities: Dict, job_description: str) -> Li
         questions.append("Comment votre formation vous a-t-elle préparé pour ce poste ?")
     
     return questions
+
+def _extract_keywords_from_job_description(job_description: str) -> List[str]:
+    """
+    Extrait les mots-clés pertinents de la description de poste.
+    
+    Args:
+        job_description (str): Description du poste
+        
+    Returns:
+        List[str]: Liste des mots-clés extraits
+    """
+    # Convertir en minuscules
+    text = job_description.lower()
+    
+    # Mots-clés techniques à extraire
+    technical_keywords = [
+        'python', 'java', 'javascript', 'c++', 'c#', 'go', 'rust', 'sql', 'nosql',
+        'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'linux', 'git', 'machine learning',
+        'deep learning', 'nlp', 'computer vision', 'tensorflow', 'pytorch', 'keras',
+        'scikit-learn', 'pandas', 'numpy', 'react', 'angular', 'vue', 'node.js',
+        'django', 'flask', 'spring', 'hadoop', 'spark', 'kafka', 'airflow', 'jenkins',
+        'ansible', 'postgresql', 'mongodb', 'mysql', 'redis', 'elasticsearch',
+        'sap', 'erp', 'devops', 'agile', 'scrum', 'microservices', 'api', 'rest',
+        'graphql', 'ci/cd', 'gitlab', 'github', 'jenkins', 'terraform', 'ansible',
+        'prometheus', 'grafana', 'kubernetes', 'docker', 'aws', 'azure', 'gcp'
+    ]
+    
+    # Extraire les mots-clés présents dans la description
+    found_keywords = []
+    for keyword in technical_keywords:
+        if keyword in text:
+            found_keywords.append(keyword)
+    
+    # Retirer les doublons et trier
+    return list(set(found_keywords))

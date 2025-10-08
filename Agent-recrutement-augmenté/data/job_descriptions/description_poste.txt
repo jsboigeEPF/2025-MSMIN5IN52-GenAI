@@ -1,91 +1,61 @@
-À propos de l’offre d’emploi
-En tant que Développeur·se Backend C# .NET chez Toporder, tu seras chargé·e d’implémenter de nouvelles fonctionnalités tout en participant activement au refactoring de notre plateforme pour garantir performance, robustesse et maintenabilité.
-Tu contribueras à faire évoluer notre cœur applicatif, à renforcer sa scalabilité et à accompagner la montée en charge de notre solution. Si tu aimes comprendre le métier, écrire du code propre et contribuer à un backend vivant (vraiment), ce poste est fait pour toi.
+ propos de l’offre d’emploi
+
+Description de l'entreprise
+
+ 
+🦸‍♂️Présentation de l’équipe
+
+En France, l’équipe dédiée ServiceNow regroupe plus de 275 experts techniques répartis entre Paris, Lyon, Nantes, et un centre d’excellence basé à Toulouse.
+
+Cette équipe unifiée accompagne les organisations dans leur transformation digitale avec une approche holistique de la plateforme ServiceNow.
+
+Devoteam est partenaire Elite ServiceNow depuis 2019 et a été reconnu Partenaire Elite de l’année 2025 pour la région EMEA, pour la troisième année consécutive.
+ 
+ 
+Description du poste
+
+ 
+💪 Vos missions
+
+Les missions de l’équipe #Régions couvrent de nombreux aspects de la conception à l’implémentation de solutions en passant par la conduite de projets.
+
+Dans le cadre de projets de transformation ou de digitalisation, vos missions inclueront notamment :
+La conception de processus cibles adaptées aux besoins, 
+La rédaction des documentations (Spécifications fonctionnelles, Guide de formation, documentation technique …).
+La participation à la configuration et au paramétrage de la solution.
+La participation à la réalisation des développements
+La contribution aux phases de validation des solutions
+ 
+ 
+Qualifications
+
+ 
+🎯 Vos atouts pour nous rejoindre
+Vous êtes étudiant(e) en école d'ingénieur, de commerce ou à l'université.
+Vous recherchez un stage de fin d’études à partir de janvier ou février 2026.
+Vous êtes dynamique, autonome et faites preuve d’une curiosité naturelle pour les nouvelles technologies.
+Vous avez une bonne communication orale, des bonnes capacités d’analyse et une appétence pour l'innovation.
 
 
-Notre Stack .NET (et au-delà)
+Nous proposons un stage enrichissant incluant une formation complète (ServiceNow, ITIL, méthode Agile), une expérience client concrète, une participation active à la vie interne (blog, recrutement, événements), la possibilité d’un CDI à la clé, le tout dans des locaux à Nantes, à deux pas de la gare.
 
-Langage : C# .NET 9
-Base de données : MariaDB, ClickHouse, Redis
-Communication : REST APIs, SignalR, RabbitMQ, NATS
-Architecture : Clean Architecture, DDD, CQRS
-Background workers : HostedServices, CRON jobs, processing queue
-Tests & qualité : Tests unitaires, intégration, revues de code
+🙋‍♂️ Pourquoi nous rejoindre ? 
+Nous sommes une IA-Driven Company : Né lors des prémices de la révolution tech, Devoteam est le partenaire de confiance qui a accompagné ses clients vers l'évolution d'Internet, du Cloud, et désormais, de la révolution de l'IA. Pour cela, 100% de nos collaborateurs sont certifiés GenAI.
+Rejoindre Devoteam, c’est apprendre en continu. Avec 75% de collaborateurs certifiés, Devoteam est une Learning Company où l’apprentissage est au cœur de notre modèle. 
+Avec 50 tribus d’expertise composées de leaders technologiques, nous collaborons avec les plus grands partenaires technologiques : Google, AWS, Microsoft, ServiceNow, Snowflake, et bien d’autres. Ce collectif d’experts contribuent à animer nos communautés métiers et à présenter chaque année son point de vue sur les technologies via le Tech Radar.
 
 
-Enjeux techniques
+Rejoignez Devoteam et devenez acteur de votre carrière dans un environnement d’excellence, d’apprentissage et d’innovation !
+ 
+ 
+Informations supplémentaires
 
-Robustesse et scalabilité : Nos services doivent tenir la charge face à des millions d’événements quotidiens.
+ 
+📢 Comment se déroule le processus de recrutement chez Devoteam ?
+Talent Acquisition Interview : l'objectif est de faire le point sur vos compétences, votre niveau d'anglais et de valider vos éléments de motivation
+Tech & Business Interview : cet entretien vise à approfondir vos compétences techniques et à vérifier leur adéquation avec nos besoins lors d'un échange avec un expert métier
+Le Groupe Devoteam oeuvre pour l'égalité des chances, pour la promotion de ses collaboratrices et de ses collaborateurs au mérite et lutte activement contre toute forme de discrimination. Nous sommes convaincus que la diversité contribue à la créativité, au dynamisme et à l'excellence de notre organisation. Chaque candidature est donc considérée indépendamment de tout critère discriminatoire.
 
-Modularité : Nos composants doivent être réutilisables, compréhensibles et faciles à tester.
-
-Conformité : Respect des exigences scales européennes, traçabilité, RGPD.
-
-Performances : Réduire la latence, améliorer l’empreinte mémoire et optimiser les traitements lourds.
-
-Missions principales
-
-Développer des fonctionnalités backend pour répondre aux besoins métier.
-Refactorer les services existants pour les rendre plus ecaces, maintenables et scalables.
-Participer à l’évolution de notre architecture backend (Clean Archi, CQRS, DDD).
-Concevoir et documenter des APIs robustes, cohérentes et performantes.
-Travailler en binôme avec les développeurs frontend/mobile pour garantir une expérience fluide.
-Être force de proposition sur les choix techniques.
-Participer aux revues de code et au maintien de la qualité globale du code.
-
-
-Pourquoi postuler chez Toporder ?
-
- • Un environnement dynamique, une équipe solidaire et une ambiance positive sont les clés de notre succès ! Chez nous, ton épanouissement est essentiel, et nous mettons tout en œuvre pour favoriser ton développement professionnel, notamment à travers des interactions quotidiennes en anglais qui te permettront d’affiner tes compétences linguistiques.
-
-
-
-Ce que nous recherchons chez toi :
-
-Nous recherchons un·e développeur·euse confirmé·e avec une expérience solide dans l’environnement Blazor, C# et .NET.
-🛠️ Compétences techniques :
-✔️ C# .NET Core / .NET 9
-✔️ API REST, SQL
-✔️ Expérience avec Git et CI/CD
-🤝 Soft skills :
-🔹 Autonomie & esprit d’initiative
-🔹 Rigueur et souci du détail
-🔹 Capacité à travailler en équipe et à partager ses connaissances
-
-
-Pourquoi rejoindre Toporder ?
-
- • Liberté d’action : chez nous, tu auras une grande liberté d’intervention et d’expression dans tes missions.
-• Cadre de travail épanouissant : nous t’offrons un environnement dynamique, collaboratif et stimulant.
-• Une petite équipe jeune et soudée, avec des grands projets à mener !
-• Des missions variées et un impact direct sur la croissance de l’entreprise.
-
-
-Package et avantages :
-
- • Salaire annuel : entre 35K et 50K € 💰
-• Une grande place à l’apprentissage en autodidacte et à l’autonomie 🤓
-• Équilibre vie professionnelle/vie personnelle : chacun peut développer ses projets personnels en parallèle de son activité professionnelle 🤩
-• Une ambiance conviviale avec une grande dose d’écoute et de bienveillance 🥰
-• Bonne humeur et un esprit de camaraderie avec une touche de second degré 🥳
-
-
-Ce que nous offrons en plus du package :
-
- • Remboursement à hauteur de 60% de ton abonnement TCL 🚍
-
- • Prime de transport pour ceux qui ne peuvent pas bénéficier des transports en commun 🚘
-
- • Prime vacances 💸
-
- • Tickets Restaurant
-
- • Épargne salariale en fonction des objectifs et de la satisfaction client ⭐️
-
- • Prime de parrainage recrutement pour chaque talent recommandé 🤝
-
- • Mutuelle SwissLife 🏥
-
- • 2 séminaires par an pour échanger, apprendre et se ressourcer 🎒
+Tu veux en savoir plus ? Viens échanger directement avec nos ambassadeurs. En rejoignant Devoteam, tu auras la possibilité de te connecter avec tes pairs, de partager leur expérience et de développer tes compétences !
 
 

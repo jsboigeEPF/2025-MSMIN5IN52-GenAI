@@ -1,0 +1,25 @@
+{
+  "tempo": 128,
+  "instruments": [
+    {
+      "name": "synthetic_pad",
+      "volume": -4,
+      "effects": ["reverb", "chorus"],
+      "pattern": "arpeggiated"
+    },
+    {
+      "name": "rain",
+      "volume": -6,
+      "effects": ["low_pass_filter", "reverb"],
+      "pattern": "continuous"
+    },
+    {
+      "name": "distant_sirens",
+      "volume": -10,
+      "effects": ["delay", "pitch_shift"],
+      "pattern": "random_interval"
+    }
+  ],
+  "effects_chain": ["reverb", "chorus", "delay"],
+  "description": "A cyberpunk cityscape in the rain with synthetic pads, rain, and distant sirens"
+}

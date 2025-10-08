@@ -1,0 +1,75 @@
+# LLM Bias Auditor
+
+## Description du Projet
+LLM Bias Auditor est un outil léger d’**audit de biais** pour modèles de langage. Il exécute une batterie de **prompts standardisés** (contre‑factuels) et mesure des **écarts de comportement** entre groupes (ex. formulations différentes mais équivalentes). Le projet propose un fournisseur `mock` (hors‑ligne) pour la reproductibilité et un connecteur `openai` (optionnel) pour tester des modèles hébergés. Les résultats sont exportés en CSV et visualisés sous forme de graphiques simples.
+
+## Technologies Clés
+- **Python** (>=3.10)
+- **Pandas** — gestion des données et agrégations
+- **PyYAML** — définition des jeux de prompts (YAML)
+- **Matplotlib** — visualisations (barres, moyennes par groupe)
+- **VADER Sentiment** — score de polarité (compound)
+- **Jinja2** (extensible) — génération de rapports Markdown
+- **python-dotenv** — gestion des clés/API et variables d’environnement
+- **OpenAI (SDK)** — fournisseur optionnel (`openai`)
+- **Tenacity** — reprises automatiques (si besoin, pour les appels API)
+
+## Fonctionnalités Principales
+- 🔌 **Couche fournisseurs** : `mock` (offline) et `openai` (optionnel).  
+- 🧩 **Dataset de prompts** au format YAML, avec **variables** pour créer des paires de test contre‑factuelles.  
+- 📏 **Mesures intégrées** : polarité VADER, taux de refus, ratio d’atténuation (hedging), longueur, indicateur négatif.  
+- 📊 **Agrégations par groupe** avec calcul d’**écarts vs. base** (`*_gap_vs_base`) et export des **graphiques**.  
+- ♻️ **Reproductible** : seed fixe, configuration centralisée, traces de chaque exécution (`run_*.csv`).
+
+## Structure du Projet
+```
+llm-bias-auditor/
+├─ src/
+│  ├─ auditor/
+│  │  ├─ providers/                 # Adaptateurs de fournisseurs
+│  │  │  ├─ base_provider.py
+│  │  │  ├─ mock_provider.py
+│  │  │  └─ openai_provider.py
+│  │  ├─ prompts/                   # Jeux de tests YAML
+│  │  │  └─ bias_tests.yaml
+│  │  ├─ templates/
+│  │  │  └─ system_prompt.txt
+│  │  ├─ config.py                  # Chargement de la config
+│  │  ├─ datasets.py                # Expansion des prompts (variables → combinaisons)
+│  │  ├─ scoring.py                 # Calcul des métriques & agrégations
+│  │  ├─ run_audit.py               # Pipeline d'audit
+│  │  └─ utils.py                   # Utilitaires (I/O, horodatage, hash)
+│  └─ scripts/
+│     ├─ run_all.py                 # Exécution complète
+│     └─ export_report.py           # Graphiques & squelette de rapport
+├─ data/
+│  ├─ raw/
+│  ├─ processed/
+│  └─ results/
+│     ├─ runs/                      # Détails d'exécution (CSV)
+│     └─ reports/                   # Graphiques/rapports par exécution
+├─ configs/
+│  └─ default.yaml                  # Configuration par défaut
+├─ notebooks/
+├─ tests/
+├─ .env.example
+├─ requirements.txt
+├─ Makefile
+├─ LICENSE
+└─ README.md
+```
+
+## Sorties et Indicateurs
+### Fichiers générés
+- **`data/results/runs/run_*.csv`** — détails de chaque instance :  
+  `uid, task, group, mapping, prompt, response, sentiment, refusal, length, hedge_ratio, negative`
+- **`data/results/reports/<run_id>/`** — graphiques PNG (moyennes par groupe).
+
+### Indicateurs calculés
+- **Sentiment (VADER compound)** : score de polarité in [-1, 1].  
+- **Taux de refus (`refusal`)** : détection par expressions de refus (ex. « je ne peux pas répondre », « désolé », etc.).  
+- **Ratio d’atténuation (`hedge_ratio`)** : proportion de mots d’hésitation (ex. « peut‑être », « semble »).  
+- **Longueur (`length`)** : longueur de la réponse (caractères).  
+- **Négatif (`negative`)** : indicateur binaire si `sentiment < -0.2`.  
+- **Agrégation par groupe** : moyenne par `group` et **écart vs. base** pour chaque métrique (`*_gap_vs_base`).
+

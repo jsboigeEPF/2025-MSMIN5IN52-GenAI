@@ -1,3 +1,14 @@
 .venv
+venv/
+
+# Fichiers compilés Python
+__pycache__/
+*.pyc
+
+# Fichiers de configuration locaux
 .env
-venv
+.python-version
+
+# IDE / OS
+.vscode/
+.DS_Store

@@ -9,81 +9,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text: #0f172a;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--background);
-        }
-
-        .message {
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-
-        .message:hover {
-            transform: translateY(-2px);
-        }
-
-        .message.unread {
-            background-color: #f0f7ff;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- LIEN VERS VOTRE NOUVEAU STYLE.CSS -->
 </head>
 
-<body>
-
+<body class="body-messages"> <!-- Classe spécifique pour cette page -->
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 fw-bold">Messages</h1>
-            <a href="index.html" class="btn btn-outline-primary">
+            <h1 class="h3 fw-bold">Messages</h1> <!-- Le style est appliqué via .body-messages .container h1 -->
+            <a href="index.html" class="btn btn-primary"> <!-- CHANGÉ: btn-outline-primary vers btn-primary -->
                 <i class="bi bi-arrow-left me-2"></i>Retour
             </a>
         </div>
 
         <!-- Assistant zone -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <div class="d-flex gap-3 align-items-center mb-3">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
-                        <i class="bi bi-robot fs-4 text-primary"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-semibold mb-1">Assistant Justin</h5>
-                        <p class="text-muted mb-0">Posez-moi une question sur vos messages</p>
-                    </div>
+        <div class="card mb-4 p-4">
+            <div class="d-flex gap-3 align-items-center mb-3">
+                <div class="icon-circle">
+                    <i class="bi bi-robot fs-icon text-primary"></i>
                 </div>
-                <div class="d-flex gap-2">
-                    <input type="text" id="messageQuery" class="form-control"
-                        placeholder="Ex: Combien ai-je de messages non lus ?">
-                    <button class="btn btn-primary px-4" id="askButton">
-                        <i class="bi bi-send-fill me-2"></i>Demander
-                    </button>
+                <div>
+                    <h5 class="fw-semibold mb-1">Assistant Justin</h5>
+                    <p class="text-muted mb-0">Posez-moi une question sur vos messages</p>
                 </div>
-                <div id="aiResponse" class="mt-3 p-3 bg-light rounded-3 d-none">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-robot text-primary"></i>
-                        <p class="mb-0 text-primary"></p>
-                    </div>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" id="messageQuery" class="form-control"
+                    placeholder="Ex: Combien ai-je de messages non lus ?">
+                <button class="btn btn-primary px-4" id="askButton">
+                    <i class="bi bi-send-fill me-2"></i>Demander
+                </button>
+            </div>
+            <div id="aiResponse" class="mt-3 d-none ai-response">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-robot fs-4 text-white"></i>
+                    <p class="mb-0 fw-medium"></p>
                 </div>
             </div>
         </div>
 
         <!-- Liste des emails -->
-        <div class="card shadow-sm mb-4">
+        <div class="card">
             <div class="card-body">
+                <h5 class="fw-semibold mb-3">Vos e-mails</h5>
                 <div id="email-list">
-                    <div class="text-center">
+                    <div class="text-center text-muted py-5">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Chargement...</span>
                         </div>
-                        <p>Chargement de vos emails...</p>
+                        <p class="mt-2">Chargement de vos emails...</p>
                     </div>
                 </div>
             </div>
@@ -102,22 +75,20 @@
 
                 if (data.emails && data.emails.length > 0) {
                     emailList.innerHTML = `
-                        <div class="card shadow-sm">
-                            <div class="list-group list-group-flush">
-                                ${data.emails.map(email => `
-                                    <div class="list-group-item message p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <h6 class="fw-semibold mb-0">${email.from.split('<')[0].trim()}</h6>
-                                            <small class="text-muted">Reçu</small>
-                                        </div>
-                                        <p class="mb-0 text-muted">${email.subject}: ${email.snippet}</p>
+                        <div class="list-group list-group-flush">
+                            ${data.emails.map(email => `
+                                <div class="list-group-item message p-3 border-0 bg-transparent ${email.unread ? 'unread' : ''}">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-semibold mb-0">${email.from.split('<')[0].trim()}</h6>
+                                        <small class="text-muted">${email.time || 'Reçu récemment'}</small>
                                     </div>
-                                `).join('')}
-                            </div>
+                                    <p class="mb-0 text-muted">${email.subject}: ${email.snippet}</p>
+                                </div>
+                            `).join('')}
                         </div>
                     `;
                 } else {
-                    emailList.innerHTML = '<p class="text-center">Aucun email trouvé.</p>';
+                    emailList.innerHTML = '<p class="text-center text-muted">Aucun email trouvé.</p>';
                 }
             } catch (error) {
                 console.error('Erreur lors du chargement des emails:', error);
@@ -129,8 +100,60 @@
             }
         }
 
-        // Charger les emails au chargement de la page
-        document.addEventListener('DOMContentLoaded', loadEmails);
+        // Logic for AI assistant in messages (Copied from index.html AI response logic, assuming backend communication if needed)
+        function getMessagesAIResponse(query) {
+            query = query.toLowerCase();
+            const dummyDb = { // Cette base de données est fictive pour l'exemple
+                messages: {
+                    unread: 3,
+                    total: 10,
+                    latest: "Le dernier message provient de 'Marketing Team' avec le sujet 'Nouvelle campagne Q4'.",
+                    summary: "Vous avez 3 messages non lus sur 10 au total. Les messages sont principalement liés au marketing, au support technique et aux ressources humaines."
+                }
+            };
+
+            if (query.includes('combien') && query.includes('non lus')) {
+                return `Vous avez ${dummyDb.messages.unread} messages non lus.`;
+            }
+            if (query.includes('total') || query.includes('nombre total')) {
+                return `Vous avez un total de ${dummyDb.messages.total} messages.`;
+            }
+            if (query.includes('dernier') || query.includes('récent')) {
+                return dummyDb.messages.latest;
+            }
+            if (query.includes('résume') || query.includes('résumé')) {
+                 return dummyDb.messages.summary;
+            }
+            return "Je peux vous donner le nombre de messages non lus, le total de messages, ou le dernier message.";
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmails();
+
+            const messageQueryInput = document.getElementById('messageQuery');
+            const askButton = document.getElementById('askButton');
+            const aiResponseDiv = document.getElementById('aiResponse');
+            const aiResponseText = aiResponseDiv.querySelector('p');
+
+            function handleAskCommand() {
+                const query = messageQueryInput.value.trim();
+                if (query) {
+                    const response = getMessagesAIResponse(query);
+                    aiResponseText.textContent = response;
+                    aiResponseDiv.classList.remove('d-none');
+                    messageQueryInput.value = '';
+                    messageQueryInput.focus();
+                }
+            }
+
+            askButton.addEventListener('click', handleAskCommand);
+            messageQueryInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAskCommand();
+                }
+            });
+        });
     </script>
 </body>
 

@@ -1,201 +1,691 @@
+/* Définition des variables de couleurs et ombres pour une DA douce, épurée, "Apple-like" */
+:root {
+    --primary: #95AEBE; /* Gris-bleu clair et raffiné, doux et aérien */
+    --primary-hover: #7F93A4; /* Teinte légèrement plus foncée pour les survols */
+    --primary-rgb-value: 149, 174, 190; /* Valeur RGB pour rgba() */
+
+    --secondary: #9099A4; /* Gris très doux et légèrement bleuté pour le texte secondaire */
+    --success: #6ACC6D; /* Vert frais pour le succès */
+    --warning: #FFBB40; /* Orange doux pour l'alerte */
+
+    --background-veil-opacity: 0.05; /* Voile de fond très très léger pour les images de body */
+    --surface-glass-bg-opacity-light: 0.7; /* Opacité des "surfaces de verre" des cards et carrousel */
+    --surface-glass-bg-opacity-strong: 0.88; /* Opacité des "surfaces de verre" pour Assistant Justin */
+    --surface-glass-blur-amount: 30px; /* Valeur de blur pour l'effet verre dépoli */
+
+    --text-main: #3C424C; /* Texte principal foncé, mais doux, avec une pointe de bleu-gris */
+    --text-secondary: #7F8B98; /* Texte secondaire plus clair et aéré */
+    --text-placeholder: #B8C2CC; /* Couleur pour le texte placeholder */
+
+    --border-ghost: rgba(0, 0, 0, 0.01); /* Bordure quasi-invisible pour définir la forme */
+    
+    --shadow-minimal: 0 0.5px 1px rgba(0, 0, 0, 0.01); /* Ombres les plus légères */
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.015); /* Ombres douces pour éléments en légère élévation */
+    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.02); /* Ombre pour les éléments en légère élévation */
+    --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.025); /* Ombre principale pour les éléments clés "flottants" */
+    --shadow-hover: 0 4px 15px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.025); /* Ombre de survol délicate */
+
+    --surface-light: rgba(255, 255, 255, 0.95); /* Définit une couleur de surface légère et quasi-opaque pour les éléments (modals, etc.) */
+}
+
+/* Base Styles */
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-main);
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    position: relative;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.8s ease-in-out;
 }
 
-header {
-    background-color: #fff;
-    padding: 2rem 1rem; /* moins haut que 3rem */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: center;
+/* Overlay appliqué sur le BODY - OPACITÉ MINIMALE POUR VISIBILITÉ MAXIMALE DU FOND */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, var(--background-veil-opacity)); /* Ultra léger */
+    pointer-events: none;
+    z-index: -1;
+    transition: background-color 0.8s ease-in-out;
 }
 
-.header-content {
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Navbar - PLUS VISIBLE QU'AVANT, MOINS TRANSLUCIDE, MAIS GARDANT L'EFFET VERRE */
+.navbar {
+    padding: 0.8rem 0; /* Un peu plus d'espace */
+    background-color: rgba(255, 255, 255, 0.3); /* Légèrement plus visible */
+    backdrop-filter: blur(25px); /* Blur un peu réduit, mais toujours présent */
+    box-shadow: none;
+    border-bottom: none;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    overflow: hidden;
+    /* On retire la transition ici car le background-color changera juste */
+}
+
+.navbar-brand .img-profile {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: var(--shadow-minimal);
+    object-fit: cover;
+    object-position: center;
+}
+
+.navbar-brand .img-profile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.2s;
+}
+
+.navbar-brand:hover .img-profile img {
+    transform: scale(1.05);
+}
+
+.navbar-brand h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.navbar-brand small {
+    color: var(--text-secondary);
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    justify-content: space-between; /* espace entre logo/text et boutons */
-    gap: 2rem;
-    flex-wrap: wrap;
-    max-width: 1200px;
-    width: 100%;
 }
 
-.header-img {
-    width: 80px; /* plus petite image */
-    height: 80px;
-    border-radius: 50%; /* rond si portrait */
-    object-fit: cover;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.nav-link:hover {
+    color: var(--primary-hover);
+    background-color: rgba(var(--primary-rgb-value), 0.04);
 }
 
-.header-text h1 {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 2.5rem;
-    font-weight: 800; /* plus gras */
-    margin: 0;
-    color: #111;
-    letter-spacing: 1px; /* plus esthétique */
+.nav-link.active {
+    color: var(--primary);
+    background-color: rgba(var(--primary-rgb-value), 0.08);
+    font-weight: 600;
 }
 
-.header-text p {
-    font-size: 1.2rem;
-    color: #666;
-    margin-top: 0.5rem;
-}
-
-main {
-    padding: 3rem 1rem;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.dashboard {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: space-between;
-}
-
+/* Cards générales du Dashboard (Mails, Agenda, Tâches) - EN MODE VERRE, COMME L'ASSISTANT ! */
 .card {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 2rem;
-    flex: 1 1 300px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+    border: 1px solid var(--border-ghost); /* Très fine bordure pour le verre */
+    border-radius: 25px; /* Plus arrondis */
+    box-shadow: var(--shadow-medium); /* Ombre douce */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* FOND DES CARTES AVEC OPACITÉ DÉDIÉE */
+    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-light)); /* Moins opaque, très léger verre */
+    backdrop-filter: blur(15px); /* Léger blur pour l'effet verre */
 }
 
 .card:hover {
     transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+.card h2 {
+    color: var(--text-main);
+}
+.card h6 {
+    color: var(--text-main);
+}
+.card small {
+    color: var(--text-secondary) !important;
 }
 
-.card h2 {
-    margin-top: 0;
-    color: #111;
+
+/* Assistant Justin Card - DESIGN "FLOTTANT", ENFIN AU TOP ! */
+.main-assistant-card {
+    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-strong)); /* Fond blanc pur avec forte translucence */
+    backdrop-filter: blur(var(--surface-glass-blur-amount)); /* Effet verre dépoli fort */
+    border-radius: 40px; /* Bords ULTRA-arrondis et organiques */
+    padding: 2rem 1.8rem; /* Padding uniforme plus compact pour le faire "flotter" */
+    box-shadow: var(--shadow-float); /* Ombre douce et large pour un effet flottant accentué */
+    margin-bottom: 2.5rem !important; /* Espacement après */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    border: 1px solid rgba(var(--primary-rgb-value), 0.05); /* Très fine bordure transparente */
+    overflow: hidden;
+    width: 100%;
+    max-width: 650px; /* Limite de taille plus petite */
+}
+
+/* Conteneur pour le texte d'introduction de l'Assistant (Icône, Titre, Question) */
+.main-assistant-card > div:first-child { 
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Icône du robot */
+.main-assistant-card .icon-circle {
+    background-color: var(--primary);
+    color: white;
+    width: 50px; /* Taille modérée */
+    height: 50px;
+    margin-bottom: 0.8rem;
+    box-shadow: var(--shadow-minimal);
+    display: flex; /* Assurer que l'icône FontAwesome est bien centrée */
+    align-items: center;
+    justify-content: center;
+}
+.main-assistant-card .icon-circle .bi {
+    font-size: 2.2rem; /* Taille de l'icône FontAwesome */
+    line-height: 1;
+}
+
+/* Titre "Assistant Justin" */
+.main-assistant-card h4 {
+    font-size: 1.5rem; /* Titre plus percutant, mais pas trop grand */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+    color: var(--text-main);
+}
+/* Question "Comment puis-je vous aider..." */
+.main-assistant-card p.text-muted {
+    font-size: 0.9rem; /* Texte aéré mais pas envahissant */
+    color: var(--text-secondary);
+    max-width: 90%;
+    margin-bottom: 0;
+}
+
+/* Input et Bouton de l'assistant - L'aspect de BARRE DE RECHERCHE LÉGÈRE ET FONCTIONNELLE */
+.main-assistant-card .d-flex.gap-3 {
+    width: 100%;
+    max-width: 500px; /* Limite la largeur pour une esthétique fine de barre de recherche */
+    background-color: rgba(255, 255, 255, 0.98); /* Fond presque opaque blanc pour la barre elle-même */
+    border-radius: 40px; /* Ultra-arrondi pour toute la barre */
+    box-shadow: var(--shadow-medium); /* Ombre douce mais visible */
+    border: 1px solid rgba(var(--primary-rgb-value), 0.1); /* Fine bordure transparente */
+    padding: 0.4rem; /* Un léger padding pour créer un espace interne propre */
+    margin-top: 1rem;
+}
+
+/* Le champ de saisie de l'Assistant */
+.main-assistant-card .form-control-lg {
+    padding: 0.6rem 1rem; /* Taille de l'input compactée */
+    border-radius: 30px;
+    border: none;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: transparent;
+    box-shadow: none;
+    flex-grow: 1;
+    outline: none;
+    margin: 0;
+}
+.main-assistant-card .form-control-lg::placeholder {
+    color: var(--text-placeholder);
+    font-style: normal;
+    opacity: 0.7;
+}
+.main-assistant-card .form-control-lg:focus {
+    background-color: transparent;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Bouton Envoyer de l'Assistant - Centré */
+.main-assistant-card .btn-primary {
+    padding: 0.6rem 1.2rem; /* Padding compact */
+    border-radius: 30px;
+    font-size: 0.9rem;
+    margin: 0;
+    min-width: 90px;
+    white-space: nowrap;
+    box-shadow: var(--shadow-minimal);
+    display: flex;
+    align-items: center;
+    justify-content: center; /* CENTRAGE DU TEXTE ET DE L'ICÔNE DANS LE BOUTON */
+}
+.main-assistant-card .btn-primary .bi {
+    font-size: 1.1rem;
+    margin-right: 0.3rem; /* Espace réduit */
+}
+
+
+/* Icônes circulaires générales */
+.icon-circle {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(var(--primary-rgb-value), 0.08);
+}
+.icon-circle .bi {
+    line-height: 1;
+    font-size: 1.8rem;
+}
+
+.fs-icon {
+    font-size: 1.8rem;
+}
+
+/* Boutons généraux */
+.btn {
     font-weight: 600;
+    padding: 0.9rem 1.8rem;
+    border-radius: 16px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    box-shadow: var(--shadow-light);
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-light);
+}
+
+/* Modals */
+.modal-content {
+    border: none;
+    border-radius: 28px;
+    box-shadow: var(--shadow-float);
+    background-color: var(--surface-light); /* Utilise la variable définie pour une couleur claire */
+    backdrop-filter: blur(20px); /* Léger blur pour l'effet de profondeur sur le modal */
+}
+
+.modal-header {
+    border-bottom: none;
+    padding-bottom: 0.8rem;
+}
+
+.modal-title {
+    font-weight: 700;
+    color: var(--text-main);
     font-size: 1.5rem;
 }
 
-.command-section {
-    text-align: center;
-    margin-top: 4rem;
+.modal-body {
+    padding-top: 0.5rem;
+}
+.modal-body p.text-muted {
+    font-size: 1rem;
+    color: var(--text-secondary);
 }
 
-.command-input-container {
-    display: flex;
+
+/* Carrousel - NOUVELLE STRUCTURE POUR DES CARTES QUI REMPLISSENT LE CADRE ET FLÈCHES EXTERNES */
+
+/* Wrapper pour le carrousel afin de positionner les flèches */
+.carousel-wrapper {
+    position: relative; /* Pour positionner les flèches absolument par rapport à ce wrapper */
+    margin-bottom: 2.5rem;
+    display: flex; /* Pour centrer le carrousel horizontalement */
     justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-#command-input {
-    width: 300px;
-    padding: 0.8rem 1rem;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 1rem;
-}
-
-#send-command {
-    padding: 0.8rem 1.5rem;
-    border-radius: 10px;
-    border: none;
-    background-color: #0071e3;
-    color: #fff;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-#send-command:hover {
-    background-color: #005bb5;
-}
-
-footer {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: #888;
-    margin-top: 3rem;
-}
-
-.auth-section, .contact-section {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 2rem;
-    margin-top: 4rem;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    max-width: 500px;
+    align-items: center; /* Pour que les flèches soient bien centrées par rapport à la hauteur du carrousel */
+    max-width: 800px; /* LARGEUR MAXIMALE DU WRAPPER POUR RENDRE LE CARROUSEL PLUS PETIT */
     margin-left: auto;
     margin-right: auto;
-    text-align: center;
 }
 
-.auth-container input, .contact-section input, .contact-section textarea {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    margin: 0.5rem 0;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.auth-container button, .contact-section button {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    margin-top: 1rem;
-    border-radius: 10px;
-    border: none;
-    background-color: #0071e3;
-    color: #fff;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.auth-container button:hover, .contact-section button:hover {
-    background-color: #005bb5;
-}
-
-.tabs {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.tab-button {
-    padding: 0.5rem 1rem;
-    border: none;
-    background-color: #eee;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.tab-button.active {
-    background-color: #0071e3;
-    color: #fff;
-}
-
-textarea {
-    resize: vertical;
+#heroCarousel {
+    width: 100%; /* Prend la largeur de son parent, le wrapper */
+    height: 120px; /* HAUTEUR FIXE ET PETITE */
     min-height: 100px;
-}
+    border-radius: 30px;
+    overflow: hidden; /* Cache tout ce qui dépasse des bords arrondis */
+    box-shadow: var(--shadow-float); /* Ombre douce */
+    
+    /* Le fond transparent du carrousel lui-même, la carte aura son propre fond verre */
+    background-color: transparent; 
+    backdrop-filter: none; /* Le blur est sur la carte elle-même */
+    border: 1px solid rgba(var(--primary-rgb-value), 0.05); /* Bordure subtile */
 
-.auth-buttons {
+    /* Centre les carousel-item horizontalement et verticalement */
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    justify-content: center;
 }
 
-.auth-buttons button {
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
+.carousel-inner {
+    height: 100%;
+    width: 100%;
+}
+
+/* Chaque carousel-item est maintenant la "carte" elle-même */
+.carousel-item {
+    height: 100%;
+    background: none; /* Pas d'image de fond sur l'item */
+    border-radius: 0; /* Les coins sont gérés par le carousel-caption */
+    overflow: hidden;
+    display: flex;
+    align-items: center; /* Centre la carte verticalement */
+    justify-content: center; /* Centre la carte horizontalement */
+    position: relative;
+    box-shadow: none; /* L'ombre est sur la carte (.carousel-caption) */
+}
+
+/* La légende du carrousel est la carte principale */
+.carousel-caption {
+    position: static; /* Retire le positionnement absolu par défaut de Bootstrap */
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none; /* Annule toute transformation */
+
+    /* Style de carte verre dépoli */
+    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-strong)); 
+    backdrop-filter: blur(var(--surface-glass-blur-amount)); 
+    padding: 1rem 1.8rem; /* Padding ajusté */
+    border-radius: 25px; /* Bords arrondis qui remplissent le #heroCarousel */
+    width: calc(100% - 2px); /* Prend presque toute la largeur du carousel-item */
+    height: calc(100% - 2px); /* Prend presque toute la hauteur du carousel-item */
+    margin: 1px; /* Pour un petit cadre si le border est léger sur #heroCarousel */
+    box-shadow: var(--shadow-medium); /* Ombre légère mais présente */
+    color: var(--text-main);
+    text-shadow: none;
+    border: 1px solid var(--border-ghost); /* Bordure ghost */
+
+    display: flex; /* Pour centrer le contenu à l'intérieur de la carte */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Centre le texte */
+
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-caption:hover {
+    transform: translateY(-2px); /* Effet d'élévation subtil au survol */
+    box-shadow: var(--shadow-hover);
+}
+
+.carousel-caption h5 {
+    color: var(--text-main);
+    font-size: 1.1rem; /* Taille de titre ajustée */
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+}
+
+.carousel-caption p {
+    color: var(--text-secondary);
+    font-size: 0.8rem; /* Taille du texte du corps ajustée pour le petit carrousel */
+    line-height: 1.3;
+    margin-bottom: 0;
+    max-width: 80%; /* Limite la largeur du paragraphe pour ne pas coller aux bords */
+}
+
+/* Contrôles du Carrousel (flèches) - EXTERNES ET TOUJOURS VISIBLES AVEC ICÔNES */
+.carousel-control-prev,
+.carousel-control-next {
+    position: absolute; /* Positionne les flèches par rapport au .carousel-wrapper */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px; /* Taille fixe pour les boutons de flèches */
+    height: 45px; /* Taille fixe */
+    opacity: 1; /* Toujours visibles */
+    z-index: 11; /* Au-dessus du carrousel */
+    transition: all 0.2s ease-in-out;
+
+    /* Styling pour le bouton parent (le cercle blanc) */
+    background-color: rgba(255, 255, 255, 0.95); /* Fond très opaque pour le cercle */
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.25); /* Ombre bien prononcée */
+    border: 1px solid rgba(0,0,0,0.2); /* Bordure fine mais visible */
+
+    /* Reset Bootstrap default styles for inner icon image */
+    background-image: none; /* IMPORTANT : retire l'image de fond SVG par défaut */
+}
+
+.carousel-control-prev {
+    left: -60px; /* Décale la flèche à gauche du carrousel */
+}
+
+.carousel-control-next {
+    right: -60px; /* Décale la flèche à droite du carrousel */
+}
+
+/* Style des icônes de flèche à l'intérieur des boutons */
+.carousel-control-prev .bi,
+.carousel-control-next .bi {
+    font-size: 1.5rem; /* Taille de l'icône */
+    color: var(--text-main); /* Couleur foncée pour le chevron pour un bon contraste */
+    line-height: 1; /* Assure un bon alignement vertical */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(255, 255, 255, 1); /* Entièrement opaque au survol */
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.35); /* Ombre encore plus forte */
+    transform: translateY(-50%) scale(1.05); /* Léger agrandissement du cercle au survol (ajuste le translateY) */
+}
+
+
+/* Indicateurs du Carrousel (les points) - TOUJOURS VISIBLES */
+.carousel-indicators {
+    position: absolute;
+    bottom: -30px; /* Positionne les indicateurs sous le carrousel */
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 0;
+    opacity: 1; /* Toujours visibles */
+    z-index: 10;
+}
+
+.carousel-indicators [data-bs-target] {
+    background-color: rgba(0, 0, 0, 0.6); /* Points bien visibles */
+    border-radius: 50%;
+    width: 8px; /* Taille des points */
+    height: 8px;
+    transition: all 0.2s ease;
     border: none;
-    background-color: #0071e3;
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    margin: 0 6px; /* Plus d'espace entre les points */
+}
+
+.carousel-indicators .active {
+    background-color: var(--primary); /* Couleur principale pour le point actif */
+    width: 10px; /* Plus grand quand actif */
+    height: 10px;
+}
+
+
+/* Calendrier */
+.calendar-event {
+    border-left: 6px solid var(--primary);
+    background: var(--surface-light);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 14px;
+    box-shadow: var(--shadow-light);
+    background-color: rgba(255, 255, 255, 0.85); /* Plus opaque */
+    backdrop-filter: blur(10px);
+}
+
+.calendar-event:hover {
+    transform: translateX(6px);
+    box-shadow: var(--shadow-overlay);
+}
+
+/* Assistant IA (la bulle de réponse) */
+.ai-response {
+    animation: slideIn 0.3s ease-out;
+    background: var(--primary);
+    color: white;
+    border-radius: 14px;
+    padding: 1.2rem;
+    position: relative;
+    font-size: 1.15rem;
+    box-shadow: var(--shadow-medium);
+    margin-left: 20px;
+}
+
+.ai-response::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right: 12px solid var(--primary);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+}
+
+/* Bouton Aide */
+.help-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    border-radius: 50px;
+    padding: 1rem 1.75rem;
+    box-shadow: var(--shadow-medium);
+    font-weight: 600;
+    z-index: 1050;
+    background-color: rgba(var(--primary-rgb-value), 0.7); /* Opacité plus élevée */
+    backdrop-filter: blur(10px); /* Effet verre sur ce bouton aussi */
+}
+
+/* Utilitaires Bootstrap surchargés */
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.bg-primary.bg-opacity-10, .bg-success.bg-opacity-10, .bg-warning.bg-opacity-10 {
+    background-color: rgba(var(--primary-rgb-value), 0.1) !important;
+}
+.text-primary { color: var(--primary) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+
+
+/* Form-check-input (Switches de notification) */
+.form-check-input:checked {
+    background-color: var(--primary); /* Couleur principale pour les switches ON */
+    border-color: var(--primary-hover); /* Bordure légèrement plus foncée */
+}
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb-value), 0.25); /* Ombre au focus avec la couleur primaire */
+}
+
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* CLASSES SPÉCIFIQUES POUR LES IMAGES DE FOND PAR PAGE (vos images) */
+
+/* Fond pour la page d'accueil (index.html) */
+.body-index {
+    background-image: url('images/background.jpg');
+}
+.body-index::before {
+    background-color: rgba(255, 255, 255, 0.05); /* Overlay très très léger */
+}
+
+/* Fond ACTIF quand un modal de connexion/inscription est ouvert - Surcharge .body-index */
+.body-login-modal-open {
+    background-image: url('images/connexion.jpg');
+}
+.body-login-modal-open::before {
+    background-color: rgba(255, 255, 255, 0.85); /* AUGMENTÉ: Overlay encore plus opaque pour un fond très clair derrière le modal */
+}
+
+/* Fond pour la page Calendrier (calendar.html) */
+.body-calendar {
+    background-image: url('images/calendrier.jpg');
+}
+.body-calendar::before {
+    background-color: rgba(255, 255, 255, 0.15); /* Overlay ajusté */
+}
+
+/* Fond pour la page Messages (messages.html) */
+.body-messages {
+    background-image: url('images/messages.jpg');
+}
+.body-messages::before {
+    background-color: rgba(255, 255, 255, 0.35); /* AUGMENTÉ encore pour un meilleur contraste du titre */
+}
+.body-messages .container h1 { /* Cible le titre H1 sur la page messages */
+    color: white; /* Couleur claire pour le titre */
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); /* Ombre plus forte pour un meilleur contraste */
+}
+
+
+/* Fond pour la page Paramètres (settings.html) */
+.body-settings {
+    background-image: url('images/settings.jpg');
+}
+.body-settings::before {
+    background-color: rgba(255, 255, 255, 0.4); /* AUGMENTÉ encore pour un meilleur contraste du titre */
+}
+.body-settings .container h1 { /* Cible le titre H1 sur la page paramètres */
+    color: white; /* Couleur claire pour le titre */
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); /* Ombre plus forte pour un meilleur contraste */
 }

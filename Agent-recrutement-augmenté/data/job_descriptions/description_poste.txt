@@ -1,3 +1,91 @@
-cd Agent-recrutement-augmenté
-pip install plotly  # Pour les visualisations
-streamlit run app.py
+À propos de l’offre d’emploi
+En tant que Développeur·se Backend C# .NET chez Toporder, tu seras chargé·e d’implémenter de nouvelles fonctionnalités tout en participant activement au refactoring de notre plateforme pour garantir performance, robustesse et maintenabilité.
+Tu contribueras à faire évoluer notre cœur applicatif, à renforcer sa scalabilité et à accompagner la montée en charge de notre solution. Si tu aimes comprendre le métier, écrire du code propre et contribuer à un backend vivant (vraiment), ce poste est fait pour toi.
+
+
+Notre Stack .NET (et au-delà)
+
+Langage : C# .NET 9
+Base de données : MariaDB, ClickHouse, Redis
+Communication : REST APIs, SignalR, RabbitMQ, NATS
+Architecture : Clean Architecture, DDD, CQRS
+Background workers : HostedServices, CRON jobs, processing queue
+Tests & qualité : Tests unitaires, intégration, revues de code
+
+
+Enjeux techniques
+
+Robustesse et scalabilité : Nos services doivent tenir la charge face à des millions d’événements quotidiens.
+
+Modularité : Nos composants doivent être réutilisables, compréhensibles et faciles à tester.
+
+Conformité : Respect des exigences scales européennes, traçabilité, RGPD.
+
+Performances : Réduire la latence, améliorer l’empreinte mémoire et optimiser les traitements lourds.
+
+Missions principales
+
+Développer des fonctionnalités backend pour répondre aux besoins métier.
+Refactorer les services existants pour les rendre plus ecaces, maintenables et scalables.
+Participer à l’évolution de notre architecture backend (Clean Archi, CQRS, DDD).
+Concevoir et documenter des APIs robustes, cohérentes et performantes.
+Travailler en binôme avec les développeurs frontend/mobile pour garantir une expérience fluide.
+Être force de proposition sur les choix techniques.
+Participer aux revues de code et au maintien de la qualité globale du code.
+
+
+Pourquoi postuler chez Toporder ?
+
+ • Un environnement dynamique, une équipe solidaire et une ambiance positive sont les clés de notre succès ! Chez nous, ton épanouissement est essentiel, et nous mettons tout en œuvre pour favoriser ton développement professionnel, notamment à travers des interactions quotidiennes en anglais qui te permettront d’affiner tes compétences linguistiques.
+
+
+
+Ce que nous recherchons chez toi :
+
+Nous recherchons un·e développeur·euse confirmé·e avec une expérience solide dans l’environnement Blazor, C# et .NET.
+🛠️ Compétences techniques :
+✔️ C# .NET Core / .NET 9
+✔️ API REST, SQL
+✔️ Expérience avec Git et CI/CD
+🤝 Soft skills :
+🔹 Autonomie & esprit d’initiative
+🔹 Rigueur et souci du détail
+🔹 Capacité à travailler en équipe et à partager ses connaissances
+
+
+Pourquoi rejoindre Toporder ?
+
+ • Liberté d’action : chez nous, tu auras une grande liberté d’intervention et d’expression dans tes missions.
+• Cadre de travail épanouissant : nous t’offrons un environnement dynamique, collaboratif et stimulant.
+• Une petite équipe jeune et soudée, avec des grands projets à mener !
+• Des missions variées et un impact direct sur la croissance de l’entreprise.
+
+
+Package et avantages :
+
+ • Salaire annuel : entre 35K et 50K € 💰
+• Une grande place à l’apprentissage en autodidacte et à l’autonomie 🤓
+• Équilibre vie professionnelle/vie personnelle : chacun peut développer ses projets personnels en parallèle de son activité professionnelle 🤩
+• Une ambiance conviviale avec une grande dose d’écoute et de bienveillance 🥰
+• Bonne humeur et un esprit de camaraderie avec une touche de second degré 🥳
+
+
+Ce que nous offrons en plus du package :
+
+ • Remboursement à hauteur de 60% de ton abonnement TCL 🚍
+
+ • Prime de transport pour ceux qui ne peuvent pas bénéficier des transports en commun 🚘
+
+ • Prime vacances 💸
+
+ • Tickets Restaurant
+
+ • Épargne salariale en fonction des objectifs et de la satisfaction client ⭐️
+
+ • Prime de parrainage recrutement pour chaque talent recommandé 🤝
+
+ • Mutuelle SwissLife 🏥
+
+ • 2 séminaires par an pour échanger, apprendre et se ressourcer 🎒
+
+

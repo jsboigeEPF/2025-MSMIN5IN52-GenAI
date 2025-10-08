@@ -6,10 +6,10 @@
   },
   "scoring": {
     "weights": {
-      "skills": 0.3999999999999999,
-      "experience": 0.3,
-      "education": 0.19999999999999996,
-      "certifications": 0.09999999999999998
+      "skills": 0.39999999999999997,
+      "experience": 0.3000000000000001,
+      "education": 0.19999999999999998,
+      "certifications": 0.09999999999999999
     },
     "confidence_threshold": 0.5
   },

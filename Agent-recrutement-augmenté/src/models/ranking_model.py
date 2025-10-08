@@ -84,9 +84,17 @@ def compute_match_score(cv_text: str, job_description: str, cv_entities: Dict = 
             - 0.5 = correspondance partielle
             - 1 = correspondance parfaite
             
+            Expliquez votre raisonnement en détail, en mentionnant:
+            - Les compétences clés du poste présentes dans le CV
+            - Les compétences clés du poste manquantes
+            - L'expérience pertinente
+            - L'éducation et les certifications pertinentes
+            - Tout autre point fort ou faible
+            
             Répondez UNIQUEMENT avec un objet JSON contenant:
             - score: le score de correspondance
-            - confidence: votre niveau de confiance dans l'évaluation (0-1)"""),
+            - confidence: votre niveau de confiance dans l'évaluation (0-1)
+            - reasoning: votre raisonnement détaillé"""),
             ("human", """Description du poste:
             {job_description}
             
@@ -123,18 +131,19 @@ def compute_match_score(cv_text: str, job_description: str, cv_entities: Dict = 
             result = json.loads(response)
             return {
                 "score": float(result.get("score", 0.0)),
-                "confidence": float(result.get("confidence", 0.5))
+                "confidence": float(result.get("confidence", 0.5)),
+                "reasoning": result.get("reasoning", "")
             }
         except json.JSONDecodeError:
             # En cas d'erreur de parsing, retourner un score par défaut basé sur la similarité de texte
             score = _text_similarity_score(cv_text, job_description)
-            return {"score": score, "confidence": 0.3}
+            return {"score": score, "confidence": 0.3, "reasoning": "Évaluation basée sur la similarité de texte des mots-clés."}
             
     except Exception as e:
         print(f"Erreur lors de l'évaluation avec LLM: {e}")
         # Fallback: scoring basé sur la similarité de texte
         score = _text_similarity_score(cv_text, job_description)
-        return {"score": score, "confidence": 0.2}
+        return {"score": score, "confidence": 0.2, "reasoning": "Évaluation basée sur la similarité de texte des mots-clés en raison d'une erreur avec le modèle LLM."}
 
 def _text_similarity_score(cv_text: str, job_description: str) -> float:
     """

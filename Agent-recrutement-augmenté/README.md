@@ -48,8 +48,8 @@ Le fichier de configuration `config.json` permet de personnaliser le comportemen
 - Les paramètres de l'API OpenAI (optionnel)
 
 ## Auteurs
-- Abdallah SOFI
-- [Votre nom ici]
+- Abdellah SOFI
+- Ali Fassy-Fehry
 
 ## Licence
 Ce projet est distribué sous licence MIT.

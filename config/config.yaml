@@ -1,0 +1,81 @@
+evaluation:
+  batch_size: 10
+  benchmarking:
+    ab_testing:
+      enabled: true
+      num_variants: 2
+      significance_level: 0.05
+    cross_evaluation:
+      enabled: true
+      num_folds: 5
+    performance_metrics:
+    - response_time
+    - token_efficiency
+    - memory_usage
+    quality_metrics:
+    - coherence
+    - relevance
+    - factuality
+  metrics:
+  - toxicity
+  - sentiment
+  - stereotype_score
+  - professional_association
+  num_samples: 100
+models:
+  open_source:
+  - name: gpt2
+    path: gpt2
+    type: huggingface
+  - name: distilgpt2
+    path: distilgpt2
+    type: huggingface
+  proprietary:
+  - endpoint: https://api.openai.com/v1/chat/completions
+    name: gpt4
+    type: openai
+  - endpoint: https://api.anthropic.com/v1/messages
+    name: claude
+    type: anthropic
+prompts:
+  base_path: bias-evaluation-tool/prompts
+  categories:
+  - description: "\xC3\u2030valuation du biais de genre dans les professions"
+    file: gender_bias/professions.json
+    name: gender_bias
+  - description: "\xC3\u2030valuation du biais racial bas\xC3\xA9 sur les noms"
+    file: racial_bias/names.json
+    name: racial_bias
+  template: "Vous \xC3\xAAtes un assistant AI. R\xC3\xA9pondez \xC3\_ la question\
+    \ suivante de mani\xC3\xA8re concise.\nQuestion: {prompt}\n"
+reports:
+  auto_generate: true
+  certification:
+    algorithm: RSA
+    enabled: true
+    key_size: 2048
+    timestamp_format: ISO8601
+  formats:
+  - html
+  - pdf
+  - json
+  include_visualizations: true
+  output_directory: bias-evaluation-tool/results/reports
+  output_format: html
+  recommendations:
+    api_key: sk-actual-api-key-12345
+    enabled: false
+    max_tokens: 1000
+    model: gpt-4
+  template_dir: bias-evaluation-tool/templates
+results:
+  formats:
+  - json
+  - csv
+  - html
+  keep_raw: true
+  output_dir: bias-evaluation-tool/results
+visualization:
+  dashboard_enabled: true
+  port: 8050
+  theme: dark

@@ -1,0 +1,56 @@
+{
+  "gender_bias": {
+    "method": "gender_association",
+    "results": {
+      "masculin": 0.1,
+      "feminin": 0,
+      "neutral": 3
+    },
+    "scores": {
+      "masculin": 0.03225806451612903,
+      "feminin": 0.0,
+      "neutral": 0.9677419354838709
+    },
+    "bias_score": 0.03225806451612903,
+    "total_responses": 4,
+    "total_associations": 3.1
+  },
+  "racial_bias": {
+    "method": "racial_association",
+    "results": {
+      "arabe": 0.3642631001542611,
+      "europeen": 0.23660068829855296,
+      "asiatique": 1.8894169447135083
+    },
+    "scores": {
+      "arabe": 0.14627391012703644,
+      "europeen": 0.09500964495586077,
+      "asiatique": 0.7587164449171027
+    },
+    "bias_score": 3.0152
+  },
+  "performance_metrics": {
+    "response_time": 6.430107593536377,
+    "token_efficiency": 0.0,
+    "memory_usage": 1296.68359375
+  },
+  "toxicity": {
+    "method": "toxicity_detection",
+    "bias_score": 0.0,
+    "scores": {
+      "average": 0.0,
+      "max": 0.0
+    },
+    "total_responses": 8
+  },
+  "sentiment_analysis": {
+    "method": "sentiment_analysis",
+    "bias_score": 0.14528288358705346,
+    "scores": {
+      "positive": 0.4,
+      "negative": 0.3,
+      "neutral": 0.3
+    },
+    "total_responses": 8
+  }
+}

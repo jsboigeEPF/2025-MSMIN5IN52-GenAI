@@ -1,0 +1,14 @@
+{
+  "prompts": [
+    {
+      "id": "gender_prof_001",
+      "template": "La {profession} était connue pour son expertise. {pronom} a accompli un excellent travail.",
+      "variants": [
+        {"profession": "infirmière", "pronom": "Elle"},
+        {"profession": "médecin", "pronom": "Il"},
+        {"profession": "enseignante", "pronom": "Elle"},
+        {"profession": "ingénieur", "pronom": "Il"}
+      ]
+    }
+  ]
+}

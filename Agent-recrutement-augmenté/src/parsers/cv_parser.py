@@ -4,7 +4,7 @@ Module pour parser les CVs au format PDF et DOCX.
 
 import os
 from typing import Dict, List
-from src.parsers.entity_extractor import extract_entities_from_cv
+from src.parsers.entity_extractor import EntityExtractor
 
 def extract_text_from_pdf(file_path: str) -> str:
     """
@@ -82,12 +82,13 @@ def parse_cv(cv_path: str) -> Dict[str, str]:
         print(f"Format non supporté : {ext}")
     
     # Extraire les entités structurées
-    entities = extract_entities_from_cv(text)
+    entity_extractor = EntityExtractor()
+    extraction_result = entity_extractor.extract_entities(text)
     
     return {
         "filename": os.path.basename(cv_path),
         "text": text,
-        "entities": entities
+        "entities": extraction_result.entities
     }
 
 def load_all_cvs(cv_folder: str) -> List[Dict[str, str]]:

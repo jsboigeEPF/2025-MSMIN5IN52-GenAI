@@ -83,9 +83,9 @@ class AppConfig:
     debug: bool = False
     version: str = "1.0.0"
     app_name: str = "Agent Recrutement Augmenté"
-    data_dir: str = "data"
-    output_dir: str = "output"
-    cache_dir: str = "cache"
+    data_dir: str = "Agent-recrutement-augmenté/data"
+    output_dir: str = "Agent-recrutement-augmenté/docs"
+    cache_dir: str = "Agent-recrutement-augmenté/cache"
     
     # Feature flags
     enable_caching: bool = True

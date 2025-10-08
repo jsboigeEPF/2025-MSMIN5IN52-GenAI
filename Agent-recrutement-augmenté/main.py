@@ -3,16 +3,17 @@ Point d'entrée principal pour l'Agent de Recrutement Augmenté.
 """
 
 from src.parsers.cv_parser import load_all_cvs
-from src.models.ranking_model import rank_candidates
+from src.models.ranking_model import HybridRankingModel
 from src.utils.report_generator import generate_csv_report, generate_html_report
-from src.parsers.entity_extractor import extract_entities_from_cv
+from src.parsers.entity_extractor import EntityExtractor
+from config.settings import config # Import de l'instance de configuration globale
 
 def main():
     # Chemins
-    cv_folder = "data/cv_samples"
-    job_desc_path = "data/job_descriptions/description_poste.txt"
-    csv_output = "docs/ranking_report.csv"
-    html_output = "docs/ranking_report.html"
+    cv_folder = config.app.data_dir + "/cv_samples"
+    job_desc_path = config.app.data_dir + "/job_descriptions/description_poste.txt"
+    csv_output = config.app.output_dir + "/ranking_report.csv"
+    html_output = config.app.output_dir + "/ranking_report.html"
     
     # Lire la description du poste
     try:
@@ -28,15 +29,23 @@ def main():
         print("Aucun CV chargé. Vérifiez le dossier data/cv_samples.")
         return
         
+    # Initialiser l'extracteur d'entités
+    entity_extractor = EntityExtractor()
+
     # Afficher les entités extraites pour vérification
     for cv in cvs:
         print(f"\nEntités extraites pour {cv['filename']}:")
-        entities = cv.get('entities', {})
-        for entity_type, entity_data in entities.items():
+        # Utiliser l'instance de EntityExtractor pour extraire les entités
+        extraction_result = entity_extractor.extract_entities(cv['text'])
+        cv['entities'] = extraction_result.entities # Mettre à jour les entités du CV
+        for entity_type, entity_data in extraction_result.entities.items():
             print(f"  {entity_type}: {entity_data}")
     
+    # Initialiser le modèle de classement
+    ranking_model = HybridRankingModel()
+    
     # Classer les candidats
-    ranked = rank_candidates(cvs, job_description)
+    ranked = ranking_model.rank_candidates(cvs, job_description)
     
     # Générer les rapports
     generate_csv_report(ranked, csv_output)

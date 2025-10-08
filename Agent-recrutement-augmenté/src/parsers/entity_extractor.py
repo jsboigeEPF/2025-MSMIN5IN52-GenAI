@@ -4,10 +4,11 @@ Module pour l'extraction d'entités structurées à partir de CVs.
 import re
 import logging
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import spacy
 from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop_words
 from spacy.lang.en.stop_words import STOP_WORDS as en_stop_words
+from config.settings import ExtractionConfig # Import de la classe de configuration
 
 # Configuration du logging
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class EntityExtractor:
     Utilise spaCy pour l'analyse NLP avec fallback sur les expressions régulières.
     """
     
-    def __init__(self, config_path: str = "config/settings.py"):
+    def __init__(self, config_path: str = "Agent-recrutement-augmenté/config/settings.py"):
         """
         Initialise l'extracteur d'entités.
         

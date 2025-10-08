@@ -2,7 +2,7 @@
 Module pour le classement des candidats basé sur une approche hybride.
 """
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,7 +28,7 @@ class HybridRankingModel:
     Moteur de scoring hybride combinant TF-IDF, LLM et correspondance de mots-clés.
     """
     
-    def __init__(self, config_path: str = "config/settings.py"):
+    def __init__(self, config_path: str = "Agent-recrutement-augmenté/config/settings.py"):
         """
         Initialise le modèle de ranking.
         

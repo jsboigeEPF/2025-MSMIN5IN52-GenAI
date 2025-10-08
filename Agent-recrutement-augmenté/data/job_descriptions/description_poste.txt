@@ -1,61 +1,90 @@
- propos de l’offre d’emploi
+À propos de l’offre d’emploi
+NTT DATA Business Solutions est une entreprise de service du numérique, Platinum Partner de SAP, qui bénéficie aujourd’hui d’un rayonnement international avec une présence dans plus de 26 pays.
 
-Description de l'entreprise
-
- 
-🦸‍♂️Présentation de l’équipe
-
-En France, l’équipe dédiée ServiceNow regroupe plus de 275 experts techniques répartis entre Paris, Lyon, Nantes, et un centre d’excellence basé à Toulouse.
-
-Cette équipe unifiée accompagne les organisations dans leur transformation digitale avec une approche holistique de la plateforme ServiceNow.
-
-Devoteam est partenaire Elite ServiceNow depuis 2019 et a été reconnu Partenaire Elite de l’année 2025 pour la région EMEA, pour la troisième année consécutive.
- 
- 
-Description du poste
-
- 
-💪 Vos missions
-
-Les missions de l’équipe #Régions couvrent de nombreux aspects de la conception à l’implémentation de solutions en passant par la conduite de projets.
-
-Dans le cadre de projets de transformation ou de digitalisation, vos missions inclueront notamment :
-La conception de processus cibles adaptées aux besoins, 
-La rédaction des documentations (Spécifications fonctionnelles, Guide de formation, documentation technique …).
-La participation à la configuration et au paramétrage de la solution.
-La participation à la réalisation des développements
-La contribution aux phases de validation des solutions
- 
- 
-Qualifications
-
- 
-🎯 Vos atouts pour nous rejoindre
-Vous êtes étudiant(e) en école d'ingénieur, de commerce ou à l'université.
-Vous recherchez un stage de fin d’études à partir de janvier ou février 2026.
-Vous êtes dynamique, autonome et faites preuve d’une curiosité naturelle pour les nouvelles technologies.
-Vous avez une bonne communication orale, des bonnes capacités d’analyse et une appétence pour l'innovation.
+Spécialistes du conseil en systèmes d’information et logiciels SAP, nous participons au quotidien à la transformation numérique de nos clients dans un contexte global et local.
 
 
-Nous proposons un stage enrichissant incluant une formation complète (ServiceNow, ITIL, méthode Agile), une expérience client concrète, une participation active à la vie interne (blog, recrutement, événements), la possibilité d’un CDI à la clé, le tout dans des locaux à Nantes, à deux pas de la gare.
-
-🙋‍♂️ Pourquoi nous rejoindre ? 
-Nous sommes une IA-Driven Company : Né lors des prémices de la révolution tech, Devoteam est le partenaire de confiance qui a accompagné ses clients vers l'évolution d'Internet, du Cloud, et désormais, de la révolution de l'IA. Pour cela, 100% de nos collaborateurs sont certifiés GenAI.
-Rejoindre Devoteam, c’est apprendre en continu. Avec 75% de collaborateurs certifiés, Devoteam est une Learning Company où l’apprentissage est au cœur de notre modèle. 
-Avec 50 tribus d’expertise composées de leaders technologiques, nous collaborons avec les plus grands partenaires technologiques : Google, AWS, Microsoft, ServiceNow, Snowflake, et bien d’autres. Ce collectif d’experts contribuent à animer nos communautés métiers et à présenter chaque année son point de vue sur les technologies via le Tech Radar.
+Le groupe NTT DATA compte plus de 190 000 experts dédiés et plus de 6 000 clients satisfaits dans une soixantaine de pays, figurant ainsi dans le TOP 8 mondial des prestataires de services IT.
+D’origine allemande, le siège monde de notre entreprise est situé à Bielefeld et nos bureaux français à Paris et Toulouse.
 
 
-Rejoignez Devoteam et devenez acteur de votre carrière dans un environnement d’excellence, d’apprentissage et d’innovation !
- 
- 
-Informations supplémentaires
-
- 
-📢 Comment se déroule le processus de recrutement chez Devoteam ?
-Talent Acquisition Interview : l'objectif est de faire le point sur vos compétences, votre niveau d'anglais et de valider vos éléments de motivation
-Tech & Business Interview : cet entretien vise à approfondir vos compétences techniques et à vérifier leur adéquation avec nos besoins lors d'un échange avec un expert métier
-Le Groupe Devoteam oeuvre pour l'égalité des chances, pour la promotion de ses collaboratrices et de ses collaborateurs au mérite et lutte activement contre toute forme de discrimination. Nous sommes convaincus que la diversité contribue à la créativité, au dynamisme et à l'excellence de notre organisation. Chaque candidature est donc considérée indépendamment de tout critère discriminatoire.
-
-Tu veux en savoir plus ? Viens échanger directement avec nos ambassadeurs. En rejoignant Devoteam, tu auras la possibilité de te connecter avec tes pairs, de partager leur expérience et de développer tes compétences !
+Avec 150 collaborateurs en France (experts de la supply chain, de la finance et du contrôle de gestion), nous avons su garder une culture d’entreprise à la fois conviviale et professionnelle, le tout soutenu par une structure managériale abordable et disponible.
 
 
+
+Nos clients évoluent dans tous les secteurs d’activité et plus particulièrement dans l’industrie manufacturière, l’automobile, l’aéronautique, le luxe et retail, et les services aux entreprises.
+
+
+Ton quotidien dans cette nouvelle aventure :
+
+
+
+Rattaché.e à l’un de nos managers SAP solutions, et après une période de formation, tu intègres progressivement l’équipe technique et prends part aux différentes missions de mise en œuvre de la solution SAP.
+
+
+Tes principales missions seront :
+
+
+Recueil de besoins clients et traduction en spécifications techniques détaillées
+Réalisation des travaux de développements front-end, back-end, web service et tests.
+Rédaction des documentations techniques
+
+
+
+
+Révélez votre potentiel !
+
+
+
+Tu prépares un BAC+5 spécialisé en Technologie de l’information et tu recherches une alternance dans le domaine de SAP
+
+
+Tu fais preuve de capacité d’adaptation, d’autonomie et de rigueur. 
+
+
+Tu maîtrises les langages de programmation (Java/C/C++/HTML5/JavaScript…) 
+
+
+Ton niveau d’anglais est professionnel.
+
+
+Tu possèdes une bonne compréhension de la dimension technique d’un projet et une bonne connaissance des Bases de Données (requête SQL ….).
+
+
+Des déplacements ponctuels nationaux ou internationaux sont à prévoir.
+
+
+
+
+Les points forts de cette alternance :
+
+
+
+Alternance à évolution vers un poste de Consultant SAP en CDI dans les équipes NTT
+
+
+Découverte du métier de consultant(e) SAP en bénéficiant du savoir-faire de consultants expérimentés et reconnus dans l’univers SAP.
+
+
+Première expérience riche en termes de projets d’implémentation SAP chez nos clients car nous intervenons pour des clients de tailles différentes et de secteurs d’activités variés.
+
+
+Pourquoi nous rejoindre ?
+
+
+
+Mise en œuvre des dernières nouveautés SAP (S/4HANA, Big Data, industry 4.0…)
+Intervention dans un contexte international : nos projets nous amènent à interagir régulièrement avec d’autres pays (Europe, Etats-Unis, Amérique du Sud et Asie)
+Ambiance de partage et disponibilité des équipes, du junior à l'expert
+Les avantages d'une entreprise multinationale avec un esprit PME au niveau local
+Mise à disposition de nombreuses formations certifiantes pour tous nos collaborateurs
+Locaux agréables et modernes (conciergerie, quartier dynamique)
+
+
+Tous nos postes sont ouverts au recrutement de travailleurs handicapés.
+
+
+Poste basé à Paris – 17éme arrondissement
+
+
+Si tu souhaites faire de cette opportunité un tremplin vers une carrière dans les services du numérique sur des sujets innovants tel que l’IOT, SAP Cloud Plateforme…, alors n’hésite pas, ce poste est fait pour t

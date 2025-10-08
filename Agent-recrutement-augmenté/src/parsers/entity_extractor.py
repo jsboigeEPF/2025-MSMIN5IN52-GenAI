@@ -1,210 +1,79 @@
 """
 Module pour l'extraction d'entités structurées à partir de CVs.
 """
-
 import re
-import json
-import os
-from typing import Dict, List, Optional
 import logging
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+import spacy
+from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop_words
+from spacy.lang.en.stop_words import STOP_WORDS as en_stop_words
 
-# Configuration de base du logging
-logging.basicConfig(level=logging.INFO)
+# Configuration du logging
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "config/config.json") -> Dict:
-    """
-    Charge la configuration depuis un fichier JSON.
+@dataclass
+class ExtractionResult:
+    """Résultat de l'extraction d'entités"""
+    entities: Dict[str, List]
+    confidence: float
+    processing_time: float
+    warnings: List[str] = None
     
-    Args:
-        config_path (str): Chemin vers le fichier de configuration
-        
-    Returns:
-        Dict: Configuration chargée
-    """
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Erreur lors du chargement de la configuration: {e}")
-        return {}
+    def __post_init__(self):
+        if self.warnings is None:
+            self.warnings = []
 
 class EntityExtractor:
     """
     Classe pour extraire des entités structurées à partir de texte de CV.
+    Utilise spaCy pour l'analyse NLP avec fallback sur les expressions régulières.
     """
     
-    def __init__(self):
-        # Charger la configuration
-        config = load_config()
-        
-        # Utiliser la configuration ou des valeurs par défaut
-        self.technical_skills = set(
-            config.get("entity_extraction", {}).get("skills", [
-                'python', 'java', 'javascript', 'c++', 'c#', 'ruby', 'php', 'go', 'rust',
-                'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch',
-                'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'linux', 'git',
-                'machine learning', 'deep learning', 'nlp', 'computer vision',
-                'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'pandas', 'numpy',
-                'react', 'angular', 'vue', 'node.js', 'django', 'flask', 'spring',
-                'hadoop', 'spark', 'kafka', 'airflow', 'jenkins', 'ansible'
-            ])
-        )
-        
-        self.education_levels = set(
-            config.get("entity_extraction", {}).get("education_levels", [
-                'bac', 'bachelor', 'licence', 'master', 'phd', 'doctorat',
-                'diplôme', 'certificat', 'formation'
-            ])
-        )
-        
-        self.certifications = set(
-            config.get("entity_extraction", {}).get("certifications", [
-                'aws certified', 'azure certified', 'google cloud certified',
-                'scrum master', 'pmp', 'six sigma', 'cissp', 'ceh',
-                'oracle certified', 'microsoft certified', 'cisco certified'
-            ])
-        )
-    
-    def extract_skills(self, text: str) -> List[str]:
+    def __init__(self, config_path: str = "config/settings.py"):
         """
-        Extrait les compétences techniques du texte.
+        Initialise l'extracteur d'entités.
         
         Args:
-            text (str): Texte du CV
+            config_path (str): Chemin vers le fichier de configuration
+        """
+        try:
+            # Import dynamique de la configuration
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("settings", config_path)
+            settings = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(settings)
+            self.config = settings.config.extraction
             
-        Returns:
-            List[str]: Liste des compétences extraites
-        """
-        text_lower = text.lower()
-        extracted_skills = []
-        
-        # Recherche par mots-clés
-        for skill in self.technical_skills:
-            if skill in text_lower:
-                extracted_skills.append(skill.title())
-        
-        # Recherche de sections de compétences
-        skills_patterns = [
-            r'(?:compétences|skills|technologies)[\s:]*([^\n]+)',
-            r'(?:langages?|languages?)[\s:]*([^\n]+)',
-            r'(?:outils?|tools?)[\s:]*([^\n]+)',
-            r'(?:frameworks?)[\s:]*([^\n]+)'
-        ]
-        
-        for pattern in skills_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            for match in matches:
-                # Nettoyer et diviser par virgules ou points-virgules
-                items = re.split(r'[,;]', match)
-                for item in items:
-                    item = item.strip()
-                    if len(item) > 1 and item.lower() not in ['et', 'or']:
-                        extracted_skills.append(item.title())
-        
-        # Supprimer les doublons et trier
-        return sorted(list(set(extracted_skills)))
-    
-    def extract_education(self, text: str) -> List[Dict[str, str]]:
-        """
-        Extrait les informations d'éducation du texte.
-        
-        Args:
-            text (str): Texte du CV
+            # Charger le modèle spaCy
+            self._load_spacy_model()
             
-        Returns:
-            List[Dict[str, str]]: Liste des diplômes avec détails
-        """
-        education_entries = []
-        
-        # Recherche de sections d'éducation
-        education_patterns = [
-            r'(?:éducation|formation|diplômes?|studies|education)[\s:\n]+((?:[^:\n][^\n]*\n?)+?)(?=\n\s*[A-Z]|\n\n|$)',
-            r'(?:bac.*?|bachelor.*?|licence.*?|master.*?|phd.*?|doctorat.*?|diplôme.*?)(?:[^:\n][^\n]*\n?)+?',
-        ]
-        
-        for pattern in education_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE | re.DOTALL)
-            for match in matches:
-                # Nettoyer le texte
-                clean_text = re.sub(r'\s+', ' ', match.strip())
-                if len(clean_text) > 10:  # Éviter les entrées trop courtes
-                    education_entries.append({
-                        'degree': clean_text,
-                        'institution': self._extract_institution(clean_text),
-                        'year': self._extract_year(clean_text)
-                    })
-        
-        return education_entries
+        except Exception as e:
+            logger.warning(f"Erreur lors du chargement de la configuration: {e}")
+            logger.info("Utilisation des paramètres par défaut")
+            self.config = ExtractionConfig()
+            self.nlp = None
     
-    def extract_experience(self, text: str) -> List[Dict[str, str]]:
-        """
-        Extrait les expériences professionnelles du texte.
-        
-        Args:
-            text (str): Texte du CV
-            
-        Returns:
-            List[Dict[str, str]]: Liste des expériences avec détails
-        """
-        experience_entries = []
-        
-        # Recherche de sections d'expérience
-        experience_patterns = [
-            r'(?:expérience|expérience professionnelle|carrière|poste|travail|emploi|stage|alternance|freelance)[\s:\n]+((?:[^:\n][^\n]*\n?)+?)(?=\n\s*[A-Z]|\n\n|$)',
-            r'(?:\d{4}.*?)(?:[^:\n][^\n]*\n?)+?',
-        ]
-        
-        for pattern in experience_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE | re.DOTALL)
-            for match in matches:
-                # Nettoyer le texte
-                clean_text = re.sub(r'\s+', ' ', match.strip())
-                if len(clean_text) > 20:  # Éviter les entrées trop courtes
-                    experience_entries.append({
-                        'position': self._extract_position(clean_text),
-                        'company': self._extract_company(clean_text),
-                        'duration': self._extract_duration(clean_text),
-                        'description': clean_text
-                    })
-        
-        return experience_entries
+    def _load_spacy_model(self):
+        """Charge le modèle spaCy selon la configuration."""
+        try:
+            if self.config.use_spacy:
+                self.nlp = spacy.load(self.config.spacy_model)
+                logger.info(f"Modèle spaCy '{self.config.spacy_model}' chargé avec succès")
+            else:
+                self.nlp = None
+                logger.info("Utilisation uniquement des expressions régulières")
+        except OSError:
+            logger.warning(f"Modèle spaCy '{self.config.spacy_model}' non trouvé")
+            logger.info("Tentative avec le modèle par défaut 'fr_core_news_sm'")
+            try:
+                self.nlp = spacy.load("fr_core_news_sm")
+                logger.info("Modèle 'fr_core_news_sm' chargé avec succès")
+            except:
+                logger.warning("Aucun modèle spaCy disponible, utilisation uniquement des regex")
+                self.nlp = None
     
-    def extract_certifications(self, text: str) -> List[str]:
-        """
-        Extrait les certifications du texte.
-        
-        Args:
-            text (str): Texte du CV
-            
-        Returns:
-            List[str]: Liste des certifications extraites
-        """
-        text_lower = text.lower()
-        certifications = []
-        
-        # Recherche par mots-clés
-        for cert in self.certifications:
-            if cert in text_lower:
-                certifications.append(cert.title())
-        
-        # Recherche de sections de certifications
-        cert_patterns = [
-            r'(?:certifications?|certificats?|diplômes professionnels?)[\s:]*([^\n]+)',
-        ]
-        
-        for pattern in cert_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            for match in matches:
-                items = re.split(r'[,;]', match)
-                for item in items:
-                    item = item.strip()
-                    if len(item) > 1:
-                        certifications.append(item.title())
-        
-        return sorted(list(set(certifications)))
-    
-    def extract_all_entities(self, text: str) -> Dict[str, any]:
+    def extract_entities(self, text: str) -> ExtractionResult:
         """
         Extrait toutes les entités structurées du texte.
         
@@ -212,25 +81,222 @@ class EntityExtractor:
             text (str): Texte du CV
             
         Returns:
-            Dict[str, any]: Dictionnaire contenant toutes les entités extraites
+            ExtractionResult: Résultat de l'extraction avec entités, confiance et métadonnées
         """
+        import time
+        start_time = time.time()
+        entities = {}
+        warnings = []
+        
         try:
-            return {
-                'skills': self.extract_skills(text),
-                'education': self.extract_education(text),
-                'experience': self.extract_experience(text),
-                'certifications': self.extract_certifications(text)
-            }
+            # Prétraitement du texte
+            clean_text = self._preprocess_text(text)
+            
+            # Extraction par type d'entité
+            entities['skills'] = self._extract_skills(clean_text)
+            entities['education'] = self._extract_education(clean_text)
+            entities['experience'] = self._extract_experience(clean_text)
+            entities['certifications'] = self._extract_certifications(clean_text)
+            entities['personal_info'] = self._extract_personal_info(clean_text)
+            entities['languages'] = self._extract_languages(clean_text)
+            
+            # Calcul de la confiance globale
+            confidence = self._calculate_confidence(entities, text)
+            
+            processing_time = time.time() - start_time
+            
+            return ExtractionResult(
+                entities=entities,
+                confidence=confidence,
+                processing_time=processing_time,
+                warnings=warnings
+            )
+            
         except Exception as e:
             logger.error(f"Erreur lors de l'extraction des entités: {e}")
-            return {
-                'skills': [],
-                'education': [],
-                'experience': [],
-                'certifications': []
-            }
+            processing_time = time.time() - start_time
+            return ExtractionResult(
+                entities={key: [] for key in ['skills', 'education', 'experience', 'certifications', 'personal_info', 'languages']},
+                confidence=0.0,
+                processing_time=processing_time,
+                warnings=[f"Erreur d'extraction: {str(e)}"]
+            )
     
-    def _extract_institution(self, text: str) -> Optional[str]:
+    def _preprocess_text(self, text: str) -> str:
+        """Prétraite le texte pour l'analyse."""
+        if not text:
+            return ""
+        
+        # Normalisation
+        text = text.lower()
+        text = re.sub(r'\s+', ' ', text)  # Remplacer les espaces multiples
+        text = text.strip()
+        
+        return text
+    
+    def _extract_skills(self, text: str) -> List[str]:
+        """Extrait les compétences techniques du texte."""
+        skills = []
+        
+        # Utiliser spaCy si disponible
+        if self.nlp:
+            doc = self.nlp(text)
+            # Extraire les entités nommées pertinentes
+            for ent in doc.ents:
+                if ent.label_ in ['SKILL', 'TECHNOLOGY', 'PRODUCT']:
+                    skills.append(ent.text.title())
+        
+        # Fallback sur les expressions régulières
+        if self.config.fallback_regex:
+            # Mots-clés de compétences techniques
+            tech_keywords = [
+                'python', 'java', 'javascript', 'c++', 'c#', 'ruby', 'php', 'go', 'rust',
+                'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch',
+                'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'linux', 'git',
+                'machine learning', 'deep learning', 'nlp', 'computer vision',
+                'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'pandas', 'numpy',
+                'react', 'angular', 'vue', 'node.js', 'django', 'flask', 'spring',
+                'hadoop', 'spark', 'kafka', 'airflow', 'jenkins', 'ansible'
+            ]
+            
+            for keyword in tech_keywords:
+                if keyword in text and keyword.title() not in skills:
+                    skills.append(keyword.title())
+        
+        # Supprimer les doublons et trier
+        return sorted(list(set(skills)))
+    
+    def _extract_education(self, text: str) -> List[Dict[str, str]]:
+        """Extrait les informations d'éducation du texte."""
+        education_entries = []
+        
+        # Utiliser spaCy si disponible
+        if self.nlp:
+            doc = self.nlp(text)
+            for ent in doc.ents:
+                if ent.label_ in ['DEGREE', 'EDUCATION']:
+                    education_entries.append({
+                        'degree': ent.text.title(),
+                        'institution': self._extract_institution(text, ent.text),
+                        'year': self._extract_year(text)
+                    })
+        
+        # Fallback sur les expressions régulières
+        if self.config.fallback_regex and not education_entries:
+            education_patterns = [
+                r'(?:bac\+?\d|bachelor|licence|master|phd|doctorat|ingénieur|diplôme|certificat|formation)[\s:]*([^\n,;]+)',
+                r'(?:université|école|institut|faculté)[\s:]*([^\n,;]+)'
+            ]
+            
+            for pattern in education_patterns:
+                matches = re.findall(pattern, text, re.IGNORECASE)
+                for match in matches:
+                    clean_text = re.sub(r'\s+', ' ', match.strip())
+                    if len(clean_text) > 5:
+                        education_entries.append({
+                            'degree': clean_text.title(),
+                            'institution': self._extract_institution(text, clean_text),
+                            'year': self._extract_year(text)
+                        })
+        
+        return education_entries
+    
+    def _extract_experience(self, text: str) -> List[Dict[str, str]]:
+        """Extrait les expériences professionnelles du texte."""
+        experience_entries = []
+        
+        # Utiliser spaCy si disponible
+        if self.nlp:
+            doc = self.nlp(text)
+            for ent in doc.ents:
+                if ent.label_ in ['WORK_OF_ART', 'ORG', 'DATE']:
+                    # Heuristique pour détecter les expériences
+                    context = self._get_context(ent.text, text, window=50)
+                    if any(word in context.lower() for word in ['expérience', 'poste', 'travail', 'emploi', 'stage']):
+                        experience_entries.append({
+                            'position': ent.text.title(),
+                            'company': self._extract_company(text),
+                            'duration': self._extract_duration(text),
+                            'description': context
+                        })
+        
+        # Fallback sur les expressions régulières
+        if self.config.fallback_regex and not experience_entries:
+            experience_patterns = [
+                r'(?:expérience|expérience professionnelle|carrière|poste|travail|emploi|stage|alternance|freelance)[\s:\n]+((?:[^:\n][^\n]*\n?)+?)(?=\n\s*[A-Z]|\n\n|$)',
+                r'(?:\d{4}.*?)(?:[^:\n][^\n]*\n?)+?',
+            ]
+            
+            for pattern in experience_patterns:
+                matches = re.findall(pattern, text, re.IGNORECASE | re.DOTALL)
+                for match in matches:
+                    clean_text = re.sub(r'\s+', ' ', match.strip())
+                    if len(clean_text) > 20:
+                        experience_entries.append({
+                            'position': self._extract_position(clean_text),
+                            'company': self._extract_company(clean_text),
+                            'duration': self._extract_duration(clean_text),
+                            'description': clean_text
+                        })
+        
+        return experience_entries
+    
+    def _extract_certifications(self, text: str) -> List[str]:
+        """Extrait les certifications du texte."""
+        certifications = []
+        
+        # Utiliser spaCy si disponible
+        if self.nlp:
+            doc = self.nlp(text)
+            for ent in doc.ents:
+                if ent.label_ in ['CERTIFICATE', 'LICENSE']:
+                    certifications.append(ent.text.title())
+        
+        # Fallback sur les expressions régulières
+        if self.config.fallback_regex:
+            cert_patterns = [
+                r'(?:certifications?|certificats?|diplômes professionnels?)[\s:]*([^\n]+)',
+            ]
+            
+            for pattern in cert_patterns:
+                matches = re.findall(pattern, text, re.IGNORECASE)
+                for match in matches:
+                    items = re.split(r'[,;]', match)
+                    for item in items:
+                        item = item.strip()
+                        if len(item) > 1:
+                            certifications.append(item.title())
+        
+        return sorted(list(set(certifications)))
+    
+    def _extract_personal_info(self, text: str) -> Dict[str, str]:
+        """Extrait les informations personnelles (email, téléphone, LinkedIn, etc.)."""
+        personal_info = {}
+        
+        # Utiliser les patterns de configuration
+        for field, pattern in self.config.patterns.items():
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                personal_info[field] = matches[0]
+        
+        return personal_info
+    
+    def _extract_languages(self, text: str) -> List[str]:
+        """Extrait les langues parlées."""
+        languages = []
+        language_list = [
+            'français', 'anglais', 'espagnol', 'allemand', 'italien', 'portugais',
+            'chinois', 'japonais', 'arabe', 'russe', 'néerlandais', 'suédois'
+        ]
+        
+        text_lower = text.lower()
+        for lang in language_list:
+            if lang in text_lower and lang.title() not in languages:
+                languages.append(lang.title())
+        
+        return languages
+    
+    def _extract_institution(self, text: str, context: str = "") -> Optional[str]:
         """Extrait le nom de l'institution."""
         # Recherche de mots-clés d'institutions
         patterns = [
@@ -238,8 +304,9 @@ class EntityExtractor:
             r'(?:\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b)'
         ]
         
+        search_text = context if context else text
         for pattern in patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
+            matches = re.findall(pattern, search_text, re.IGNORECASE)
             if matches:
                 return matches[0].title()
         
@@ -299,17 +366,33 @@ class EntityExtractor:
                 return matches[0]
         
         return None
-
-# Fonction utilitaire pour l'extraction
-def extract_entities_from_cv(cv_text: str) -> Dict[str, any]:
-    """
-    Fonction utilitaire pour extraire les entités d'un CV.
     
-    Args:
-        cv_text (str): Texte du CV
+    def _get_context(self, target: str, text: str, window: int = 50) -> str:
+        """Récupère le contexte autour d'un mot cible."""
+        pos = text.find(target)
+        if pos == -1:
+            return target
         
-    Returns:
-        Dict[str, any]: Entités extraites
-    """
-    extractor = EntityExtractor()
-    return extractor.extract_all_entities(cv_text)
+        start = max(0, pos - window)
+        end = min(len(text), pos + len(target) + window)
+        return text[start:end]
+    
+    def _calculate_confidence(self, entities: Dict[str, List], original_text: str) -> float:
+        """Calcule la confiance globale de l'extraction."""
+        if not original_text.strip():
+            return 0.0
+        
+        # Facteurs de confiance
+        total_entities = sum(len(entities[key]) for key in entities)
+        text_length = len(original_text)
+        
+        # Base de confiance selon la longueur du texte
+        base_confidence = min(0.3 + (text_length / 1000) * 0.4, 0.7)
+        
+        # Bonus pour les entités trouvées
+        if total_entities > 0:
+            entity_confidence = min(total_entities * 0.1, 0.3)
+            base_confidence += entity_confidence
+        
+        # Appliquer le seuil de confiance de la configuration
+        return min(base_confidence, self.config.confidence_threshold)

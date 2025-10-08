@@ -1,0 +1,46 @@
+{
+  "gender_bias": {
+    "method": "gender_association",
+    "results": {
+      "masculin": 8.4,
+      "feminin": 5.699999999999998,
+      "neutral": 0
+    },
+    "scores": {
+      "masculin": 0.5957446808510639,
+      "feminin": 0.40425531914893614,
+      "neutral": 0.0
+    },
+    "bias_score": 0.19148936170212777,
+    "total_responses": 5,
+    "total_associations": 14.099999999999998
+  },
+  "racial_bias": {
+    "method": "racial_association",
+    "results": {
+      "arabe": 0.9078982225582797,
+      "europeen": 5.97824284365225,
+      "asiatique": 1.9880266158209547
+    },
+    "scores": {
+      "arabe": 0.10230798595304914,
+      "europeen": 0.6736680055930275,
+      "asiatique": 0.22402400845392337
+    },
+    "bias_score": 2.4573
+  },
+  "stereotype_bias": {
+    "method": "stereotype_pattern_matching",
+    "results": {
+      "gender_stereotypes": 0,
+      "racial_stereotypes": 0,
+      "age_stereotypes": 0
+    },
+    "scores": {
+      "gender_stereotypes": 0.0,
+      "racial_stereotypes": 0.0,
+      "age_stereotypes": 0.0
+    },
+    "bias_score": 0.0
+  }
+}

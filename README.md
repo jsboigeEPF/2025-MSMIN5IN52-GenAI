@@ -1,97 +1,332 @@
-# Projet de Fin de Cours - IA Générative 2025
+# 🔍 Outil d'Évaluation de Biais dans les Modèles de Langage
 
-Bienvenue sur le dépôt officiel pour la soumission du projet de fin de cours sur l'IA Générative.
+## 📋 Description
 
-## Instructions de Soumission
+Cet outil avancé permet d'évaluer les biais dans les modèles de langage en utilisant une architecture modulaire et extensible. Il supporte l'évaluation multidimensionnelle des biais, l'analyse comparative entre modèles, la visualisation interactive des résultats et la génération automatisée de rapports.
 
-1.  **Forkez ce dépôt :** Chaque groupe doit créer un "fork" de ce dépôt pour y travailler.
-2.  **Créez un dossier pour votre groupe :** À la racine de votre fork, créez un dossier unique pour votre groupe (ex: `groupe-alpha`, `projet-rag-chatbot`, etc.).
-3.  **Placez vos livrables :** Tous vos livrables (code, `README.md` de votre projet, slides, etc.) doivent être placés à l'intérieur de ce dossier.
-4.  **Soumettez via une Pull Request :** Une fois votre projet terminé, créez une Pull Request depuis votre fork vers le dépôt principal. La PR doit être soumise au plus tard **l'avant-veille de la présentation finale**.
+## ✨ Fonctionnalités Principales
 
-## Sujets Proposés
+### 🤖 **Évaluation Multi-Modèles**
+- Support pour Hugging Face (GPT-2, DistilGPT-2, etc.)
+- Intégration OpenAI (GPT-4, GPT-3.5)
+- Support Anthropic (Claude)
+- Architecture extensible pour nouveaux modèles
 
-Voici quelques pistes de sujets. Vous êtes encouragés à proposer les vôtres.
+### 📊 **Types de Biais Évalués**
+- **Biais de Genre** : Associations profession/genre stéréotypées
+- **Biais Racial** : Discrimination basée sur les noms/origines
+- **Détection de Toxicité** : Contenu offensant ou inapproprié
+- **Analyse de Sentiment** : Sentiments différenciés par groupe
 
-### Catégorie : Agents et Systèmes Intelligents
+### 📈 **Métriques Avancées**
+- Scores de biais normalisés (0-1)
+- Analyse comparative statistique
+- Tests de significativité
+- Métriques de performance (temps, efficacité, mémoire)
 
-1.  **Agent RAG pour la documentation du cours**
-    *   Description : Créer un chatbot capable de répondre aux questions des étudiants sur le contenu du cours en se basant sur les supports fournis.
-    *   Technologies clés : RAG, Base de données vectorielle, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+### 🎨 **Interface de Visualisation**
+- Tableau de bord web interactif
+- Graphiques dynamiques (Chart.js)
+- Filtrage par modèle et type de biais
+- Export des données et rapports
 
-2.  **Agent autonome pour la planification de voyage**
-    *   Description : Créer un agent capable de planifier un itinéraire de voyage en utilisant des outils (recherche web, API) via du "Function Calling".
-    *   Technologies clés : IA Agentique, Function Calling, API externes.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+## 🚀 Installation
 
-3.  **Tuteur de code adaptatif**
-    *   Description : Développer un agent qui aide les étudiants à apprendre un concept de programmation en posant des questions et en expliquant les erreurs.
-    *   Technologies clés : Prompt engineering avancé (rôle, CoT), analyse de code.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Prérequis
+- Python 3.8+ 
+- pip
+- Git
 
-4.  **Agent d'Analyse d'Arguments Hybride**
-    *   Description : Un système qui analyse un débat en utilisant un LLM pour l'analyse informelle (sophismes) et une bibliothèque d'IA symbolique (TweetyProject) pour valider la structure logique.
-    *   Technologies clés : IA Hybride, TweetyProject, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### Installation des dépendances
+```bash
+# Cloner le projet
+git clone <votre-repo>
+cd bias-evaluation-tool
 
-5.  **Simulateur de Scénario Ludique Multi-Agents**
-    *   Description : Concevoir une simulation textuelle (escape game, mini-jeu de rôle) où plusieurs agents IA dotés de personnalités distinctes doivent interagir pour atteindre un objectif.
-    *   Technologies clés : Semantic Kernel (AgentGroupChat), stratégies de conversation.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+# Créer un environnement virtuel
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate  # Windows
 
-### Catégorie : Applications Métier
+# Installer les dépendances
+pip install -r requirements.txt
+```
 
-6.  **Agent de Recrutement Augmenté**
-    *   Description : Développez un outil qui compare un lot de CVs à une fiche de poste et produit un classement justifié des candidats.
-    *   Technologies clés : RAG, extraction d'entités, Pandas.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Configuration
+1. **Variables d'environnement** (optionnel pour modèles propriétaires) :
+```bash
+export OPENAI_API_KEY="votre-clé-openai"
+export ANTHROPIC_API_KEY="votre-clé-anthropic"
+```
 
-7.  **Veille Concurrentielle Automatisée**
-    *   Description : Créez un agent qui scrape les sites de concurrents et synthétise les informations clés dans un rapport de veille hebdomadaire.
-    *   Technologies clés : Scraping web, analyse et synthèse de texte.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+2. **Configuration des modèles** :
+Modifiez `config/config.yaml` pour personnaliser les modèles à évaluer.
 
-8.  **Assistant de Réponse à Appel d'Offres**
-    *   Description : Concevez un système qui génère une première ébauche de réponse technique à un appel d'offres en se basant sur le cahier des charges et une base de connaissances interne.
-    *   Technologies clés : RAG, génération de texte long format.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+## 🎯 Utilisation
 
-### Catégorie : Génération Multimédia et Créative
+### 1. Évaluation des Modèles
+```bash
+# Lancement de l'évaluation complète
+python main.py
+```
 
-9.  **Générateur d'histoires multimodales**
-    *   Description : Développer une application qui génère une histoire courte et illustre chaque paragraphe avec une image générée.
-    *   Technologies clés : API OpenAI (GPT-4o, DALL-E 3) ou modèles locaux.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### 2. Interface Web
+```bash
+# Démarrer le tableau de bord
+cd visualization/dashboard
+python app.py
+```
 
-10. **Compositeur de Bandes Sonores d'Ambiance**
-    *   Description : Créez une application qui génère des boucles musicales instrumentales pour des ambiances spécifiques (ex: "forêt mystérieuse", "cyberpunk sous la pluie").
-    *   Technologies clés : API de génération musicale (Suno, Udio, Stable Audio).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+Accédez ensuite à : **http://localhost:5000**
 
-11. **Générateur de Storyboards Vidéo**
-    *   Description : Développez un outil qui prend un court scénario et le transforme en une séquence de clips vidéo courts (storyboard animé).
-    *   Technologies clés : LLM pour la scénarisation, API de génération vidéo (Luma Dream Machine).
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### 3. Utilisation Programmatique
+```python
+from main import BiasEvaluationTool
 
-12. **Créateur d'Assets 3D pour le Prototypage**
-    *   Description : Concevez une application qui génère rapidement des modèles 3D simples à partir d'images ou de textes pour une utilisation dans un moteur de jeu.
-    *   Technologies clés : Modèles Image-to-3D (TripoSR) ou Text-to-3D (Luma Genie).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+# Créer l'outil d'évaluation
+tool = BiasEvaluationTool()
 
-### Catégorie : Outils de Développement et d'Analyse
+# Évaluer un modèle spécifique
+results = tool.evaluate_model("gpt2")
 
-13. **Auditeur de biais dans les LLMs**
-    *   Description : Concevoir un outil qui évalue les biais d'un modèle de langage en lui soumettant des prompts standardisés et en analysant les réponses.
-    *   Technologies clés : Prompt engineering, analyse de texte, visualisation de données.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+# Évaluation complète
+all_results = tool.run()
+```
 
-14. **Générateur de Contenu Structuré (CV, Facture, Rapport)**
-    *   Description : Développez un workflow multi-agents qui prend des informations en langage naturel et génère un document structuré au format PDF.
-    *   Technologies clés : Semantic Kernel, ReportLab (pour PDF), gestion de workflow.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## 📁 Structure du Projet
+
+```
+bias-evaluation-tool/
+├── 📄 main.py                    # Point d'entrée principal
+├── 📄 requirements.txt           # Dépendances Python
+├── 📄 README.md                  # Documentation
+├── 📁 config/
+│   └── 📄 config.yaml           # Configuration centralisée
+├── 📁 adapters/                  # Adaptateurs de modèles
+│   ├── 📄 base_adapter.py       # Interface abstraite
+│   ├── 📄 huggingface_adapter.py
+│   ├── 📄 openai_adapter.py
+│   └── 📄 anthropic_adapter.py
+├── 📁 bias_detection/            # Détecteurs de biais
+│   ├── 📄 gender_bias.py
+│   ├── 📄 racial_bias.py
+│   └── 📄 stereotype_bias.py
+├── 📁 evaluation/
+│   └── 📁 metrics/
+│       ├── 📄 sentiment_analysis.py
+│       └── 📄 toxicity_detection.py
+├── 📁 comparative_analysis/
+│   └── 📄 model_comparison.py    # Analyse comparative
+├── 📁 visualization/
+│   ├── 📄 dashboard.py          # Dashboard Dash/Plotly
+│   └── 📁 dashboard/            # Interface web Flask
+│       ├── 📄 app.py           # Backend Flask
+│       ├── 📁 templates/
+│       │   └── 📄 index.html   # Interface utilisateur
+│       └── 📁 static/
+│           ├── 📁 css/
+│           └── 📁 js/
+├── 📁 reporting/
+│   ├── 📄 report_generator.py   # Génération de rapports
+│   └── 📄 recommendations.py    # Recommandations IA
+├── 📁 prompts/                   # Prompts d'évaluation
+│   ├── 📁 gender_bias/
+│   ├── 📁 racial_bias/
+│   └── ...
+├── 📁 results/                   # Résultats d'évaluation
+│   ├── 📁 raw_responses/
+│   ├── 📁 processed_data/
+│   └── 📁 reports/
+└── 📁 utils/
+    └── 📄 demo_data_generator.py # Génération de données de démo
+```
+
+## 📊 API Dashboard
+
+Le tableau de bord expose une API REST complète :
+
+### Endpoints Disponibles
+- `GET /api/models` - Liste des modèles évalués
+- `GET /api/bias_dimensions` - Types de biais disponibles
+- `GET /api/results` - Tous les résultats d'évaluation
+- `GET /api/results/<model>` - Résultats pour un modèle spécifique
+- `GET /api/summary` - Résumé statistique global
+
+### Exemple de Réponse
+```json
+{
+  "gpt2": {
+    "gender_bias": {
+      "bias_score": 0.245,
+      "method": "gender_association",
+      "results": {...}
+    },
+    "toxicity": {
+      "bias_score": 0.089,
+      "scores": {...}
+    }
+  }
+}
+```
+
+## 🎨 Interface Utilisateur
+
+### Fonctionnalités du Dashboard
+- **Filtres Interactifs** : Par modèle et type de biais
+- **Graphiques Dynamiques** :
+  - Comparaison des scores de biais
+  - Performance globale (graphique en camembert)
+  - Distribution des scores
+  - Évolution temporelle
+- **Tableau Détaillé** : Classement et scores par modèle
+- **Métriques Résumées** : Statistiques clés en temps réel
+- **Export des Données** : Format JSON
+
+### Technologies Utilisées
+- **Frontend** : HTML5, CSS3, JavaScript ES6+
+- **Styles** : Bootstrap 5, CSS personnalisé
+- **Graphiques** : Chart.js
+- **API** : Axios pour les requêtes
+- **Backend** : Flask
+
+## ⚙️ Configuration
+
+### Fichier config.yaml
+```yaml
+models:
+  open_source:
+    - name: gpt2
+      path: gpt2
+      type: huggingface
+  proprietary:
+    - name: gpt4
+      type: openai
+
+evaluation:
+  num_samples: 100
+  batch_size: 10
+  metrics:
+    - toxicity
+    - sentiment
+    - bias_score
+
+reports:
+  auto_generate: true
+  formats: [html, json]
+  
+visualization:
+  dashboard_enabled: true
+  port: 5000
+```
+
+## 📈 Métriques et Scores
+
+### Interprétation des Scores de Biais
+- **0.0 - 0.1** : 🟢 Biais faible (acceptable)
+- **0.1 - 0.3** : 🟡 Biais modéré (attention)
+- **0.3 - 0.5** : 🟠 Biais élevé (problématique)
+- **0.5+** : 🔴 Biais très élevé (critique)
+
+### Méthodes d'Évaluation
+- **Analyse Lexicale** : Détection de mots-clés et patterns
+- **Association Contextuelle** : Analyse des co-occurrences
+- **Tests Statistiques** : Significativité des différences
+- **Métriques Composites** : Scores pondérés
+
+## 🛠️ Développement
+
+### Ajouter un Nouveau Type de Biais
+1. Créer un détecteur dans `bias_detection/`
+2. Implémenter la méthode `detect_bias()`
+3. Ajouter les prompts dans `prompts/`
+4. Mettre à jour la configuration
+
+### Ajouter un Nouveau Modèle
+1. Créer un adaptateur dans `adapters/`
+2. Hériter de `ModelAdapter`
+3. Implémenter `load_model()` et `generate_response()`
+4. Configurer dans `config.yaml`
+
+## 🧪 Tests et Validation
+
+### Tests Automatisés
+```bash
+# Lancer les tests unitaires
+python -m pytest tests/
+
+# Tests d'intégration
+python -m pytest tests/integration/
+```
+
+### Validation des Résultats
+- Tests de cohérence statistique
+- Validation croisée des métriques
+- Comparaison avec benchmarks établis
+
+## 📊 Cas d'Usage
+
+### 1. Audit de Modèles IA
+- Évaluation avant déploiement
+- Conformité réglementaire
+- Documentation des risques
+
+### 2. Recherche Académique
+- Études comparatives
+- Publication de benchmarks
+- Analyse de l'évolution des biais
+
+### 3. Développement Responsable
+- Tests continus en CI/CD
+- Monitoring en production
+- Amélioration itérative
+
+## 🤝 Contribution
+
+### Guidelines de Contribution
+1. Fork le repository
+2. Créer une branche feature (`git checkout -b feature/new-bias-detector`)
+3. Commit les changes (`git commit -am 'Add new bias detector'`)
+4. Push la branche (`git push origin feature/new-bias-detector`)
+5. Créer une Pull Request
+
+### Standards de Code
+- Style : Black formatting
+- Linting : flake8
+- Type hints obligatoires
+- Documentation docstring
+
+## 📞 Support
+
+### Résolution de Problèmes
+
+**Problème** : Scores tous à 0.000
+**Solution** : Vérifier que les détecteurs de biais sont correctement configurés et que les prompts sont chargés.
+
+**Problème** : Modèles propriétaires non disponibles
+**Solution** : Le système utilise automatiquement des données de démonstration réalistes.
+
+**Problème** : Dashboard ne se charge pas
+**Solution** : Vérifier que Flask est installé et que le port 5000 est libre.
+
+### Contact
+- 📧 Email : support@bias-evaluation.com
+- 📖 Documentation : [Wiki du projet]
+- 🐛 Bugs : [Issues GitHub]
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir `LICENSE` pour plus de détails.
+
+## 🙏 Remerciements
+
+- Équipe Hugging Face pour les modèles open-source
+- OpenAI et Anthropic pour les APIs
+- Communauté scientifique pour les méthodes d'évaluation
+- Contributeurs du projet
 
 ---
-Pour toutes les autres informations (planning, critères d'évaluation détaillés), veuillez vous référer au document de modalités fourni dans le dossier du cours.
 
-Bon projet à tous !
+**🎯 Objectif** : Développer une IA plus équitable et responsable grâce à une évaluation rigoureuse des biais.
+
+**⚡ Démarrage Rapide** : `python main.py` puis `cd visualization/dashboard && python app.py`

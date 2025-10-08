@@ -25,6 +25,8 @@ from app.models.schemas import (
     StoryGenre, StoryState, StoryCreateRequest, StoryContinueRequest
 )
 from app.config import settings
+from app.services.text_generation_service import TextGenerationService
+from app.services.image_generation_service import ImageGenerationService
 
 
 class StoryService:
@@ -48,6 +50,10 @@ class StoryService:
         
         # Cache en mémoire pour les histoires actives (évite les I/O répétés)
         self._story_cache: Dict[str, Story] = {}
+        
+        # Services IA spécialisés
+        self.text_service = TextGenerationService()
+        self.image_service = ImageGenerationService()
         
         # Templates de prompts par genre (utilisés pour l'initialisation)
         self._genre_templates = self._load_genre_templates()
@@ -150,13 +156,19 @@ class StoryService:
                 memory=initial_memory
             )
             
-            # Génération de la première scène d'introduction
-            # Cette scène établit le contexte sans action utilisateur
+            # Initialisation des services IA
+            await self.text_service.initialize_model()
+            await self.image_service.initialize_model()
+            
+            # Génération de la première scène d'introduction avec IA
             intro_scene = await self._generate_intro_scene(story)
             story.scenes.append(intro_scene)
             story.total_scenes = 1
             story.current_scene_number = 1
             story.state = StoryState.IN_PROGRESS
+            
+            # Génération de l'image pour la première scène
+            await self.image_service.generate_scene_image(story, intro_scene)
             
             # Mise à jour de la mémoire avec les éléments de la première scène
             await self._update_memory_from_scene(story, intro_scene)
@@ -214,7 +226,7 @@ class StoryService:
                 timestamp=datetime.now()
             )
             
-            # Génération de la nouvelle scène basée sur l'action
+            # Génération de la nouvelle scène avec IA
             new_scene = await self._generate_story_scene(story, user_action)
             
             # Mise à jour de l'histoire
@@ -223,6 +235,9 @@ class StoryService:
             story.current_scene_number += 1
             story.last_activity = datetime.now()
             story.updated_at = datetime.now()
+            
+            # Génération de l'image pour la nouvelle scène
+            await self.image_service.generate_scene_image(story, new_scene)
             
             # Ajout de l'action à l'historique de la mémoire
             story.memory.user_actions_history.append(user_action)
@@ -256,85 +271,68 @@ class StoryService:
     
     async def _generate_intro_scene(self, story: Story) -> Scene:
         """
-        Génère la scène d'introduction d'une histoire
+        Génère la scène d'introduction d'une histoire avec IA
         
-        Cette méthode crée le contexte initial de l'histoire basé sur le genre
+        Cette méthode utilise le TextGenerationService pour créer 
+        le contexte initial de l'histoire basé sur le genre
         et éventuellement le prompt initial de l'utilisateur.
         
         Args:
             story: L'histoire pour laquelle générer l'intro
             
         Returns:
-            Scene: La scène d'introduction générée
+            Scene: La scène d'introduction générée avec IA
         """
-        # Récupération du template de genre
-        genre_template = self._genre_templates.get(story.genre)
-        
-        # Construction du prompt d'introduction
-        intro_prompt = genre_template["init_prompt"]
-        if story.initial_prompt:
-            intro_prompt += f" Contexte initial: {story.initial_prompt}"
-        
-        # TODO: Ici on appellera le service de génération de texte
-        # Pour l'instant, on simule avec un texte statique
-        narrative_text = f"Bienvenue dans cette aventure {story.genre.value}! " + \
-                        "Vous vous réveillez dans un monde mystérieux. " + \
-                        "Que souhaitez-vous faire ?"
-        
-        # Génération des actions suggérées
-        suggested_actions = [
-            "Explorer les environs",
-            "Chercher des indices sur votre situation",
-            "Appeler à l'aide"
-        ]
-        
-        # Création de la scène
-        scene = Scene(
-            scene_number=1,
-            story_id=story.story_id,
-            narrative_text=narrative_text,
-            suggested_actions=suggested_actions,
-            image_prompt=f"Scene introduction for {story.genre.value} story"
-        )
-        
-        return scene
+        try:
+            # Génération du texte narratif et des actions avec IA
+            narrative_text, suggested_actions = await self.text_service.generate_intro_scene(story)
+            
+            # Création de la scène
+            scene = Scene(
+                scene_number=1,
+                story_id=story.story_id,
+                narrative_text=narrative_text,
+                suggested_actions=suggested_actions,
+                timestamp=datetime.now()
+            )
+            
+            return scene
+            
+        except Exception as e:
+            print(f"Erreur génération scène intro: {str(e)}")
+            # Fallback vers génération simple
+            return self._create_fallback_intro_scene(story)
     
     async def _generate_story_scene(self, story: Story, user_action: UserAction) -> Scene:
         """
-        Génère une nouvelle scène basée sur l'action du joueur
+        Génère une nouvelle scène basée sur l'action du joueur avec IA
         
         Args:
             story: L'histoire en cours
             user_action: L'action effectuée par le joueur
             
         Returns:
-            Scene: La nouvelle scène générée
+            Scene: La nouvelle scène générée avec IA
         """
-        # TODO: Ici on construira le contexte complet pour l'IA
-        # - Résumé de l'histoire depuis la mémoire
-        # - Action du joueur
-        # - Contexte des personnages et lieux actuels
-        
-        # Simulation pour l'instant
-        narrative_text = f"Vous décidez de {user_action.action_text.lower()}. " + \
-                        "L'histoire continue de se développer de manière inattendue..."
-        
-        suggested_actions = [
-            "Continuer dans cette direction",
-            "Changer d'approche",
-            "Réfléchir à la situation"
-        ]
-        
-        scene = Scene(
-            scene_number=story.current_scene_number + 1,
-            story_id=story.story_id,
-            narrative_text=narrative_text,
-            user_action=user_action,
-            suggested_actions=suggested_actions,
-            image_prompt=f"Scene {story.current_scene_number + 1} for {story.genre.value} story"
-        )
-        
-        return scene
+        try:
+            # Génération du texte narratif et des actions avec IA
+            narrative_text, suggested_actions = await self.text_service.generate_continuation(story, user_action)
+            
+            scene = Scene(
+                scene_number=story.current_scene_number + 1,
+                story_id=story.story_id,
+                narrative_text=narrative_text,
+                user_action=user_action,
+                suggested_actions=suggested_actions,
+                timestamp=datetime.now()
+            )
+            
+            return scene
+            
+        except Exception as e:
+            print(f"Erreur génération scène continuation: {str(e)}")
+            # Fallback vers génération simple
+            return self._create_fallback_continuation_scene(story, user_action)
     
     async def _update_memory_from_scene(self, story: Story, scene: Scene) -> None:
         """
@@ -418,3 +416,42 @@ class StoryService:
         except Exception as e:
             print(f"Erreur lors du chargement de l'histoire {story_id}: {str(e)}")
             return None
+    
+    # ===== MÉTHODES DE FALLBACK =====
+    
+    def _create_fallback_intro_scene(self, story: Story) -> Scene:
+        """Crée une scène d'introduction de fallback"""
+        narrative_text = f"Bienvenue dans cette aventure {story.genre.value}! Votre histoire commence maintenant."
+        
+        suggested_actions = [
+            "Explorer les environs",
+            "Chercher des informations",
+            "Examiner la situation"
+        ]
+        
+        return Scene(
+            scene_number=1,
+            story_id=story.story_id,
+            narrative_text=narrative_text,
+            suggested_actions=suggested_actions,
+            timestamp=datetime.now()
+        )
+    
+    def _create_fallback_continuation_scene(self, story: Story, user_action: UserAction) -> Scene:
+        """Crée une scène de continuation de fallback"""
+        narrative_text = f"Vous décidez de {user_action.action_text.lower()}. L'histoire continue..."
+        
+        suggested_actions = [
+            "Continuer dans cette direction",
+            "Changer d'approche",
+            "Réfléchir à la situation"
+        ]
+        
+        return Scene(
+            scene_number=story.current_scene_number + 1,
+            story_id=story.story_id,
+            narrative_text=narrative_text,
+            user_action=user_action,
+            suggested_actions=suggested_actions,
+            timestamp=datetime.now()
+        )

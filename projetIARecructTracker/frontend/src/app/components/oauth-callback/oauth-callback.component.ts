@@ -163,10 +163,9 @@ export class OAuthCallbackComponent implements OnInit {
       const success = params['success'] === 'true';
       const email = params['email'];
       const error = params['error'];
-      const token = params['token'];
       const newUser = params['new_user'] === 'true';
 
-      console.log('OAuth Callback - Params reçus:', { success, email, hasToken: !!token, newUser, error });
+      console.log('OAuth Callback - Params reçus:', { success, email, newUser, error });
 
       setTimeout(() => {
         this.isLoading = false;
@@ -176,24 +175,18 @@ export class OAuthCallbackComponent implements OnInit {
           this.email = email;
           this.isNewUser = newUser;
           
-          // Connecter automatiquement l'utilisateur si un token est présent
-          if (token) {
-            this.authenticateUserWithToken(token, email);
-            
-            // Attendre que l'authentification soit complète avant de rediriger
-            setTimeout(() => {
-              console.log('Redirection vers le dashboard...');
-              this.redirectToApp();
-            }, 500);
-          } else {
-            // Pas de token, redirection après 2 secondes pour voir le message
-            setTimeout(() => {
-              this.redirectToApp();
-            }, 2000);
-          }
+          // Le cookie HttpOnly a été configuré par le backend
+          // Charger les informations de l'utilisateur depuis le backend
+          this.loadCurrentUser();
           
           // Notifier le service OAuth
           this.gmailOAuthService.handleOAuthCallback(true, email);
+          
+          // Redirection après un court délai
+          setTimeout(() => {
+            console.log('Redirection vers le dashboard...');
+            this.redirectToApp();
+          }, 1500);
           
         } else {
           this.success = false;
@@ -220,32 +213,21 @@ export class OAuthCallbackComponent implements OnInit {
   }
 
   /**
-   * Authentifie l'utilisateur avec le token reçu
+   * Charge les informations de l'utilisateur depuis le backend
+   * Le cookie HttpOnly a été configuré par le backend lors du callback OAuth
    */
-  private authenticateUserWithToken(token: string, email: string): void {
-    // Stocker le token avec la bonne clé utilisée par AuthService
-    localStorage.setItem('ai_recruit_token', token);
-    
-    // Connecter l'utilisateur avec les informations basiques
-    this.authService.setCurrentUser({
-      id: '',
-      email: email,
-      is_active: true,
-      full_name: '',
-      is_verified: true,
-      created_at: '',
-      updated_at: ''
+  private loadCurrentUser(): void {
+    // Appeler le endpoint /me pour récupérer les infos utilisateur
+    // Le cookie sera automatiquement envoyé avec la requête
+    this.authService.getCurrentUser().subscribe({
+      next: (user) => {
+        console.log('Utilisateur chargé automatiquement via cookie:', user.email);
+        this.authService.setCurrentUser(user);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de l\'utilisateur:', error);
+      }
     });
-    
-    console.log('Utilisateur connecté automatiquement via Gmail:', email);
-    console.log('Token stocké dans localStorage:', localStorage.getItem('ai_recruit_token') ? 'OK' : 'ERREUR');
-    
-    // Vérifier l'état d'authentification après un court délai
-    setTimeout(() => {
-      this.authService.isAuthenticated$.subscribe(isAuth => {
-        console.log('État authentification après setCurrentUser:', isAuth);
-      });
-    }, 100);
   }
 
   retryAuth(): void {

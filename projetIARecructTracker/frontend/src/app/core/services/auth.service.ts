@@ -49,18 +49,22 @@ export class AuthService {
   }
 
   /**
-   * Initialise l'état d'authentification depuis le localStorage
+   * Initialise l'état d'authentification
+   * Tente de récupérer l'utilisateur actuel via le cookie HttpOnly
    */
   private initializeAuth(): void {
-    const token = this.getToken();
-    const user = this.getStoredUser();
-    
-    if (token && user && !this.isTokenExpired(token)) {
-      this.currentUserSubject.next(user);
-      this.isAuthenticatedSubject.next(true);
-    } else {
-      this.logout(false); // Nettoyage silencieux
-    }
+    // Essayer de récupérer l'utilisateur depuis le backend (cookie HttpOnly)
+    this.getCurrentUser().subscribe({
+      next: (user) => {
+        this.currentUserSubject.next(user);
+        this.isAuthenticatedSubject.next(true);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+      },
+      error: () => {
+        // Pas de cookie valide, nettoyage silencieux
+        this.clearSession(false);
+      }
+    });
   }
 
   /**
@@ -161,6 +165,15 @@ export class AuthService {
   }
 
   /**
+   * Récupère les informations de l'utilisateur actuel depuis le backend
+   * Utilise le cookie HttpOnly automatiquement envoyé
+   */
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.API_URL}/me`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
    * Vérifier l'email
    */
   verifyEmail(token: string): Observable<{ message: string }> {
@@ -188,7 +201,10 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    // Le token est maintenant dans un cookie HttpOnly
+    // On ne peut pas y accéder depuis JavaScript (c'est le but pour la sécurité)
+    // Cette méthode retourne null, le cookie sera automatiquement envoyé avec les requêtes
+    return null;
   }
 
   /**
@@ -203,22 +219,18 @@ export class AuthService {
    * Méthodes privées
    */
   private setSession(authResponse: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, authResponse.access_token);
+    // Ne plus stocker le token dans localStorage (utilise cookie HttpOnly maintenant)
+    // Garder uniquement les infos utilisateur en cache local
     localStorage.setItem(this.USER_KEY, JSON.stringify(authResponse.user));
-    
-    // Stocker le refresh token s'il existe
-    if ('refresh_token' in authResponse) {
-      localStorage.setItem('ai_recruit_refresh_token', (authResponse as any).refresh_token);
-    }
     
     this.currentUserSubject.next(authResponse.user);
     this.isAuthenticatedSubject.next(true);
   }
 
   private clearSession(navigate: boolean = true): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+    // Ne plus supprimer TOKEN_KEY du localStorage (le token est dans un cookie HttpOnly)
+    // Le cookie sera effacé par l'endpoint /logout du backend
     localStorage.removeItem(this.USER_KEY);
-    localStorage.removeItem('ai_recruit_refresh_token');
     
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);

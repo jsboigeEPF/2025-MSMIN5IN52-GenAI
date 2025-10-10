@@ -67,10 +67,14 @@ class TextGenerationService:
         """
         if not hasattr(self, '_initialized'):
             self._initialized = True
-            self.device = settings.TEXT_MODEL_DEVICE
+            
+            # Détection automatique du device
+            self.device = self._detect_device(settings.TEXT_MODEL_DEVICE)
             self.model_name = settings.TEXT_MODEL_NAME
             self.max_context_length = settings.MAX_CONTEXT_LENGTH
             self.max_story_length = settings.MAX_STORY_LENGTH
+            
+            print(f"🔧 Service de texte configuré - Device: {self.device}, Modèle: {self.model_name}")
             
             # Paramètres de génération par défaut
             self.generation_params = {
@@ -90,6 +94,28 @@ class TextGenerationService:
             # Cache des prompts récents (optimisation)
             self._prompt_cache = {}
             self._cache_max_size = 100
+    
+    def _detect_device(self, device_setting: str) -> str:
+        """
+        Détecte automatiquement le meilleur device disponible
+        
+        Args:
+            device_setting: Configuration du device ('auto', 'cuda', 'cpu')
+            
+        Returns:
+            str: Device à utiliser ('cuda' ou 'cpu')
+        """
+        if device_setting.lower() == "auto":
+            if TRANSFORMERS_AVAILABLE and torch.cuda.is_available():
+                gpu_count = torch.cuda.device_count()
+                gpu_name = torch.cuda.get_device_name(0) if gpu_count > 0 else "Unknown"
+                print(f"🎮 CUDA détecté! GPU disponibles: {gpu_count}, Nom: {gpu_name}")
+                return "cuda"
+            else:
+                print("💻 CUDA non disponible, utilisation du CPU")
+                return "cpu"
+        else:
+            return device_setting.lower()
     
     async def initialize_model(self) -> bool:
         """
@@ -124,15 +150,20 @@ class TextGenerationService:
             model_kwargs = {
                 "trust_remote_code": True,
                 "torch_dtype": torch.float16 if self.device == "cuda" else torch.float32,
-                "device_map": "auto" if self.device == "cuda" else None
+                "low_cpu_mem_usage": True
             }
+            
+            # Ne pas utiliser device_map="auto" qui cause des problèmes
+            if self.device == "cuda":
+                model_kwargs["device_map"] = {"": 0}  # Utiliser GPU 0 explicitement
             
             self._model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
                 **model_kwargs
             )
             
-            if self.device != "cuda":
+            # Déplacer vers le device approprié si CPU
+            if self.device == "cpu":
                 self._model = self._model.to(self.device)
             
             # Création du pipeline de génération

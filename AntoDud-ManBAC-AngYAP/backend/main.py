@@ -8,12 +8,20 @@ Ce fichier configure et lance l'application FastAPI avec :
 - Documentation automatique Swagger/ReDoc
 """
 
+import os
+# Désactiver l'avertissement symlinks sur Windows
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import asyncio
+import logging
 
 from app.config import settings
 from app.routers import story, health
+from app.services.text_generation_service import TextGenerationService
+from app.services.image_generation_service import ImageGenerationService
 
 # Création de l'application FastAPI avec métadonnées pour la documentation
 app = FastAPI(
@@ -41,6 +49,73 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Événements de démarrage et arrêt de l'application
+@app.on_event("startup")
+async def startup_event():
+    """
+    Événement de démarrage de l'application
+    Initialise les modèles IA et les services
+    """
+    logger = logging.getLogger("uvicorn")
+    logger.info("🚀 Démarrage de l'application Interactive Story Generator")
+    
+    # Initialisation des services IA
+    logger.info("📥 Initialisation des services IA...")
+    
+    try:
+        # Service de génération de texte
+        logger.info(f"🔤 Chargement du modèle de texte: {settings.TEXT_MODEL_NAME}")
+        text_service = TextGenerationService()
+        text_success = await text_service.initialize_model()
+        
+        if text_success:
+            logger.info("✅ Service de génération de texte initialisé avec succès")
+        else:
+            logger.warning("⚠️ Service de génération de texte en mode dégradé")
+        
+        # Service de génération d'images
+        logger.info(f"🖼️ Chargement du modèle d'images: {settings.IMAGE_MODEL_NAME}")
+        image_service = ImageGenerationService()
+        image_success = await image_service.initialize_model()
+        
+        if image_success:
+            logger.info("✅ Service de génération d'images initialisé avec succès")
+        else:
+            logger.warning("⚠️ Service de génération d'images en mode dégradé")
+        
+        logger.info("🎉 Application prête à recevoir des requêtes")
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de l'initialisation des services: {str(e)}")
+        logger.warning("⚠️ L'application fonctionnera en mode dégradé")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """
+    Événement d'arrêt de l'application
+    Nettoie les ressources utilisées
+    """
+    logger = logging.getLogger("uvicorn")
+    logger.info("🛑 Arrêt de l'application Interactive Story Generator")
+    
+    # Nettoyage des caches et ressources
+    try:
+        text_service = TextGenerationService()
+        if hasattr(text_service, '_prompt_cache'):
+            text_service._prompt_cache.clear()
+            
+        image_service = ImageGenerationService()
+        if hasattr(image_service, 'clear_cache'):
+            image_service.clear_cache()
+            
+        logger.info("🧹 Ressources nettoyées avec succès")
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur lors du nettoyage: {str(e)}")
+    
+    logger.info("👋 Application arrêtée proprement")
 
 # Configuration des routeurs API
 # Chaque routeur gère un domaine fonctionnel spécifique

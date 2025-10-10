@@ -32,10 +32,10 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # AI Models
-    TEXT_MODEL_NAME: str = "Qwen/Qwen2-7B-Instruct"
-    TEXT_MODEL_DEVICE: str = "cpu"
-    IMAGE_MODEL_NAME: str = "stabilityai/stable-diffusion-xl-base-1.0"
-    IMAGE_MODEL_DEVICE: str = "cpu"
+    TEXT_MODEL_NAME: str = "Qwen/Qwen3-0.6B"
+    TEXT_MODEL_DEVICE: str = "auto"
+    IMAGE_MODEL_NAME: str = "stabilityai/sdxl-turbo"
+    IMAGE_MODEL_DEVICE: str = "auto"
 
     # External APIs
     OPENAI_API_KEY: str = ""

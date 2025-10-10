@@ -68,9 +68,13 @@ class ImageGenerationService:
         """
         if not hasattr(self, '_initialized'):
             self._initialized = True
-            self.device = settings.IMAGE_MODEL_DEVICE
+            
+            # Détection automatique du device
+            self.device = self._detect_device(settings.IMAGE_MODEL_DEVICE)
             self.model_name = settings.IMAGE_MODEL_NAME
             self.images_path = settings.IMAGES_PATH
+            
+            print(f"🎨 Service d'images configuré - Device: {self.device}, Modèle: {self.model_name}")
             
             # Assurer que le répertoire d'images existe
             os.makedirs(self.images_path, exist_ok=True)
@@ -99,6 +103,28 @@ class ImageGenerationService:
                 "artistic": "photograph, photorealistic, realistic"
             }
     
+    def _detect_device(self, device_setting: str) -> str:
+        """
+        Détecte automatiquement le meilleur device disponible
+        
+        Args:
+            device_setting: Configuration du device ('auto', 'cuda', 'cpu')
+            
+        Returns:
+            str: Device à utiliser ('cuda' ou 'cpu')
+        """
+        if device_setting.lower() == "auto":
+            if DIFFUSERS_AVAILABLE and torch.cuda.is_available():
+                gpu_count = torch.cuda.device_count()
+                gpu_name = torch.cuda.get_device_name(0) if gpu_count > 0 else "Unknown"
+                print(f"🎮 CUDA détecté pour les images! GPU disponibles: {gpu_count}, Nom: {gpu_name}")
+                return "cuda"
+            else:
+                print("💻 CUDA non disponible pour les images, utilisation du CPU")
+                return "cpu"
+        else:
+            return device_setting.lower()
+    
     async def initialize_model(self) -> bool:
         """
         Charge le modèle de génération d'images de manière asynchrone
@@ -118,26 +144,40 @@ class ImageGenerationService:
             print(f"Chargement du modèle d'images {self.model_name}...")
             start_time = time.time()
             
-            # Chargement du pipeline Stable Diffusion
+            # Chargement du pipeline Stable Diffusion avec paramètres plus compatibles
+            pipeline_kwargs = {
+                "torch_dtype": torch.float16 if self.device == "cuda" else torch.float32,
+                "safety_checker": None,
+                "requires_safety_checker": False,
+                "use_safetensors": True
+            }
+            
             self._pipeline = StableDiffusionPipeline.from_pretrained(
                 self.model_name,
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                safety_checker=None,  # Désactiver pour éviter les false positives
-                requires_safety_checker=False
+                **pipeline_kwargs
             )
             
             # Optimisation du scheduler pour vitesse
-            self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
-                self._pipeline.scheduler.config
-            )
+            try:
+                self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
+                    self._pipeline.scheduler.config
+                )
+            except Exception as scheduler_error:
+                print(f"Avertissement: Impossible de configurer le scheduler optimisé: {scheduler_error}")
+                # Continuer avec le scheduler par défaut
             
             # Déplacement sur le device approprié
             self._pipeline = self._pipeline.to(self.device)
             
-            # Optimisations mémoire si CUDA
+            # Optimisations mémoire si CUDA (avec gestion d'erreur)
             if self.device == "cuda":
-                self._pipeline.enable_memory_efficient_attention()
-                self._pipeline.enable_xformers_memory_efficient_attention()
+                try:
+                    if hasattr(self._pipeline, 'enable_memory_efficient_attention'):
+                        self._pipeline.enable_memory_efficient_attention()
+                    if hasattr(self._pipeline, 'enable_xformers_memory_efficient_attention'):
+                        self._pipeline.enable_xformers_memory_efficient_attention()
+                except Exception as optimization_error:
+                    print(f"Avertissement: Optimisations mémoire non disponibles: {optimization_error}")
             
             load_time = time.time() - start_time
             print(f"Modèle d'images chargé avec succès en {load_time:.2f}s")
@@ -305,16 +345,38 @@ class ImageGenerationService:
             print(f"Génération d'image pour scène {scene_number}...")
             start_time = time.time()
             
-            # Génération de l'image
-            with torch.autocast(self.device):
+            # Génération de l'image avec gestion d'erreur améliorée
+            try:
+                if self.device == "cuda":
+                    with torch.autocast("cuda"):
+                        result = self._pipeline(
+                            prompt=prompt,
+                            negative_prompt=negative_prompt,
+                            width=self.generation_params["width"],
+                            height=self.generation_params["height"],
+                            num_inference_steps=self.generation_params["num_inference_steps"],
+                            guidance_scale=self.generation_params["guidance_scale"],
+                            generator=generator
+                        )
+                else:
+                    # Pour CPU, pas d'autocast
+                    result = self._pipeline(
+                        prompt=prompt,
+                        negative_prompt=negative_prompt,
+                        width=self.generation_params["width"],
+                        height=self.generation_params["height"],
+                        num_inference_steps=self.generation_params["num_inference_steps"],
+                        guidance_scale=self.generation_params["guidance_scale"],
+                        generator=generator
+                    )
+            except Exception as gen_error:
+                print(f"Erreur lors de la génération avec paramètres complets: {gen_error}")
+                # Essai avec paramètres simplifiés
                 result = self._pipeline(
                     prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    width=self.generation_params["width"],
-                    height=self.generation_params["height"],
-                    num_inference_steps=self.generation_params["num_inference_steps"],
-                    guidance_scale=self.generation_params["guidance_scale"],
-                    generator=generator
+                    width=512,
+                    height=512,
+                    num_inference_steps=10  # Plus rapide pour test
                 )
             
             generation_time = time.time() - start_time

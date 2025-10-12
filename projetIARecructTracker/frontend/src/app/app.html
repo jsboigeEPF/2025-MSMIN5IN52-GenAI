@@ -1,0 +1,26 @@
+<div class="app-layout">
+  <nav class="sidebar">
+    <div class="logo-section">
+      <h2>🤖 AI Recruit Tracker</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      @for (item of menuItems; track item.path) {
+        <li>
+          <a 
+            [routerLink]="item.path" 
+            routerLinkActive="active"
+            class="nav-link"
+          >
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+  
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

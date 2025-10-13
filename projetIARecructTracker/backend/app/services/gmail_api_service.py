@@ -93,7 +93,9 @@ class GmailAPIService:
 
     async def get_message_details(self, user: User, message_id: str) -> Dict[str, Any]:
         """
-        Récupère les détails complets d'un message
+        Récupère les détails d'un message avec le format METADATA
+        Note: Le scope gmail.metadata ne permet que les formats 'metadata' et 'minimal'
+        Format 'metadata' inclut: headers complets, payload metadata, snippet
         """
         if not await self.oauth_service.ensure_valid_token(user):
             raise Exception("Token Gmail non valide")
@@ -104,7 +106,7 @@ class GmailAPIService:
             response = await client.get(
                 f"{self.base_url}/users/me/messages/{message_id}",
                 headers=headers,
-                params={"format": "full"}
+                params={"format": "metadata", "metadataHeaders": ["From", "To", "Subject", "Date"]}
             )
             
             if response.status_code != 200:
@@ -128,16 +130,19 @@ class GmailAPIService:
             days_back: Nombre de jours dans le passé à synchroniser
         """
         try:
-            # Construire une requête pour les emails récents
-            from_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
-            query = f"after:{from_date}"
+            # Note: Le scope gmail.metadata ne supporte pas le paramètre 'q' (query)
+            # On récupère simplement les N derniers emails sans filtre de date
+            # Le filtrage par date sera fait côté serveur après récupération
             
-            # Récupérer la liste des messages
-            messages = await self.list_messages(user, max_emails, query)
+            # Récupérer la liste des messages (sans query)
+            messages = await self.list_messages(user, max_emails, query=None)
             
             synced_count = 0
             skipped_count = 0
             error_count = 0
+            
+            # Calculer la date limite pour le filtrage côté serveur
+            date_limit = datetime.now() - timedelta(days=days_back)
             
             for message_info in messages:
                 try:
@@ -155,6 +160,14 @@ class GmailAPIService:
                     
                     # Récupérer les détails du message
                     message_details = await self.get_message_details(user, message_id)
+                    
+                    # Vérifier la date du message (filtrage côté serveur)
+                    message_timestamp = int(message_details.get("internalDate", 0)) / 1000
+                    message_date = datetime.fromtimestamp(message_timestamp)
+                    
+                    if message_date < date_limit:
+                        skipped_count += 1
+                        continue
                     
                     # Parser et sauvegarder l'email
                     email_data = self._parse_gmail_message(message_details, user.id)
@@ -309,32 +322,50 @@ class GmailAPIService:
     ) -> List[Dict[str, Any]]:
         """
         Recherche spécifiquement les emails liés aux candidatures
+        Note: Le scope gmail.metadata ne supporte pas les queries de recherche
+        On récupère tous les emails et on filtre côté serveur
         """
-        # Construire une requête pour les emails de recrutement
-        from_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
-        
-        job_keywords = [
-            "candidature", "entretien", "interview", "poste", "offre d'emploi",
-            "recrutement", "RH", "ressources humaines", "CV", "motivation",
-            "job", "employment", "hiring", "recruiter", "opportunity"
-        ]
-        
-        # Construire la requête Gmail
-        keyword_query = " OR ".join([f'"{keyword}"' for keyword in job_keywords])
-        query = f"({keyword_query}) after:{from_date}"
-        
         try:
-            messages = await self.list_messages(user, max_results, query)
+            # Récupérer les messages sans query (scope metadata ne supporte pas 'q')
+            messages = await self.list_messages(user, max_results, query=None)
+            
+            # Mots-clés pour identifier les emails de recrutement
+            job_keywords = [
+                "candidature", "entretien", "interview", "poste", "offre d'emploi",
+                "recrutement", "RH", "ressources humaines", "CV", "motivation",
+                "job", "employment", "hiring", "recruiter", "opportunity"
+            ]
+            
+            # Date limite pour le filtrage
+            date_limit = datetime.now() - timedelta(days=days_back)
             
             detailed_messages = []
             for message_info in messages:
                 try:
                     details = await self.get_message_details(user, message_info["id"])
-                    detailed_messages.append(details)
+                    
+                    # Filtrer par date
+                    message_timestamp = int(details.get("internalDate", 0)) / 1000
+                    message_date = datetime.fromtimestamp(message_timestamp)
+                    
+                    if message_date < date_limit:
+                        continue
+                    
+                    # Filtrer par mots-clés (dans le sujet ou le corps)
+                    headers = {h["name"].lower(): h["value"] for h in details["payload"]["headers"]}
+                    subject = headers.get("subject", "").lower()
+                    snippet = details.get("snippet", "").lower()
+                    
+                    # Vérifier si un mot-clé est présent
+                    content_to_check = f"{subject} {snippet}"
+                    if any(keyword.lower() in content_to_check for keyword in job_keywords):
+                        detailed_messages.append(details)
+                    
                 except Exception as e:
                     logger.error(f"Erreur récupération détails message {message_info['id']}: {str(e)}")
                     continue
             
+            logger.info(f"Trouvé {len(detailed_messages)} emails de candidature sur {len(messages)} examinés")
             return detailed_messages
             
         except Exception as e:

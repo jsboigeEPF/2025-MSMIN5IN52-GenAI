@@ -34,6 +34,21 @@ class EmailClassificationService:
     def __init__(self):
         self.rules_path = settings.CLASSIFICATION_RULES_PATH
         self.rules = self._load_classification_rules()
+        
+        # Patterns d'exclusion pour filtrer les newsletters et notifications
+        self.exclusion_patterns = [
+            # Domaines commerciaux
+            r'@(uber|snapchat|vercel|teamviewer|netflix|spotify|amazon|ebay)\.com',
+            r'@mails\.(teamviewer|uber|snapchat)',
+            r'@(noreply|no-reply|notifications?|newsletter)',
+            r'privaterelay\.appleid\.com',
+            
+            # Mots-clés marketing
+            r'newsletter', r'promo(tion)?', r'offre? spéciale?',
+            r'réduction', r'-\d+[€$£]', r'commande', r'livraison',
+            r'abonnement', r'subscription', r'unsubscribe',
+            r'se désabonner', r'marketing@', r'ads@'
+        ]
     
     def _load_classification_rules(self) -> Dict[str, List[str]]:
         """Charger les règles de classification depuis les fichiers YAML"""
@@ -100,13 +115,22 @@ class EmailClassificationService:
         Returns:
             ClassificationResult avec le type et la confiance
         """
-        # Combiner sujet et corps pour l'analyse
-        full_text = f"{subject} {body}".lower()
+        # Combiner sujet, corps et expéditeur pour l'analyse
+        full_text = f"{sender_email} {subject} {body}".lower()
         
-        # Essayer d'abord avec les règles
+        # Étape 1: Vérifier si c'est une newsletter/notification (exclusion rapide)
+        if self._is_excluded_email(full_text):
+            return ClassificationResult(
+                email_type=EmailType.OTHER,
+                confidence=0.95,
+                reasoning="Excluded: Newsletter, notification or marketing email",
+                method_used="exclusion_filter"
+            )
+        
+        # Étape 2: Essayer avec les règles
         rules_result = self._classify_with_rules(full_text)
         
-        # Si la confiance est faible, utiliser Mistral AI
+        # Étape 3: Si la confiance est faible, utiliser Mistral AI
         if rules_result.confidence < settings.CLASSIFICATION_CONFIDENCE_THRESHOLD:
             logger.info(f"Rules confidence {rules_result.confidence} below threshold, trying Mistral AI")
             mistral_result = await self._classify_with_mistral(subject, body)
@@ -116,6 +140,15 @@ class EmailClassificationService:
                 return mistral_result
         
         return rules_result
+    
+    def _is_excluded_email(self, text: str) -> bool:
+        """
+        Vérifier si l'email doit être exclu (newsletter, notification, etc.)
+        """
+        for pattern in self.exclusion_patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                return True
+        return False
     
     def _classify_with_rules(self, text: str) -> ClassificationResult:
         """
@@ -162,13 +195,24 @@ class EmailClassificationService:
         try:
             categories = [e.value for e in EmailType]
             context = """
-Contexte: Tu analyses des emails de recrutement. Les catégories sont:
-- ACK: Accusé de réception de candidature
-- REJECTED: Refus de candidature  
-- INTERVIEW: Convocation à un entretien
-- OFFER: Offre d'emploi
-- REQUEST: Demande de documents/informations
-- OTHER: Autre type d'email
+Contexte: Tu analyses des emails pour un tracker de candidatures d'emploi.
+
+⚠️ IMPORTANT: Classe comme OTHER tous les emails qui NE SONT PAS liés à une candidature d'emploi:
+- Newsletters commerciales (Uber, Snapchat, Vercel, TeamViewer, etc.)
+- Notifications de service (réseaux sociaux, e-commerce, etc.)
+- Emails marketing et promotions
+- Confirmations de commande
+- Alertes techniques
+
+Les catégories sont UNIQUEMENT pour les emails de RECRUTEMENT:
+- ACK: Accusé de réception d'une candidature (doit mentionner recrutement/candidature/CV)
+- REJECTED: Refus de candidature explicite
+- INTERVIEW: Convocation à un entretien d'embauche
+- OFFER: Proposition d'emploi/contrat
+- REQUEST: Demande de documents pour une candidature (CV, références, portfolio)
+- OTHER: Tous les autres emails (newsletters, notifications, marketing, etc.)
+
+Si l'email ne mentionne PAS de candidature, recrutement, CV, entretien ou emploi, classe-le comme OTHER.
 """
             
             full_text = f"Sujet: {subject}\n\nCorps:\n{body}"

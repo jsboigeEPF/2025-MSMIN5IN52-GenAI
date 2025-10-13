@@ -194,6 +194,7 @@ class NLPOrchestrator:
             from datetime import datetime, timedelta
             
             application = Application(
+                user_id=email.user_id,  # ⚠️ FIX: Lier au bon utilisateur !
                 company_name=extraction.company_name,
                 job_title=extraction.job_title,
                 location=extraction.location,

@@ -72,11 +72,11 @@ Texte à analyser:
 JSON:"""
 
             from mistralai import Mistral
-            from mistralai.models import ChatMessage
             
+            # Dans les nouvelles versions de mistralai, on utilise des dictionnaires simples
             response = self.client.chat.complete(
                 model=model_name,
-                messages=[ChatMessage(role="user", content=prompt)],
+                messages=[{"role": "user", "content": prompt}],
                 temperature=settings.MISTRAL_TEMPERATURE,
                 max_tokens=settings.MISTRAL_MAX_TOKENS
             )
@@ -149,12 +149,11 @@ Texte à classifier:
 {text}
 
 JSON:"""
-
-            from mistralai.models import ChatMessage
             
+            # Dans les nouvelles versions de mistralai, on utilise des dictionnaires simples
             response = self.client.chat.complete(
                 model=model_name,
-                messages=[ChatMessage(role="user", content=prompt)],
+                messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,  # Plus déterministe pour la classification
                 max_tokens=200
             )

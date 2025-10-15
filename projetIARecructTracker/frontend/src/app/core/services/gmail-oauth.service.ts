@@ -43,18 +43,9 @@ export class GmailOAuthService {
   public gmailStatus$ = this.gmailStatusSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Vérifier le statut au démarrage seulement si un token existe
-    if (this.hasAuthToken()) {
-      this.checkGmailStatus();
-    }
-  }
-
-  /**
-   * Vérifie si un token d'authentification est présent
-   */
-  private hasAuthToken(): boolean {
-    const token = localStorage.getItem('ai_recruit_token');
-    return !!token;
+    // Vérifier le statut au démarrage
+    // Le cookie HttpOnly sera automatiquement envoyé avec la requête
+    this.checkGmailStatus();
   }
 
   /**
@@ -78,18 +69,12 @@ export class GmailOAuthService {
   /**
    * Initie le processus d'autorisation Gmail OAuth
    * Redirige vers Google OAuth
+   * Le cookie HttpOnly sera automatiquement envoyé avec la requête
    */
   initiateGmailAuth(): void {
-    // Récupérer le token depuis localStorage
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      // Si pas de token, utiliser l'inscription automatique
-      this.initiateGmailAuthAndRegister();
-      return;
-    }
-    
-    // Redirection avec le token en paramètre d'URL pour OAuth
-    window.location.href = `${this.apiUrl}/gmail/authorize?token=${encodeURIComponent(token)}`;
+    // Redirection vers l'endpoint d'autorisation
+    // Le cookie HttpOnly sera automatiquement inclus
+    window.location.href = `${this.apiUrl}/gmail/authorize`;
   }
 
   /**
@@ -99,22 +84,25 @@ export class GmailOAuthService {
     return this.http.get<GmailAuthResponse>(`${this.apiUrl}/gmail/status`);
   }
 
-    /**
+  /**
    * Vérifie le statut de l'autorisation Gmail
+   * Le cookie HttpOnly est automatiquement envoyé avec la requête
    */
   checkGmailStatus(): void {
-    // Ne pas vérifier si pas de token
-    if (!this.hasAuthToken()) {
-      this.gmailStatusSubject.next(null);
-      return;
-    }
-
-    this.http.get<GmailOAuthStatus>(`${this.apiUrl}/gmail/status`).subscribe({
+    this.http.get<any>(`${this.apiUrl}/gmail/status`).subscribe({
       next: (response) => {
-        this.gmailStatusSubject.next(response);
+        console.log('Statut Gmail récupéré:', response);
+        // Le backend retourne {success: true, status: {...}}
+        // On extrait uniquement le status
+        if (response.success && response.status) {
+          this.gmailStatusSubject.next(response.status);
+        } else {
+          this.gmailStatusSubject.next(null);
+        }
       },
       error: (error) => {
         console.warn('Impossible de vérifier le statut Gmail:', error);
+        // Si erreur 401, l'utilisateur n'est pas connecté à Gmail
         this.gmailStatusSubject.next(null);
       }
     });

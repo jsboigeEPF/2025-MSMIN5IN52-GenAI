@@ -60,18 +60,28 @@ export class DashboardComponent implements OnInit {
         this.emailService.getEmails().toPromise()
       ]);
 
+      console.log('📊 Dashboard data loaded:', { 
+        applications, 
+        applicationsLength: applications?.length,
+        companies, 
+        offers, 
+        emails 
+      });
+
       this.stats = {
-        totalApplications: applications?.items?.length || 0,
+        totalApplications: applications?.length || 0,
         totalCompanies: companies?.items?.length || 0,
         totalOffers: offers?.items?.length || 0,
         totalEmails: emails?.items?.length || 0,
-        recentApplications: applications?.items?.slice(0, 5) || [],
-        applicationsByStatus: this.getApplicationsByStatus(applications?.items || [])
+        recentApplications: applications?.slice(0, 5) || [],
+        applicationsByStatus: this.getApplicationsByStatus(applications || [])
       };
+
+      console.log('📈 Stats calculated:', this.stats);
 
       this.loading = false;
     } catch (error) {
-      console.error('Erreur lors du chargement du dashboard:', error);
+      console.error('❌ Erreur lors du chargement du dashboard:', error);
       this.error = 'Erreur lors du chargement des données';
       this.loading = false;
     }

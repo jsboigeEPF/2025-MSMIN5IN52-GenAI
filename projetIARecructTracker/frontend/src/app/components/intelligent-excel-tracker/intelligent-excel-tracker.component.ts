@@ -885,17 +885,8 @@ export class IntelligentExcelTrackerComponent implements OnInit {
         this.intelligentTracker.getProcessingSummary().toPromise()
       ]);
       
-      // Traiter les candidatures
-      if (applicationsResult) {
-        if ('items' in applicationsResult) {
-          this.applications.set(applicationsResult.items);
-        } else {
-          this.applications.set(applicationsResult as JobApplication[]);
-        }
-      } else {
-        this.applications.set([]);
-      }
-      
+      // Le backend retourne maintenant un tableau simple
+      this.applications.set(applicationsResult || []);
       this.summary.set(summaryResult || null);
       this.applyFilters();
       

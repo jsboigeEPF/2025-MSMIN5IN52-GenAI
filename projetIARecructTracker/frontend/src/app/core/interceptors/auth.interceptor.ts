@@ -4,17 +4,24 @@ import { throwError, catchError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Intercepteur HTTP pour gérer l'authentification par cookie HttpOnly
- * - Active withCredentials pour envoyer les cookies automatiquement
- * - Gère les erreurs 401 en déconnectant l'utilisateur
+ * Intercepteur HTTP pour gérer l'authentification Bearer Token
+ * Simple, robuste, et fonctionne partout (dev et prod)
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
-  // Activer l'envoi des cookies (HttpOnly) pour toutes les requêtes vers l'API
-  const authReq = req.clone({
-    withCredentials: true  // Important: envoie les cookies HttpOnly automatiquement
-  });
+  // Récupérer le token depuis sessionStorage
+  const token = authService.getToken();
+  
+  // Ajouter le header Authorization si token disponible
+  let authReq = req;
+  if (token) {
+    authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
   
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -34,6 +41,7 @@ function isAuthRequest(url: string): boolean {
     '/auth/login',
     '/auth/register',
     '/auth/me',
+    '/auth/logout',  // ⚠️ IMPORTANT: éviter la boucle infinie
     '/auth/password-reset',
     '/auth/verify-email'
   ];

@@ -841,13 +841,9 @@ export class JobApplicationsAdvancedComponent implements OnInit {
   private loadApplications(): Promise<void> {
     return new Promise((resolve) => {
       this.jobApplicationService.getJobApplications().subscribe({
-        next: (response) => {
-          // Gérer les réponses paginées
-          if (response && 'items' in response) {
-            this.applications.set(response.items);
-          } else {
-            this.applications.set(response as JobApplication[]);
-          }
+        next: (applications) => {
+          // Le backend retourne maintenant un tableau simple
+          this.applications.set(applications || []);
           resolve();
         },
         error: (error) => {

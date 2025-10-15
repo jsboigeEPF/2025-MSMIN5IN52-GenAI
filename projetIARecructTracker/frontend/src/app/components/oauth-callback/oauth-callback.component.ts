@@ -158,25 +158,29 @@ export class OAuthCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Récupérer les paramètres de l'URL
+    // Récupérer les paramètres d'URL
     this.route.queryParams.subscribe(params => {
       const success = params['success'] === 'true';
-      const email = params['email'];
       const error = params['error'];
-      const newUser = params['new_user'] === 'true';
-
-      console.log('OAuth Callback - Params reçus:', { success, email, newUser, error });
-
+      const email = params['email'];
+      const token = params['token'];  // ✅ Récupérer le token depuis l'URL
+      const isNewUser = params['new_user'] === 'true';
+      
+      console.log('OAuth Callback - Params reçus:', { success, error, email, token: token ? 'present' : 'missing', isNewUser });
+      
+      // Simuler un temps de traitement
       setTimeout(() => {
         this.isLoading = false;
         
-        if (success && email) {
+        if (success && email && token) {
           this.success = true;
           this.email = email;
-          this.isNewUser = newUser;
           
-          // Le cookie HttpOnly a été configuré par le backend
-          // Charger les informations de l'utilisateur depuis le backend
+          // ✅ Stocker le token dans sessionStorage IMMÉDIATEMENT
+          sessionStorage.setItem('app_token', token);
+          console.log('✅ Token stocké dans sessionStorage');
+          
+          // Charger l'utilisateur maintenant que le token est disponible
           this.loadCurrentUser();
           
           // Notifier le service OAuth
@@ -217,15 +221,20 @@ export class OAuthCallbackComponent implements OnInit {
    * Le cookie HttpOnly a été configuré par le backend lors du callback OAuth
    */
   private loadCurrentUser(): void {
-    // Appeler le endpoint /me pour récupérer les infos utilisateur
-    // Le cookie sera automatiquement envoyé avec la requête
-    this.authService.getCurrentUser().subscribe({
+    // ✅ Le cookie est déjà défini par le backend lors du callback OAuth
+    // Recharger explicitement l'état d'authentification
+    console.log('✅ Gmail connecté avec succès - Rechargement de l\'état d\'authentification...');
+    
+    this.authService.reloadAuthState().subscribe({
       next: (user) => {
-        console.log('Utilisateur chargé automatiquement via cookie:', user.email);
-        this.authService.setCurrentUser(user);
+        console.log('✅ Utilisateur authentifié:', user.email);
+        // Rediriger vers le dashboard maintenant que l'état est à jour
+        this.redirectToApp();
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de l\'utilisateur:', error);
+        console.error('❌ Erreur lors du chargement de l\'utilisateur:', error);
+        this.errorMessage = 'Impossible de charger les informations utilisateur';
+        this.isLoading = false;
       }
     });
   }

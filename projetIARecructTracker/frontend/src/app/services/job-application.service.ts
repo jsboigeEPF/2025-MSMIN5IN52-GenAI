@@ -20,8 +20,9 @@ export class JobApplicationService {
 
   /**
    * Récupérer toutes les candidatures avec pagination et filtres
+   * Note: Le backend retourne un tableau simple, pas une réponse paginée
    */
-  getJobApplications(filters?: FilterParams): Observable<PaginatedResponse<JobApplication>> {
+  getJobApplications(filters?: FilterParams): Observable<JobApplication[]> {
     let params = new HttpParams();
     
     if (filters) {
@@ -33,7 +34,7 @@ export class JobApplicationService {
       });
     }
 
-    return this.http.get<PaginatedResponse<JobApplication>>(this.baseUrl, { params });
+    return this.http.get<JobApplication[]>(this.baseUrl, { params });
   }
 
   /**

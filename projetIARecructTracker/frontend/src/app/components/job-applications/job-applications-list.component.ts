@@ -498,23 +498,22 @@ export class JobApplicationsListComponent implements OnInit {
     this.loading = true;
     this.error = null;
     
+    console.log('🔍 Loading job applications...');
+    
     this.jobApplicationService.getJobApplications().subscribe({
-      next: (response) => {
-        // Si c'est une réponse paginée, extraire les items
-        if (response && 'items' in response) {
-          this.jobApplications = response.items;
-        } else {
-          this.jobApplications = response as JobApplication[];
-        }
+      next: (applications) => {
+        console.log('✅ Job applications received:', applications);
+        console.log('📝 Number of applications:', applications?.length || 0);
+        
+        this.jobApplications = applications || [];
         this.loading = false;
       },
       error: (error) => {
+        console.error('❌ Error loading job applications:', error);
         this.error = 'Erreur lors du chargement des candidatures';
         this.loading = false;
-        console.error('Error loading job applications:', error);
         
         // Données de démonstration en cas d'erreur
-        this.jobApplications = this.getMockApplications();
         this.loading = false;
       }
     });
@@ -578,57 +577,7 @@ export class JobApplicationsListComponent implements OnInit {
     this.expandedApplications.set(new Set(expanded));
   }
 
-  private getMockApplications(): JobApplication[] {
-    return [
-      {
-        id: '1',
-        job_offer_id: 'offer-001',
-        job_title: 'Développeur Frontend Senior',
-        company_name: 'TechCorp',
-        status: 'INTERVIEW',
-        applied_date: '2024-09-25',
-        last_update_date: '2024-09-26',
-        expected_salary: 55000,
-        priority: 'HIGH',
-        contact_person: 'Marie Dupont',
-        contact_email: 'marie.dupont@techcorp.com',
-        notes: 'Poste très intéressant avec stack moderne',
-        interview_date: '2024-09-30',
-        created_at: '2024-09-25T10:00:00Z',
-        updated_at: '2024-09-26T14:30:00Z'
-      },
-      {
-        id: '2',
-        job_offer_id: 'offer-002',
-        job_title: 'Ingénieur DevOps',
-        company_name: 'CloudTech',
-        status: 'ACKNOWLEDGED',
-        applied_date: '2024-09-24',
-        expected_salary: 48000,
-        priority: 'MEDIUM',
-        contact_person: 'Jean Martin',
-        contact_email: 'jean.martin@dataviz.com',
-        notes: 'Équipe IA prometteuse',
-        created_at: '2024-09-24T09:00:00Z',
-        updated_at: '2024-09-24T09:00:00Z'
-      },
-      {
-        id: '3',
-        job_offer_id: 'offer-003',
-        job_title: 'Architecte Solutions',
-        company_name: 'EnterpriseCorp',
-        status: 'REJECTED',
-        applied_date: '2024-09-20',
-        last_update_date: '2024-09-23',
-        expected_salary: 52000,
-        priority: 'LOW',
-        rejection_reason: 'Profil pas tout à fait adapté',
-        notes: 'Retour constructif reçu',
-        created_at: '2024-09-20T15:00:00Z',
-        updated_at: '2024-09-23T11:00:00Z'
-      }
-    ];
-  }
+ 
 
   getStatusBadgeClass(status: string): string {
     const statusClasses: { [key: string]: string } = {

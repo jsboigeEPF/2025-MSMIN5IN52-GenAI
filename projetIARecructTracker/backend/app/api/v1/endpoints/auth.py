@@ -1,9 +1,10 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, Cookie
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.schemas import UserCreate, UserRead, UserLogin
 from app.services.auth_service import (
     create_user, authenticate_user, create_access_token, 
@@ -28,8 +29,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db=db, user=user)
 
 @router.post("/login")
-def login(user_credentials: UserLogin, response: Response, db: Session = Depends(get_db)):
-    """Connexion d'un utilisateur avec cookie HttpOnly sécurisé"""
+def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
+    """Connexion d'un utilisateur - retourne un token Bearer"""
     user = authenticate_user(db, user_credentials.email, user_credentials.password)
     if not user:
         raise HTTPException(
@@ -44,20 +45,12 @@ def login(user_credentials: UserLogin, response: Response, db: Session = Depends
         expires_delta=access_token_expires
     )
     
-    # Stocker le token dans un cookie HttpOnly
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,  # Non accessible en JavaScript (protection XSS)
-        secure=False,   # TODO: Mettre True en production avec HTTPS
-        samesite="lax", # Protection CSRF
-        max_age=86400,  # 24 heures en secondes
-        path="/"
-    )
-    
+    # Retourner le token directement dans la réponse (simple et fiable)
     return {
         "success": True,
         "message": "Connexion réussie",
+        "access_token": access_token,
+        "token_type": "bearer",
         "user": {
             "id": user.id,
             "email": user.email,
@@ -123,19 +116,8 @@ def read_users_me(current_user = Depends(get_current_user)):
     return current_user
 
 @router.post("/logout")
-def logout(
-    response: Response,
-    current_user = Depends(get_current_user)
-):
+def logout(current_user = Depends(get_current_user)):
     """
-    Déconnexion de l'utilisateur - efface le cookie HttpOnly
+    Déconnexion de l'utilisateur
     """
-    # Effacer le cookie en le configurant avec max_age=0
-    response.delete_cookie(
-        key="access_token",
-        path="/",
-        httponly=True,
-        samesite="lax"
-    )
-    
     return {"success": True, "message": "Déconnexion réussie"}

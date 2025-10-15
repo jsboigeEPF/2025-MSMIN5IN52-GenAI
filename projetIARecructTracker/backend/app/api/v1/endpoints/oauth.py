@@ -143,32 +143,19 @@ async def gmail_oauth_callback(
                 expires_delta=access_token_expires
             )
             
-            # Construire l'URL de callback (sans le token dans l'URL)
+            # Construire l'URL de callback avec le token (Bearer token approach)
             callback_url = "http://localhost:4200/oauth/callback?success=true"
             callback_url += f"&email={result['user_email']}"
+            callback_url += f"&token={access_token}"  # ✅ Passer le token dans l'URL
             
             if result.get("is_new_user"):
                 callback_url += "&new_user=true"
             
-            # Créer la réponse de redirection
-            redirect_response = RedirectResponse(
+            # Rediriger avec le token
+            return RedirectResponse(
                 url=callback_url,
                 status_code=302
             )
-            
-            # Configurer le cookie HttpOnly avec le JWT
-            # TODO: En production, mettre secure=True avec HTTPS
-            redirect_response.set_cookie(
-                key="access_token",
-                value=access_token,
-                httponly=True,  # Impossible d'accéder via JavaScript (protection XSS)
-                secure=False,   # Mettre à True en production avec HTTPS
-                samesite="lax", # Protection CSRF
-                max_age=86400,  # 24 heures (en secondes)
-                path="/"
-            )
-            
-            return redirect_response
         else:
             # Rediriger vers le frontend avec erreur
             return RedirectResponse(

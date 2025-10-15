@@ -26,7 +26,14 @@ class ApplicationService:
         """
         Récupérer les candidatures avec filtres optionnels pour un utilisateur spécifique
         """
+        from loguru import logger
+        logger.info(f"🔎 ApplicationService.get_applications - user_id: {user_id}, skip: {skip}, limit: {limit}")
+        
         query = self.db.query(Application).filter(Application.user_id == user_id)
+        
+        # Compter le total avant filtres
+        total_for_user = query.count()
+        logger.info(f"📊 Total applications for user {user_id}: {total_for_user}")
         
         if status:
             query = query.filter(Application.status == status)
@@ -41,7 +48,9 @@ class ApplicationService:
                 (Application.notes.ilike(f"%{search_query}%"))
             )
         
-        return query.order_by(Application.updated_at.desc()).offset(skip).limit(limit).all()
+        results = query.order_by(Application.updated_at.desc()).offset(skip).limit(limit).all()
+        logger.info(f"✅ Returning {len(results)} applications")
+        return results
 
     def create_application(self, application: ApplicationCreate, user_id: UUID) -> Application:
         """

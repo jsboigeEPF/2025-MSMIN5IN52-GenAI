@@ -6,6 +6,7 @@ import { EmailService, FrontendNLPStats } from '../../services/email.service';
 import { GmailOAuthService } from '../../core/services/gmail-oauth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { take } from 'rxjs/operators';
 
 interface NLPStats {
   totalProcessed: number;
@@ -986,6 +987,31 @@ export class NlpDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadNLPStats();
+    
+    // S'abonner au statut Gmail pour activer automatiquement la synchronisation
+    // Attendre un court délai pour que le service récupère le statut
+    setTimeout(() => {
+      this.gmailOAuthService.gmailStatus$.pipe(
+        take(1) // Prendre la valeur actuelle après le délai
+      ).subscribe({
+        next: (status) => {
+          console.log('Statut Gmail auto-vérifié au chargement:', status);
+          if (status && status.connected) {
+            this.connectionTested.set(true);
+            this.connectionResult.set({
+              success: true,
+              message: `Gmail connecté: ${status.email}`
+            });
+          } else {
+            this.connectionTested.set(false);
+            this.connectionResult.set({
+              success: false,
+              message: 'Gmail non connecté'
+            });
+          }
+        }
+      });
+    }, 500); // Attendre 500ms pour que le service récupère le statut
   }
 
   private loadNLPStats() {

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agent de Recrutement</title>
+</head>
+<body>
+    <h1>Agent de Recrutement Augmenté</h1>
+    <form action="/match" method="POST" enctype="multipart/form-data">
+        <label for="job_description">Fiche de poste :</label>
+        <input type="file" name="job_description" required><br><br>
+        
+        <label for="cv">CV :</label>
+        <input type="file" name="cv" required><br><br>
+        
+        <button type="submit">Analyser</button>
+    </form>
+</body>
+</html>

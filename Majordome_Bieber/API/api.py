@@ -5,6 +5,7 @@ from Calendar_API import get_credentials, list_events, create_event
 from login import get_credentials as auth_credentials
 from googleapiclient.discovery import build
 import datetime
+from chatbot import get_chatbot_response
 
 app = Flask(__name__)
 CORS(app)
@@ -62,6 +63,17 @@ def login():
         return jsonify({"success": False, "message": "Échec de l'authentification"}), 401
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/chatbot', methods=['POST'])
+def chatbot():
+    try:
+        data = request.get_json()
+        query = data.get("query")
+        response = get_chatbot_response(query)
+        return jsonify({"response": response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

@@ -100,33 +100,6 @@
             }
         }
 
-        // Logic for AI assistant in messages (Copied from index.html AI response logic, assuming backend communication if needed)
-        function getMessagesAIResponse(query) {
-            query = query.toLowerCase();
-            const dummyDb = { // Cette base de données est fictive pour l'exemple
-                messages: {
-                    unread: 3,
-                    total: 10,
-                    latest: "Le dernier message provient de 'Marketing Team' avec le sujet 'Nouvelle campagne Q4'.",
-                    summary: "Vous avez 3 messages non lus sur 10 au total. Les messages sont principalement liés au marketing, au support technique et aux ressources humaines."
-                }
-            };
-
-            if (query.includes('combien') && query.includes('non lus')) {
-                return `Vous avez ${dummyDb.messages.unread} messages non lus.`;
-            }
-            if (query.includes('total') || query.includes('nombre total')) {
-                return `Vous avez un total de ${dummyDb.messages.total} messages.`;
-            }
-            if (query.includes('dernier') || query.includes('récent')) {
-                return dummyDb.messages.latest;
-            }
-            if (query.includes('résume') || query.includes('résumé')) {
-                 return dummyDb.messages.summary;
-            }
-            return "Je peux vous donner le nombre de messages non lus, le total de messages, ou le dernier message.";
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             loadEmails();
 
@@ -137,13 +110,31 @@
 
             function handleAskCommand() {
                 const query = messageQueryInput.value.trim();
-                if (query) {
-                    const response = getMessagesAIResponse(query);
-                    aiResponseText.textContent = response;
-                    aiResponseDiv.classList.remove('d-none');
-                    messageQueryInput.value = '';
-                    messageQueryInput.focus();
-                }
+                if (!query) return;
+
+                aiResponseText.textContent = 'Thinking...';
+                aiResponseDiv.classList.remove('d-none');
+                messageQueryInput.value = '';
+
+                fetch('http://localhost:5000/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        aiResponseText.textContent = `Error: ${data.error}`;
+                    } else {
+                        aiResponseText.textContent = data.response;
+                    }
+                })
+                .catch(error => {
+                    aiResponseText.textContent = 'Error communicating with the chatbot.';
+                    console.error('Error:', error);
+                });
             }
 
             askButton.addEventListener('click', handleAskCommand);

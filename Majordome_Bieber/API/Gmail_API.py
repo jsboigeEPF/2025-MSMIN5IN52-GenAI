@@ -1,16 +1,9 @@
-import os.path
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import base64
 from email.mime.text import MIMEText
 
-# If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/gmail.modify",
-          "https://www.googleapis.com/auth/gmail.readonly"]
+from login import get_credentials
 
 
 def create_draft(service):
@@ -42,25 +35,7 @@ def createDraft():
     """Shows basic usage of the Gmail API.
     Creates a draft email.
     """
-    creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file(
-            "token.json", SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "Majordome_Bieber/API/credentials.json", SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+    creds = get_credentials()
 
     try:
         # Call the Gmail API
@@ -75,21 +50,7 @@ def readMail(nbr_mail=10):
     """Affiche l'utilisation de base de l'API Gmail.
     Récupère et affiche les 10 derniers e-mails de l'utilisateur.
     """
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    # S'il n'y a pas d'informations d'identification (valides) disponibles, laissez l'utilisateur se connecter.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "Majordome_Bieber/API/credentials.json", SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-        # Enregistrez les informations d'identification pour la prochaine exécution
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+    creds = get_credentials()
 
     try:
         # Appeler l'API Gmail

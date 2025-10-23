@@ -1,0 +1,33 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f8fafc;
+}
+
+.navbar-brand {
+  font-size: 1.4rem;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+textarea, input[type="file"], input[type="number"] {
+  border-radius: 0.5rem !important;
+}
+
+button, .btn {
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-2px);
+}
+
+.table thead th {
+  border-bottom: 2px solid #dee2e6;
+}
+
+footer {
+  background-color: #fff;
+}

@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./groupe-protagoras/code/src"
+    ]
+}

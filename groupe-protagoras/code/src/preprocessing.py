@@ -6,9 +6,28 @@ et de la normalisation en propositions logiques atomiques.
 
 from typing import List, Dict, Any
 import re
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.pydantic_v1 import BaseModel, Field
+import json
+
+
+
+def extraire_premisses_conclusions(texte: str, llm_client) -> Dict[str, Any]:
+    prompt = f"""
+    Analyse le discours suivant et retourne les éléments au format JSON :
+    {{
+      "premises": ["..."],
+      "conclusions": ["..."],
+      "relations": ["..."]
+    }}
+
+    Discours : {texte}
+    """
+    reponse = llm_client.generate(prompt)
+    try:
+        data = json.loads(reponse)
+    except json.JSONDecodeError:
+        data = {"premises": [], "conclusions": [], "relations": []}
+    return data
+
 
 def segmenter_discours(texte: str) -> List[str]:
     """

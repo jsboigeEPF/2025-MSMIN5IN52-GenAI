@@ -14,6 +14,7 @@ os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import uvicorn
 import asyncio
 import logging
@@ -23,40 +24,14 @@ from app.routers import story, health, image
 from app.services.text_generation_service import TextGenerationService
 from app.services.image_generation_service import ImageGenerationService
 
-# Création de l'application FastAPI avec métadonnées pour la documentation
-app = FastAPI(
-    title="Interactive Story Generator API",
-    description="""
-    API pour la génération d'histoires interactives avec images.
-    
-    Fonctionnalités principales :
-    - Création d'histoires dans différents genres
-    - Progression narrative basée sur les actions du joueur
-    - Génération d'images pour chaque scène
-    - Système de mémoire pour la cohérence narrative
-    - Sauvegarde et reprise des histoires
-    """,
-    version="1.0.0",
-    docs_url="/docs",  # Documentation Swagger
-    redoc_url="/redoc"  # Documentation ReDoc alternative
-)
 
-# CORS Configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS.split(","),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Événements de démarrage et arrêt de l'application
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     """
-    Événement de démarrage de l'application
-    Initialise les modèles IA et les services
+    Gestionnaire du cycle de vie de l'application
+    Remplace les anciens on_event("startup") et on_event("shutdown")
     """
+    # === STARTUP ===
     logger = logging.getLogger("uvicorn")
     logger.info("🚀 Démarrage de l'application Interactive Story Generator")
     
@@ -89,15 +64,10 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ Erreur lors de l'initialisation des services: {str(e)}")
         logger.warning("⚠️ L'application fonctionnera en mode dégradé")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """
-    Événement d'arrêt de l'application
-    Nettoie les ressources utilisées
-    """
-    logger = logging.getLogger("uvicorn")
+    
+    yield  # L'application tourne ici
+    
+    # === SHUTDOWN ===
     logger.info("🛑 Arrêt de l'application Interactive Story Generator")
     
     # Nettoyage des caches et ressources
@@ -116,6 +86,35 @@ async def shutdown_event():
         logger.error(f"❌ Erreur lors du nettoyage: {str(e)}")
     
     logger.info("👋 Application arrêtée proprement")
+
+
+# Création de l'application FastAPI avec métadonnées pour la documentation
+app = FastAPI(
+    title="Interactive Story Generator API",
+    description="""
+    API pour la génération d'histoires interactives avec images.
+    
+    Fonctionnalités principales :
+    - Création d'histoires dans différents genres
+    - Progression narrative basée sur les actions du joueur
+    - Génération d'images pour chaque scène
+    - Système de mémoire pour la cohérence narrative
+    - Sauvegarde et reprise des histoires
+    """,
+    version="1.0.0",
+    docs_url="/docs",  # Documentation Swagger
+    redoc_url="/redoc",  # Documentation ReDoc alternative
+    lifespan=lifespan  # Nouveau système de gestion du cycle de vie
+)
+
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS.split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configuration des routeurs API
 # Chaque routeur gère un domaine fonctionnel spécifique

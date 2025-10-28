@@ -78,7 +78,7 @@ class TextGenerationService:
             
             # Paramètres de génération par défaut
             self.generation_params = {
-                "max_new_tokens": 300,
+                "max_new_tokens": 500,  # Augmenté pour histoires plus longues
                 "temperature": 0.8,
                 "top_p": 0.9,
                 "top_k": 50,
@@ -153,18 +153,14 @@ class TextGenerationService:
                 "low_cpu_mem_usage": True
             }
             
-            # Ne pas utiliser device_map="auto" qui cause des problèmes
-            if self.device == "cuda":
-                model_kwargs["device_map"] = {"": 0}  # Utiliser GPU 0 explicitement
-            
+            # Charger sans device_map pour éviter les conflits avec accelerate
             self._model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
                 **model_kwargs
             )
             
-            # Déplacer vers le device approprié si CPU
-            if self.device == "cpu":
-                self._model = self._model.to(self.device)
+            # Déplacer vers le device approprié après chargement
+            self._model = self._model.to(self.device)
             
             # Création du pipeline de génération
             self._pipeline = pipeline(
@@ -288,7 +284,10 @@ class TextGenerationService:
             
             # Extraction et nettoyage du texte généré
             generated_text = result[0]["generated_text"]
+            print(f"Texte brut généré (premiers 200 chars): {generated_text[:200]}")
             clean_text = self._clean_generated_text(generated_text, prompt)
+            print(f"Texte nettoyé (premiers 200 chars): {clean_text[:200]}")
+            print(f"Longueur du texte nettoyé: {len(clean_text)} caractères")
             
             return clean_text
             
@@ -317,7 +316,10 @@ Règles importantes :
 - Crée une scène immersive et engageante
 - Termine par une situation nécessitant un choix du joueur
 - Reste dans le genre {story.genre.value}
-- Maximum 200 mots<|im_end|>
+- Maximum 200 mots
+- NE PAS inclure de balises <think> ou de raisonnement
+- Écris DIRECTEMENT le texte de l'histoire en français
+- PAS de méta-commentaires sur ta génération<|im_end|>
 
 <|im_start|>user
 Génère l'introduction d'une histoire {story.genre.value}."""
@@ -355,7 +357,10 @@ Règles importantes :
 - Fais progresser l'histoire de manière logique
 - Termine par une nouvelle situation nécessitant un choix
 - Reste cohérent avec le contexte précédent
-- Maximum 250 mots<|im_end|>
+- Maximum 250 mots
+- NE PAS inclure de balises <think> ou de raisonnement
+- Écris DIRECTEMENT le texte de l'histoire en français
+- PAS de méta-commentaires sur ta génération<|im_end|>
 
 <|im_start|>user
 Contexte de l'histoire :
@@ -520,6 +525,8 @@ Continue l'histoire en tenant compte de cette action.<|im_end|>
         Returns:
             str: Texte nettoyé
         """
+        import re
+        
         # Retirer le prompt original
         if original_prompt in generated_text:
             clean_text = generated_text.replace(original_prompt, "")
@@ -530,13 +537,19 @@ Continue l'histoire en tenant compte de cette action.<|im_end|>
         clean_text = clean_text.replace("<|im_start|>", "")
         clean_text = clean_text.replace("<|im_end|>", "")
         clean_text = clean_text.replace("<|assistant|>", "")
+        clean_text = clean_text.replace("<|user|>", "")
+        clean_text = clean_text.replace("<|system|>", "")
+        
+        # Supprimer les balises <think> et leur contenu (raisonnement du modèle)
+        clean_text = re.sub(r'<think>.*?</think>', '', clean_text, flags=re.DOTALL | re.IGNORECASE)
+        # Supprimer aussi si la balise n'est pas fermée (texte commence par <think>)
+        clean_text = re.sub(r'<think>.*', '', clean_text, flags=re.DOTALL | re.IGNORECASE)
         
         # Nettoyer les espaces multiples et retours à la ligne
         clean_text = " ".join(clean_text.split())
         
-        # Limiter la longueur si nécessaire
-        if len(clean_text) > 500:
-            clean_text = clean_text[:500] + "..."
+        # Ne pas limiter artificiellement - laisser le modèle générer jusqu'à la fin
+        # La longueur est déjà contrôlée par max_new_tokens et le prompt
         
         return clean_text.strip()
     

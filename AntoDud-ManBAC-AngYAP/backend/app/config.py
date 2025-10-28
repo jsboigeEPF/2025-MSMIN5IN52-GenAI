@@ -18,6 +18,15 @@ from pydantic_settings import BaseSettings
 # Déterminer le répertoire backend pour les chemins relatifs
 BACKEND_DIR = Path(__file__).parent.parent.resolve()
 
+# Configurer le répertoire de cache Hugging Face dans backend/data/models
+MODELS_CACHE_DIR = BACKEND_DIR / "data" / "models"
+MODELS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+os.environ["HF_HOME"] = str(MODELS_CACHE_DIR)
+os.environ["TRANSFORMERS_CACHE"] = str(MODELS_CACHE_DIR / "transformers")
+os.environ["DIFFUSERS_CACHE"] = str(MODELS_CACHE_DIR / "diffusers")
+
+print(f"📂 Cache des modèles configuré dans: {MODELS_CACHE_DIR}")
+
 
 class Settings(BaseSettings):
     """
@@ -39,7 +48,7 @@ class Settings(BaseSettings):
     # AI Models
     TEXT_MODEL_NAME: str = "Qwen/Qwen3-0.6B"
     TEXT_MODEL_DEVICE: str = "auto"
-    IMAGE_MODEL_NAME: str = "stabilityai/sdxl-turbo"
+    IMAGE_MODEL_NAME: str = "runwayml/stable-diffusion-v1-5"  # Modèle plus stable que SDXL-Turbo
     IMAGE_MODEL_DEVICE: str = "auto"
 
     # External APIs

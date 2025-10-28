@@ -1,9 +1,0 @@
-# Data directory that should be in backend/ instead
-/data/
-
-# macOS
-.DS_Store
-
-# IDE
-.vscode/
-.idea/

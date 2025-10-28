@@ -144,46 +144,38 @@ class ImageGenerationService:
             print(f"Chargement du modèle d'images {self.model_name}...")
             start_time = time.time()
             
-            # Chargement du pipeline Stable Diffusion avec paramètres plus compatibles
-            pipeline_kwargs = {
-                "torch_dtype": torch.float16 if self.device == "cuda" else torch.float32,
-                "safety_checker": None,
-                "requires_safety_checker": False
-            }
+            # Désactiver temporairement accelerate pour éviter les erreurs offload_state_dict
+            import os
+            old_no_init_check = os.environ.get("TRANSFORMERS_NO_INIT_CHECK", None)
+            os.environ["TRANSFORMERS_NO_INIT_CHECK"] = "1"
             
-            # Ne pas forcer use_safetensors si le modèle ne le supporte pas
-            try:
-                self._pipeline = StableDiffusionPipeline.from_pretrained(
-                    self.model_name,
-                    use_safetensors=True,
-                    **pipeline_kwargs
-                )
-            except Exception as safetensors_error:
-                print(f"Tentative avec use_safetensors=False: {safetensors_error}")
-                self._pipeline = StableDiffusionPipeline.from_pretrained(
-                    self.model_name,
-                    **pipeline_kwargs
-                )
+            # Chargement du pipeline Stable Diffusion 1.5 (plus stable que SDXL)
+            self._pipeline = StableDiffusionPipeline.from_pretrained(
+                self.model_name,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                safety_checker=None  # Désactiver le safety checker pour performance
+            )
             
-            # Optimisation du scheduler pour vitesse
-            try:
-                self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
-                    self._pipeline.scheduler.config
-                )
-            except Exception as scheduler_error:
-                print(f"Avertissement: Impossible de configurer le scheduler optimisé: {scheduler_error}")
-                # Continuer avec le scheduler par défaut
+            # Utiliser un scheduler plus rapide
+            self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
+                self._pipeline.scheduler.config
+            )
+            
+            # Restaurer l'environnement
+            if old_no_init_check is None:
+                os.environ.pop("TRANSFORMERS_NO_INIT_CHECK", None)
+            else:
+                os.environ["TRANSFORMERS_NO_INIT_CHECK"] = old_no_init_check
             
             # Déplacement sur le device approprié
             self._pipeline = self._pipeline.to(self.device)
             
-            # Optimisations mémoire si CUDA (avec gestion d'erreur)
+            # Optimisations mémoire si CUDA (sans accelerate)
             if self.device == "cuda":
                 try:
-                    if hasattr(self._pipeline, 'enable_memory_efficient_attention'):
-                        self._pipeline.enable_memory_efficient_attention()
-                    if hasattr(self._pipeline, 'enable_xformers_memory_efficient_attention'):
-                        self._pipeline.enable_xformers_memory_efficient_attention()
+                    # Activer attention slicing pour économiser la mémoire
+                    self._pipeline.enable_attention_slicing()
+                    print("✅ Attention slicing activé")
                 except Exception as optimization_error:
                     print(f"Avertissement: Optimisations mémoire non disponibles: {optimization_error}")
             
@@ -289,25 +281,46 @@ class ImageGenerationService:
         Returns:
             str: Éléments visuels extraits
         """
+        # Vérification que narrative_text n'est pas None ou vide
+        if not narrative_text:
+            return "atmospheric scene, detailed environment"
+        
         # Simplification pour l'instant - extraction basique
         # TODO: Implémenter NLP pour extraction sophistiquée
         
         # Mots-clés visuels communs à rechercher
         visual_keywords = {
             'forest': 'mystical forest',
+            'forêt': 'mystical forest',
             'castle': 'ancient castle',
+            'château': 'ancient castle',
             'space': 'cosmic space scene',
+            'espace': 'cosmic space scene',
             'city': 'urban cityscape',
+            'ville': 'urban cityscape',
             'mountain': 'majestic mountains',
+            'montagne': 'majestic mountains',
             'ocean': 'vast ocean',
+            'océan': 'vast ocean',
             'house': 'mysterious house',
+            'maison': 'mysterious house',
             'room': 'atmospheric interior room',
+            'pièce': 'atmospheric interior room',
+            'chambre': 'atmospheric interior room',
             'character': 'dramatic character portrait',
+            'personnage': 'dramatic character portrait',
             'creature': 'fantastical creature',
+            'créature': 'fantastical creature',
             'magic': 'magical effects',
+            'magie': 'magical effects',
+            'magique': 'magical effects',
             'technology': 'futuristic technology',
+            'technologie': 'futuristic technology',
             'darkness': 'dark atmospheric scene',
-            'light': 'dramatic lighting'
+            'obscurité': 'dark atmospheric scene',
+            'sombre': 'dark atmospheric scene',
+            'light': 'dramatic lighting',
+            'lumière': 'dramatic lighting'
         }
         
         # Recherche de mots-clés dans le texte
@@ -348,50 +361,52 @@ class ImageGenerationService:
             generator.manual_seed(hash(f"{story_id}_{scene_number}") % 2**32)
             
             # Prompt négatif pour améliorer la qualité
-            negative_prompt = self.negative_prompts["default"]
+            negative_prompt = self.negative_prompts.get("default", "blurry, low quality, distorted")
             
             print(f"Génération d'image pour scène {scene_number}...")
+            print(f"Prompt: {prompt[:100]}...")
             start_time = time.time()
             
-            # Génération de l'image avec gestion d'erreur améliorée
+            # Génération de l'image avec paramètres optimisés pour SD 1.5
             try:
-                if self.device == "cuda":
-                    with torch.autocast("cuda"):
-                        result = self._pipeline(
-                            prompt=prompt,
-                            negative_prompt=negative_prompt,
-                            width=self.generation_params["width"],
-                            height=self.generation_params["height"],
-                            num_inference_steps=self.generation_params["num_inference_steps"],
-                            guidance_scale=self.generation_params["guidance_scale"],
-                            generator=generator
-                        )
-                else:
-                    # Pour CPU, pas d'autocast
-                    result = self._pipeline(
-                        prompt=prompt,
-                        negative_prompt=negative_prompt,
-                        width=self.generation_params["width"],
-                        height=self.generation_params["height"],
-                        num_inference_steps=self.generation_params["num_inference_steps"],
-                        guidance_scale=self.generation_params["guidance_scale"],
-                        generator=generator
-                    )
-            except Exception as gen_error:
-                print(f"Erreur lors de la génération avec paramètres complets: {gen_error}")
-                # Essai avec paramètres simplifiés
                 result = self._pipeline(
                     prompt=prompt,
-                    width=512,
-                    height=512,
-                    num_inference_steps=10  # Plus rapide pour test
+                    negative_prompt=negative_prompt,
+                    num_inference_steps=20,  # SD 1.5 nécessite plus de steps
+                    guidance_scale=7.5,  # Guidance classique pour SD 1.5
+                    generator=generator,
+                    output_type="pil"
                 )
+            except Exception as gen_error:
+                print(f"Erreur lors de la génération avec paramètres complets: {gen_error}")
+                import traceback
+                traceback.print_exc()
+                # Essai avec le strict minimum
+                try:
+                    result = self._pipeline(prompt)
+                except Exception as simple_error:
+                    print(f"Erreur aussi avec paramètres minimaux: {simple_error}")
+                    raise  # Relancer pour le catch externe
             
             generation_time = time.time() - start_time
             print(f"Image générée en {generation_time:.2f}s")
             
             # Sauvegarde de l'image
             image = result.images[0]
+            
+            # Debug et correction: vérifier et réparer les valeurs invalides
+            import numpy as np
+            img_array = np.array(image)
+            print(f"Image shape: {img_array.shape}, dtype: {img_array.dtype}")
+            print(f"Image min: {img_array.min()}, max: {img_array.max()}, mean: {img_array.mean():.2f}")
+            
+            # Vérifier s'il y a des NaN ou des valeurs invalides
+            if np.isnan(img_array).any() or img_array.max() == 0:
+                print("⚠️ Image invalide détectée (NaN ou valeurs nulles). Tentative avec latents bruts...")
+                # Problème de conversion - essayer de récupérer les latents
+                # Pour l'instant, retourner un placeholder
+                return self._create_placeholder_image(story_id, scene_number)
+            
             image_path = self._save_image(image, story_id, scene_number)
             
             return image_path
@@ -410,7 +425,7 @@ class ImageGenerationService:
             scene_number: Numéro de la scène
             
         Returns:
-            str: Chemin vers l'image sauvegardée
+            str: Chemin relatif vers l'image sauvegardée (format: {story_id}/{filename})
         """
         # Création du répertoire spécifique à l'histoire
         story_images_dir = os.path.join(self.images_path, story_id)
@@ -424,7 +439,8 @@ class ImageGenerationService:
         # Sauvegarde avec optimisation
         image.save(image_path, "PNG", optimize=True, quality=85)
         
-        return image_path
+        # Retourner le chemin relatif pour l'API (story_id/filename)
+        return f"{story_id}/{filename}"
     
     def _create_placeholder_image(self, story_id: str, scene_number: int) -> str:
         """

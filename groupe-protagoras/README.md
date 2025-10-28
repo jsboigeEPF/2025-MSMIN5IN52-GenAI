@@ -48,3 +48,49 @@ La réalisation de ce projet s'organise en plusieurs étapes clés, structurées
 - Publier le code source et les résultats expérimentaux.
 
 Ce projet, bien que de difficulté avancée, offre une opportunité unique d'explorer les frontières entre compréhension linguistique et rigueur logique, au cœur des enjeux actuels de l'IA responsable.
+
+### Tutoriels utiles : 
+Dans CoursIA-main
+IA Générative (GenAI)
+MyIA.AI.Notebooks/GenAI/
+OpenAI_Intro.ipynb  → base pour interfacer l'agent avec un modèle de langage (utile pour la composante LLM d’analyse sémantique).
+
+PromptEngineering.ipynb → indispensable pour concevoir les prompts hybrides (détection de sophismes, validation d’arguments).
+
+RAG.ipynb → utile si pour que l'agent utilise un corpus d’arguments ou de débats comme base de connaissances.
+
+LocalLlama.ipynb → pertinent si test des modèles locaux pour raisonnement sans API externe.
+
+Microsoft Semantic Kernel
+
+Les notebooks :
+MyIA.AI.Notebooks/GenAI/SemanticKernel/
+
+01-SemanticKernel-Intro.ipynb 
+03-SemanticKernel-Agents.ipynb
+
+Le Semantic Kernel sert à orchestrer plusieurs modules IA (par ex. un agent symbolique + un agent LLM).
+
+IA Symbolique (SymbolicAI)
+
+(C’est la partie la plus critique de l'analyse formelle)
+
+Sudoku-4-Z3.ipynb (MyIA.AI.Notebooks/Sudoku/) et Linq2Z3.ipynb (MyIA.AI.Notebooks/SymbolicAI/) → illustrent comment manipuler Z3, un solveur SMT, proche des usages pour valider des arguments logiques.
+
+MyIA.AI.Notebooks/SymbolicAI/
+OR-tools-Stiegler.ipynb → démontre des méthodes de programmation par contraintes, utile pour la vérification logique structurée.
+
+RDF.Net.ipynb → intéressant si formaliser les arguments sous forme de graphes sémantiques.
+
+Integrated Information Theory (IIT)
+MyIA.AI.Notebooks/IIT/
+Intro_to_PyPhi.ipynb : pas directement utile, mais intéressant pour améliorer la métacognition ou la cohérence interne d’un système d’argumentation.
+
+Chemin proposé par ChatGPT : 
+|Étape|     But                                          | Notebook                               |
+|-----|--------------------------------------------------| -------------------------------------- |
+| 1️⃣ | Comprendre le lien LLM ↔ API                      | `OpenAI_Intro.ipynb`                   |
+| 2️⃣ | Créer de bons prompts d’analyse logique           | `PromptEngineering.ipynb`              |
+| 3️⃣ | Intégrer logique formelle                         | `Sudoku-4-Z3.ipynb` ou `Linq2Z3.ipynb` |
+| 4️⃣ | Fusionner logique + LLM (architecture hybride)    | `03-SemanticKernel-Agents.ipynb`       |
+| 5️⃣ | Ajouter recherche contextuelle (débat, sophismes) | `RAG.ipynb`                            |

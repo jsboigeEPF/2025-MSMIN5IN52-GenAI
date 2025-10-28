@@ -33,10 +33,10 @@ const StoryDisplay = ({ onReset }) => {
   };
   
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 pb-8">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-900 to-transparent py-4 mb-6">
-        <div className="flex items-center justify-between">
+    <div className="w-full h-screen flex flex-col p-4">
+      {/* Header fixe avec espacement */}
+      <div className="bg-gradient-to-b from-slate-900 to-slate-900/80 rounded-xl py-6 px-6 border border-white/10 mb-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 rounded-lg">
               <BookOpen className="w-6 h-6 text-blue-400" />
@@ -59,48 +59,60 @@ const StoryDisplay = ({ onReset }) => {
         </div>
       </div>
       
-      {/* Messages d'erreur */}
-      {error && (
-        <div className="mb-6 animate-slide-up">
-          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
-            <p className="text-red-400">{error}</p>
-            <button
-              onClick={clearError}
-              className="mt-2 text-sm text-red-300 hover:text-red-200 underline"
-            >
-              Fermer
-            </button>
+      {/* Layout horizontal : Histoire à gauche, Actions à droite */}
+      <div className="flex-1 flex overflow-hidden gap-4">
+        {/* Zone de l'histoire (scrollable) */}
+        <div className="flex-1 overflow-y-auto px-2">
+          <div className="max-w-5xl mx-auto">
+            {/* Messages d'erreur */}
+            {error && (
+              <div className="mb-6 animate-slide-up">
+                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+                  <p className="text-red-400">{error}</p>
+                  <button
+                    onClick={clearError}
+                    className="mt-2 text-sm text-red-300 hover:text-red-200 underline"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Liste des scènes */}
+            <div className="space-y-6 mb-6">
+              {allScenes.map((scene, index) => (
+                <SceneCard
+                  key={scene.scene_id || index}
+                  scene={scene}
+                  isLatest={index === allScenes.length - 1}
+                />
+              ))}
+              <div ref={scenesEndRef} />
+            </div>
+            
+            {/* Loading pendant génération */}
+            {isContinuing && (
+              <div className="mb-6">
+                <Loading size="md" text="Génération de la suite en cours..." />
+              </div>
+            )}
           </div>
         </div>
-      )}
-      
-      {/* Liste des scènes */}
-      <div className="space-y-6 mb-6">
-        {allScenes.map((scene, index) => (
-          <SceneCard
-            key={scene.scene_id || index}
-            scene={scene}
-            isLatest={index === allScenes.length - 1}
-          />
-        ))}
-        <div ref={scenesEndRef} />
+        
+        {/* Panneau des actions (fixe à droite, centré verticalement) */}
+        {currentScene && !isContinuing && (
+          <div className="w-96 border border-white/10 bg-slate-900/50 rounded-xl p-6 overflow-y-auto flex items-center">
+            <div className="w-full">
+              <ActionInput
+                suggestedActions={currentScene.suggested_actions || []}
+                onSubmitAction={handleAction}
+                isLoading={isContinuing}
+              />
+            </div>
+          </div>
+        )}
       </div>
-      
-      {/* Loading pendant génération */}
-      {isContinuing && (
-        <div className="mb-6">
-          <Loading size="md" text="Génération de la suite en cours..." />
-        </div>
-      )}
-      
-      {/* Input d'action */}
-      {currentScene && !isContinuing && (
-        <ActionInput
-          suggestedActions={currentScene.suggested_actions || []}
-          onSubmitAction={handleAction}
-          isLoading={isContinuing}
-        />
-      )}
     </div>
   );
 };

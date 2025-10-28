@@ -46,9 +46,9 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # AI Models
-    TEXT_MODEL_NAME: str = "Qwen/Qwen3-0.6B"
+    TEXT_MODEL_NAME: str = "Qwen/Qwen2.5-3B-Instruct"  # Upgrade from 0.6B to 3B for better quality
     TEXT_MODEL_DEVICE: str = "auto"
-    IMAGE_MODEL_NAME: str = "runwayml/stable-diffusion-v1-5"  # Modèle plus stable que SDXL-Turbo
+    IMAGE_MODEL_NAME: str = "stabilityai/sdxl-turbo"
     IMAGE_MODEL_DEVICE: str = "auto"
 
     # External APIs

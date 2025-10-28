@@ -27,7 +27,7 @@ import base64
 
 try:
     import torch
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+    from diffusers import AutoPipelineForText2Image
     DIFFUSERS_AVAILABLE = True
 except ImportError:
     DIFFUSERS_AVAILABLE = False
@@ -81,10 +81,10 @@ class ImageGenerationService:
             
             # Paramètres de génération par défaut
             self.generation_params = {
-                "width": 512,
+                "width": 512,  # Résolution native de SDXL-Turbo
                 "height": 512,
-                "num_inference_steps": 20,  # Balance qualité/vitesse
-                "guidance_scale": 7.5,
+                "num_inference_steps": 2,  # 2-4 steps optimal pour SDXL-Turbo
+                "guidance_scale": 0.0,  # Pas de guidance pour Turbo
                 "num_images_per_prompt": 1,
                 "generator": None  # Sera défini avec une seed
             }
@@ -149,16 +149,11 @@ class ImageGenerationService:
             old_no_init_check = os.environ.get("TRANSFORMERS_NO_INIT_CHECK", None)
             os.environ["TRANSFORMERS_NO_INIT_CHECK"] = "1"
             
-            # Chargement du pipeline Stable Diffusion 1.5 (plus stable que SDXL)
-            self._pipeline = StableDiffusionPipeline.from_pretrained(
+            # Configuration EXACTE selon la documentation officielle SDXL-Turbo
+            self._pipeline = AutoPipelineForText2Image.from_pretrained(
                 self.model_name,
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                safety_checker=None  # Désactiver le safety checker pour performance
-            )
-            
-            # Utiliser un scheduler plus rapide
-            self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
-                self._pipeline.scheduler.config
+                torch_dtype=torch.float16,
+                variant="fp16"
             )
             
             # Restaurer l'environnement
@@ -170,7 +165,24 @@ class ImageGenerationService:
             # Déplacement sur le device approprié
             self._pipeline = self._pipeline.to(self.device)
             
-            # Optimisations mémoire si CUDA (sans accelerate)
+            # FIX OFFICIEL pour SDXL-Turbo: enable_vae_tiling et enable_vae_slicing
+            # Ces méthodes permettent de gérer les problèmes de NaN sans changer le dtype
+            if self.device == "cuda":
+                try:
+                    # Enable VAE tiling pour gérer les grandes images
+                    self._pipeline.enable_vae_tiling()
+                    print("✅ VAE tiling activé")
+                except Exception as e:
+                    print(f"VAE tiling non disponible: {e}")
+                
+                try:
+                    # Enable VAE slicing pour économiser la mémoire
+                    self._pipeline.enable_vae_slicing()
+                    print("✅ VAE slicing activé")
+                except Exception as e:
+                    print(f"VAE slicing non disponible: {e}")
+            
+            # Optimisations mémoire si CUDA
             if self.device == "cuda":
                 try:
                     # Activer attention slicing pour économiser la mémoire
@@ -367,15 +379,19 @@ class ImageGenerationService:
             print(f"Prompt: {prompt[:100]}...")
             start_time = time.time()
             
-            # Génération de l'image avec paramètres optimisés pour SD 1.5
+            # Génération selon documentation officielle SDXL-Turbo:
+            # - num_inference_steps=2-4 (balance qualité/vitesse)
+            # - guidance_scale=0.0 (no guidance)
+            # - Résolution 512x512 (native pour SDXL-Turbo)
             try:
                 result = self._pipeline(
                     prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    num_inference_steps=20,  # SD 1.5 nécessite plus de steps
-                    guidance_scale=7.5,  # Guidance classique pour SD 1.5
+                    num_inference_steps=2,  # 2 steps pour meilleure qualité
+                    guidance_scale=0.0,
+                    width=512,  # Résolution native SDXL-Turbo
+                    height=512,
                     generator=generator,
-                    output_type="pil"
+                    output_type="pil"  # Forcer output PIL
                 )
             except Exception as gen_error:
                 print(f"Erreur lors de la génération avec paramètres complets: {gen_error}")
@@ -394,17 +410,12 @@ class ImageGenerationService:
             # Sauvegarde de l'image
             image = result.images[0]
             
-            # Debug et correction: vérifier et réparer les valeurs invalides
+            # Vérifier s'il y a des valeurs invalides
             import numpy as np
             img_array = np.array(image)
-            print(f"Image shape: {img_array.shape}, dtype: {img_array.dtype}")
-            print(f"Image min: {img_array.min()}, max: {img_array.max()}, mean: {img_array.mean():.2f}")
             
-            # Vérifier s'il y a des NaN ou des valeurs invalides
             if np.isnan(img_array).any() or img_array.max() == 0:
-                print("⚠️ Image invalide détectée (NaN ou valeurs nulles). Tentative avec latents bruts...")
-                # Problème de conversion - essayer de récupérer les latents
-                # Pour l'instant, retourner un placeholder
+                print("⚠️ Image invalide détectée (NaN ou valeurs nulles). Génération d'un placeholder...")
                 return self._create_placeholder_image(story_id, scene_number)
             
             image_path = self._save_image(image, story_id, scene_number)

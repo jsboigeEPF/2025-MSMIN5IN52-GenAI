@@ -108,8 +108,16 @@ backend/
 Pour tester avec PyTorch et CUDA installés :
 
 ```bash
-# Installer PyTorch avec support CUDA (exemple pour CUDA 12.1)
+# Vérifier votre version CUDA
+nvidia-smi
+
+# Installer PyTorch avec support CUDA selon votre version
+# Consultez https://pytorch.org/get-started/locally/ pour la commande exacte
+# Exemples:
+# Pour CUDA 12.1:
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# Pour CUDA 11.8:
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
 # Vérifier la détection CUDA
 python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"

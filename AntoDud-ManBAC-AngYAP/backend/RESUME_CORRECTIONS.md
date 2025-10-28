@@ -147,8 +147,21 @@ Si vous avez une carte NVIDIA avec CUDA :
    ```
 
 2. **Si False, installez PyTorch avec CUDA** :
+   
+   Vérifiez d'abord votre version CUDA :
    ```bash
+   nvidia-smi
+   ```
+   
+   Puis installez PyTorch selon votre version CUDA (voir https://pytorch.org/) :
+   ```bash
+   # Pour CUDA 12.1
    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+   
+   # Pour CUDA 11.8
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+   
+   # Ou visitez https://pytorch.org/get-started/locally/ pour votre configuration
    ```
 
 3. **Créez votre .env** :

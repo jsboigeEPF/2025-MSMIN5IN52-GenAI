@@ -11,7 +11,12 @@ Utilise Pydantic Settings pour la validation automatique des types
 et le chargement depuis les variables d'environnement et fichiers .env
 """
 
+import os
+from pathlib import Path
 from pydantic_settings import BaseSettings
+
+# Déterminer le répertoire backend pour les chemins relatifs
+BACKEND_DIR = Path(__file__).parent.parent.resolve()
 
 
 class Settings(BaseSettings):
@@ -46,16 +51,16 @@ class Settings(BaseSettings):
     MAX_CONTEXT_LENGTH: int = 4000
     DEFAULT_GENRE: str = "fantasy"
 
-    # File Storage
-    STORIES_PATH: str = "./data/stories"
-    IMAGES_PATH: str = "./data/images"
+    # File Storage (relative to backend directory)
+    STORIES_PATH: str = str(BACKEND_DIR / "data" / "stories")
+    IMAGES_PATH: str = str(BACKEND_DIR / "data" / "images")
 
     # CORS
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     # Logging
     LOG_LEVEL: str = "INFO"
-    LOG_FILE: str = "./logs/app.log"
+    LOG_FILE: str = str(BACKEND_DIR / "logs" / "app.log")
 
     class Config:
         env_file = ".env"

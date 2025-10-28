@@ -19,7 +19,7 @@ import asyncio
 import logging
 
 from app.config import settings
-from app.routers import story, health
+from app.routers import story, health, image
 from app.services.text_generation_service import TextGenerationService
 from app.services.image_generation_service import ImageGenerationService
 
@@ -121,8 +121,7 @@ async def shutdown_event():
 # Chaque routeur gère un domaine fonctionnel spécifique
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(story.router, prefix="/api/v1")
-# TODO: Ajouter le routeur image quand il sera implémenté
-# app.include_router(image.router, prefix="/api/v1")
+app.include_router(image.router, prefix="/api/v1")
 
 
 @app.get("/")

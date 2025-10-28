@@ -148,14 +148,22 @@ class ImageGenerationService:
             pipeline_kwargs = {
                 "torch_dtype": torch.float16 if self.device == "cuda" else torch.float32,
                 "safety_checker": None,
-                "requires_safety_checker": False,
-                "use_safetensors": True
+                "requires_safety_checker": False
             }
             
-            self._pipeline = StableDiffusionPipeline.from_pretrained(
-                self.model_name,
-                **pipeline_kwargs
-            )
+            # Ne pas forcer use_safetensors si le modèle ne le supporte pas
+            try:
+                self._pipeline = StableDiffusionPipeline.from_pretrained(
+                    self.model_name,
+                    use_safetensors=True,
+                    **pipeline_kwargs
+                )
+            except Exception as safetensors_error:
+                print(f"Tentative avec use_safetensors=False: {safetensors_error}")
+                self._pipeline = StableDiffusionPipeline.from_pretrained(
+                    self.model_name,
+                    **pipeline_kwargs
+                )
             
             # Optimisation du scheduler pour vitesse
             try:

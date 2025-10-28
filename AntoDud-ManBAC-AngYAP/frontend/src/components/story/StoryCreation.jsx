@@ -73,8 +73,28 @@ const StoryCreation = ({ onStoryCreated }) => {
     const rect = card.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    // Position de la souris pour le spotlight
     card.style.setProperty('--mouse-x', `${x}%`);
     card.style.setProperty('--mouse-y', `${y}%`);
+    
+    // Calcul de l'inclinaison pour l'effet 3D
+    // Centre = (50, 50), on calcule le décalage
+    const rotateX = ((y - 50) / 50) * -10; // -10 à +10 degrés
+    const rotateY = ((x - 50) / 50) * 10;  // -10 à +10 degrés
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+  };
+  
+  const handleMouseLeave = (e) => {
+    const card = e.currentTarget;
+    // Transition uniquement pour le retour
+    card.style.transition = 'transform 0.3s ease';
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    // Retirer la transition après l'animation de retour
+    setTimeout(() => {
+      card.style.transition = 'none';
+    }, 300);
   };
   
   const handleCreateStory = async () => {
@@ -118,9 +138,11 @@ const StoryCreation = ({ onStoryCreated }) => {
               return (
                 <div
                   key={genre.id}
-                  className="genre-card cursor-pointer hover:scale-105 transition-transform duration-200 group"
+                  className="genre-card cursor-pointer group"
                   onClick={() => handleGenreSelect(genre)}
                   onMouseMove={handleMouseMove}
+                  onMouseLeave={handleMouseLeave}
+                  style={{ transformStyle: 'preserve-3d', transition: 'none' }}
                 >
                   <Card
                     variant="gradient"

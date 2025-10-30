@@ -1,43 +1,31 @@
 {
   "meta": {
     "source_file": "exemple_argument.txt",
-    "generated_at": "2025-10-30T22:08:08.006699+00:00"
+    "generated_at": "2025-10-30T22:12:24.576328+00:00"
   },
   "analyses": [
     {
       "meta": {
-        "generated_at": "2025-10-30T22:08:02.554736+00:00",
+        "generated_at": "2025-10-30T22:12:21.269011+00:00",
         "input_length": 91,
         "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
       },
       "segments": [],
-      "sophisms": [
-        {
-          "type": "Affirmation du conséquent",
-          "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
-          "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
-        }
-      ],
+      "sophisms": [],
       "formal": {
         "is_valid": 1,
         "inconsistencies": [],
         "logical_implications": []
       },
       "fusion": {
-        "overall_validity": false,
-        "informal_fallacies": [
-          {
-            "type": "Affirmation du conséquent",
-            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
-            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
-          }
-        ],
+        "overall_validity": true,
+        "informal_fallacies": [],
         "formal_validity": {
           "is_valid": 1,
           "inconsistencies": [],
           "logical_implications": []
         },
-        "final_verdict": "L'argument est logiquement valide mais repose sur des sophismes. La conclusion pourrait être correcte, mais le raisonnement est fallacieux."
+        "final_verdict": "L'argument est logiquement valide et ne contient pas de sophismes apparents. C'est un argument solide."
       },
       "segments_raw": [
         "Si le feu est rouge, je m'arrête",
@@ -46,41 +34,29 @@
       ],
       "extracted_logic": {
         "premises": [
-          "feu_rouge => arret",
-          "!arret"
+          "feu_rouge => m_arrete",
+          "!m_arrete"
         ],
         "conclusion": "!feu_rouge"
       },
       "formules": [
-        "feu_rouge => arret",
-        "!arret",
+        "feu_rouge => m_arrete",
+        "!m_arrete",
         "!feu_rouge"
       ],
       "sophisms_raw": {
-        "fallacies": [
-          {
-            "type": "Affirmation du conséquent",
-            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
-            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
-          }
-        ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme (Affirmation du conséquent)."
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:08:05.840912+00:00",
+        "generated_at": "2025-10-30T22:12:22.974290+00:00",
         "input_length": 83,
         "original_text": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas."
       },
       "segments": [],
-      "sophisms": [
-        {
-          "type": "Affirmation du conséquent",
-          "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
-          "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
-        }
-      ],
+      "sophisms": [],
       "formal": {
         "is_valid": 0,
         "inconsistencies": [],
@@ -88,19 +64,13 @@
       },
       "fusion": {
         "overall_validity": false,
-        "informal_fallacies": [
-          {
-            "type": "Affirmation du conséquent",
-            "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
-            "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
-          }
-        ],
+        "informal_fallacies": [],
         "formal_validity": {
           "is_valid": 0,
           "inconsistencies": [],
           "logical_implications": []
         },
-        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
       },
       "segments_raw": [
         "Si le feu est rouge, je m'arrête",
@@ -120,14 +90,8 @@
         "!m_arrete"
       ],
       "sophisms_raw": {
-        "fallacies": [
-          {
-            "type": "Affirmation du conséquent",
-            "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
-            "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
-          }
-        ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme."
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté."
       }
     }
   ]

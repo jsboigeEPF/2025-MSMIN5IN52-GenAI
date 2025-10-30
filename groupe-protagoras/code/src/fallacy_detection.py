@@ -35,15 +35,23 @@ def detecter_sophismes(texte: str, llm_client) -> Dict[str, Any]:
     prompt_template = """Tu es un expert en logique et en rhétorique. Analyse le discours suivant pour détecter les sophismes.
 
 **Instructions importantes :**
-1.  **Si l'énoncé est purement factuel, descriptif, ou ne contient pas de structure argumentative (prémisse menant à une conclusion), tu DOIS conclure qu'il n'y a aucun sophisme.** Ne force pas une interprétation.
-2.  Si un sophisme est présent, tu DOIS fournir les trois informations suivantes pour chaque sophisme :
+1.  **Distingue les arguments valides des sophismes.** Un argument déductif valide (comme Modus Ponens ou Modus Tollens) n'est PAS un sophisme.
+2.  **Identifie les sophismes formels** (erreurs de structure logique) et **informels** (erreurs de raisonnement).
+3.  **Si l'énoncé est factuel ou ne contient pas d'argument, conclus qu'il n'y a aucun sophisme.**
+4.  Si un sophisme est présent, tu DOIS fournir les trois informations suivantes pour chaque sophisme :
     - `type`: Le nom du sophisme.
     - `excerpt`: L'extrait de texte exact où le sophisme se produit.
     - `explanation`: Une explication claire et concise.
 
-**Exemples :**
-- **Discours :** "Si nous autorisons le mariage gay, bientôt les gens voudront se marier avec des animaux."
-  - **Analyse attendue :** Sophisme de la pente glissante.
+**Exemples de raisonnements VALIDES (NON-SOPHISTIQUÉS) :**
+- **Modus Ponens :** "S'il pleut, alors le sol est mouillé. Il pleut. Donc, le sol est mouillé." -> Aucun sophisme.
+- **Modus Tollens :** "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge." -> Aucun sophisme.
+
+**Exemples de SOPHISMES :**
+- **Affirmation du conséquent (Sophisme Formel) :** "Si j'étudie, je réussirai. J'ai réussi. Donc, j'ai étudié." -> Sophisme d'affirmation du conséquent.
+- **Attaque personnelle (Sophisme Informel) :** "On ne peut pas faire confiance à son avis sur l'économie, il est toujours mal habillé." -> Sophisme d'attaque personnelle.
+
+**Exemples d'affirmations FACTUELLES (NON-SOPHISTIQUÉES) :**
 - **Discours :** "L’eau bout à 100°C au niveau de la mer."
   - **Analyse attendue :** Aucun sophisme détecté, c'est une affirmation factuelle.
 - **Discours :** "Les chats sont des mammifères."

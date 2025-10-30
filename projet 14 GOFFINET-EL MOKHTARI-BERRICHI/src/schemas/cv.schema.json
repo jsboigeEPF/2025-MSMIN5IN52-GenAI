@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CV Schema",
+  "type": "object",
+  "required": ["personal_info", "work_experience", "education", "skills"],
+  "properties": {
+    "personal_info": {
+      "type": "object",
+      "required": ["name", "email", "phone", "address"],
+      "properties": {
+        "name": {"type": "string"},
+        "email": {"type": "string", "format": "email"},
+        "phone": {"type": "string"},
+        "address": {"type": "string"}
+      }
+    },
+    "work_experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["company", "position", "start_date", "end_date", "description"],
+        "properties": {
+          "company": {"type": "string"},
+          "position": {"type": "string"},
+          "start_date": {"type": "string", "format": "date"},
+          "end_date": {"type": "string", "format": "date"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution", "degree", "graduation_date", "description"],
+        "properties": {
+          "institution": {"type": "string"},
+          "degree": {"type": "string"},
+          "graduation_date": {"type": "string", "format": "date"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "summary": {
+      "type": "string"
+    }
+  }
+}

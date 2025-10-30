@@ -1,0 +1,47 @@
+{
+  "personal_information": {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1 (555) 123-4567"
+  },
+  "professional_summary": "Results-driven software engineer with 5+ years of experience in full-stack development and team leadership.",
+  "work_experience": [
+    {
+      "job_title": "Senior Software Engineer",
+      "company": "Tech Corp",
+      "duration": "January 2020 - Present",
+      "responsibilities": [
+        "Led a team of 5 developers to deliver a critical customer-facing application",
+        "Implemented CI/CD pipeline that reduced deployment time by 40%",
+        "Mentored junior developers and established coding standards"
+      ]
+    }
+  ],
+  "education": {
+    "degree": "Bachelor of Science in Computer Science",
+    "university": "State University",
+    "graduation_date": "May 2018",
+    "coursework": [
+      "Data Structures and Algorithms",
+      "Database Systems",
+      "Software Engineering"
+    ]
+  },
+  "skills": [
+    "Python",
+    "JavaScript",
+    "React",
+    "Node.js"
+  ],
+  "projects": [
+    {
+      "name": "Task Management System",
+      "description": "Developed a full-stack task management application with real-time collaboration",
+      "technologies": [
+        "React",
+        "Node.js",
+        "MongoDB"
+      ]
+    }
+  ]
+}

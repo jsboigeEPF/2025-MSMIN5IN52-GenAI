@@ -58,22 +58,26 @@ Discours : {texte}
     
     return resultat
 
-def normaliser_en_logique_atomique(unites: List[str]) -> List[str]:
+def normaliser_en_logique_atomique(phrases: List[str]) -> List[str]:
     """
-    Normalise les énoncés en propositions logiques atomiques.
-    Exemple : "Tous les chats sont mignons" → "Chat(x) → Mignon(x)"
+    Normalise une liste de phrases en propositions logiques atomiques (A, B, C...).
+    Chaque phrase unique est mappée à une lettre majuscule.
+    Exemple: ["p", "q", "p"] -> ["A", "B", "A"]
     """
-    propositions = []
-    for unite in unites:
-        # Remplacements simples pour la démonstration
-        # La transformation se fait en une seule étape pour directement produire un format compatible Tweety.
-        formule = unite
-        formule = re.sub(r"Tous les (\w+) sont (\w+)", r"\1(x) => \2(x)", formule, flags=re.IGNORECASE)
-        formule = re.sub(r"Aucun (\w+) n'est (\w+)", r"\1(x) => !\2(x)", formule, flags=re.IGNORECASE)
-        formule = re.sub(r"(\w+) est (\w+)", r"\1 => \2", formule, flags=re.IGNORECASE)
-        propositions.append(formule.strip())
+    mapping = {}
+    lettres = [chr(ord('A') + i) for i in range(26)]
+    formules_resultat = []
     
-    return propositions
+    lettre_idx = 0
+    for phrase in phrases:
+        # Normaliser la phrase pour ignorer la casse et les espaces superflus
+        phrase_normalisee = phrase.strip().lower()
+        if phrase_normalisee not in mapping:
+            mapping[phrase_normalisee] = lettres[lettre_idx] if lettre_idx < len(lettres) else f"P{len(mapping)}"
+            lettre_idx += 1
+        formules_resultat.append(mapping[phrase_normalisee])
+        
+    return formules_resultat
 
 # Exemple d'utilisation
 if __name__ == "__main__":

@@ -1,21 +1,64 @@
 {
   "meta": {
     "source_file": "exemple_argument.txt",
-    "generated_at": "2025-10-30T19:39:43.314334+00:00"
+    "generated_at": "2025-10-30T21:14:13.783380+00:00"
   },
   "analyses": [
     {
       "meta": {
-        "generated_at": "2025-10-30T19:39:37.246632+00:00",
-        "input_length": 92,
-        "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
+        "generated_at": "2025-10-30T21:14:01.174266+00:00",
+        "input_length": 52,
+        "original_text": "L’eau bout à 100 degrés Celsius au niveau de la mer."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
+      },
+      "segments_raw": [
+        "L’eau bout à 100 degrés Celsius au niveau de la mer"
+      ],
+      "extracted": {
+        "premises": [
+          "L’eau bout à 100 degrés Celsius",
+          "au niveau de la mer"
+        ],
+        "conclusions": [],
+        "relations": []
+      },
+      "formules": [
+        "A",
+        "B"
+      ],
+      "sophisms_raw": {
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté, c'est une affirmation factuelle."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T21:14:03.603797+00:00",
+        "input_length": 106,
+        "original_text": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur."
       },
       "segments": [],
       "sophisms": [
         {
-          "type": "pente glissante",
-          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-          "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+          "type": "Syllogisme invalide",
+          "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
+          "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
         }
       ],
       "formal": {
@@ -27,9 +70,77 @@
         "overall_validity": false,
         "informal_fallacies": [
           {
-            "type": "pente glissante",
+            "type": "Syllogisme invalide",
+            "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
+            "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Tous les chats sont des mammifères",
+        "Or, tous les mammifères ont un cœur",
+        "Donc, tous les chats ont un cœur"
+      ],
+      "extracted": {
+        "premises": [
+          "Tous les chats sont des mammifères",
+          "Tous les mammifères ont un cœur"
+        ],
+        "conclusions": [
+          "Tous les chats ont un cœur"
+        ],
+        "relations": [
+          "Implication logique entre les prémisses et les conclusions"
+        ]
+      },
+      "formules": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Syllogisme invalide",
+            "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
+            "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison d'un syllogisme invalide."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T21:14:06.870184+00:00",
+        "input_length": 92,
+        "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Pente glissante",
+          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+          "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Pente glissante",
             "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
           }
         ],
         "formal_validity": {
@@ -50,36 +161,36 @@
           "on interdira toutes les voitures à essence"
         ],
         "relations": [
-          "La conclusion est déduite de la prémisse"
+          "La conclusion est déduite de la prémisse, suggérant une relation de cause à effet entre les deux"
         ]
       },
       "formules": [
-        "Si on autorise les voitures électriques",
-        "on interdira toutes les voitures à essence"
+        "A",
+        "B"
       ],
       "sophisms_raw": {
         "fallacies": [
           {
-            "type": "pente glissante",
+            "type": "Pente glissante",
             "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
           }
         ],
-        "overall_assessment": "Le discours contient un sophisme de pente glissante."
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme de la pente glissante."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T19:39:40.027782+00:00",
-        "input_length": 82,
-        "original_text": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets."
+        "generated_at": "2025-10-30T21:14:09.815476+00:00",
+        "input_length": 79,
+        "original_text": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets."
       },
       "segments": [],
       "sophisms": [
         {
-          "type": "attaque ad hominem",
-          "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
-          "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+          "type": "Attaque personnelle",
+          "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+          "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
         }
       ],
       "formal": {
@@ -91,9 +202,9 @@
         "overall_validity": false,
         "informal_fallacies": [
           {
-            "type": "attaque ad hominem",
-            "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+            "type": "Attaque personnelle",
+            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
           }
         ],
         "formal_validity": {
@@ -104,32 +215,75 @@
         "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
       },
       "segments_raw": [
-        "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets"
+        "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets"
       ],
       "extracted": {
         "premises": [
           "Paul ne trie pas ses déchets"
         ],
         "conclusions": [
-          "On ne devrait pas écouter Paul parler d’écologie"
+          "On ne devrait pas écouter Paul sur l’écologie"
         ],
         "relations": [
-          "Le fait que Paul ne trie pas ses déchets est la raison pour laquelle on ne devrait pas écouter Paul parler d’écologie"
+          "Le fait que Paul ne trie pas ses déchets est la raison pour laquelle on ne devrait pas écouter Paul sur l’écologie"
         ]
       },
       "formules": [
-        "Paul ne trie pas ses déchets",
-        "On ne devrait pas écouter Paul parler d’écologie"
+        "A",
+        "B"
       ],
       "sophisms_raw": {
         "fallacies": [
           {
-            "type": "attaque ad hominem",
-            "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+            "type": "Attaque personnelle",
+            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
           }
         ],
-        "overall_assessment": "Le discours contient un sophisme de type attaque ad hominem."
+        "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'une attaque personnelle."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T21:14:12.082885+00:00",
+        "input_length": 54,
+        "original_text": "La Terre tourne autour du Soleil en environ 365 jours."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
+      },
+      "segments_raw": [
+        "La Terre tourne autour du Soleil en environ 365 jours"
+      ],
+      "extracted": {
+        "premises": [
+          "La Terre tourne autour du Soleil",
+          "Environ 365 jours"
+        ],
+        "conclusions": [],
+        "relations": []
+      },
+      "formules": [
+        "A",
+        "B"
+      ],
+      "sophisms_raw": {
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté, c'est une affirmation factuelle."
       }
     }
   ]

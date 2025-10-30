@@ -229,9 +229,9 @@ def _formater_analyse_unique(report: Dict[str, Any], index: int = 0) -> List[str
     # Analyse Informelle (Sophismes)
     sophismes = report.get("sophisms", [])
     if not sophismes:
-        lines.append("✅ Aucun sophisme n'a été détecté dans le discours.")
+        lines.append("✅ Aucun sophisme n'a été détecté dans le discours (analyse informelle).")
     else:
-        lines.append(f"\n**Sophisme(s) détecté(s) :**")
+        lines.append(f"\n**Sophisme(s) détecté(s) (analyse informelle) :**")
         for i, sophisme in enumerate(sophismes, 1):
             lines.append(f"- **Type :** `{sophisme.get('type', 'Non spécifié')}`")
             lines.append(f"   - **Extrait concerné :** \"_{sophisme.get('excerpt', 'N/A')}_\"")
@@ -240,9 +240,9 @@ def _formater_analyse_unique(report: Dict[str, Any], index: int = 0) -> List[str
     # Analyse Formelle
     formal = report.get("formal", {})
     if formal.get('is_valid'):
-        lines.append("\n- **Validité formelle :** ✅ Valide (La conclusion découle logiquement des prémisses).")
+        lines.append("\n- **Validité formelle (analyse formelle) :** ✅ Valide (La conclusion découle logiquement des prémisses).")
     else:
-        lines.append("\n- **Validité formelle :** ❌ Invalide (La conclusion ne peut pas être prouvée à partir des prémisses).")
+        lines.append("\n- **Validité formelle (analyse formelle) :** ❌ Invalide (La conclusion ne peut pas être prouvée à partir des prémisses).")
     lines.append("\n---\n")
     return lines
 

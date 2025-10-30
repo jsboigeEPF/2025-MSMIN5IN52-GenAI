@@ -21,43 +21,43 @@ Créer un workflow multi-agents capable de transformer un texte libre en documen
 ## Architecture
 
 projet 14 GOFFINET-EL MOKHTARI-BERRICHI/
-│── .pytest_cache/                        # Cache des tests Pytest
-├── .venv/                                # Environnement virtuel Python (non versionné)
+│── .pytest_cache/ # Cache des tests Pytest
+├── .venv/ # Environnement virtuel Python (non versionné)
 |
 ├── src/
-│ ├── agents/                             # Agents pour chaque type de document (CV, invoice, report)
-│ ├── renderers/                          # Rendu PDF avec ReportLab
-│ ├── schemas/                            # Schémas JSON pour la validation
-│ ├── utils/                              # Fonctions utilitaires (validation, fichiers, etc.)
-│ ├── routers/                            # Routes FastAPI (inclut orchestrateur + Semantic agent)
-│ ├── orchestrator.py                     # Coordination des agents pour la génération
-│ └── main.py                             # Point d’entrée FastAPI
+│ ├── agents/ # Agents pour chaque type de document (CV, invoice, report)
+│ ├── renderers/ # Rendu PDF avec ReportLab
+│ ├── schemas/ # Schémas JSON pour la validation
+│ ├── utils/ # Fonctions utilitaires (validation, fichiers, etc.)
+│ ├── routers/ # Routes FastAPI (inclut orchestrateur + Semantic agent)
+│ ├── orchestrator.py # Coordination des agents pour la génération
+│ └── main.py # Point d’entrée FastAPI
 |
-│── out/                                  # Dossiers de sortie (fichiers générés)
+│── out/ # Dossiers de sortie (fichiers générés)
 |
-├── samples/                              # Exemples de données d’entrée et modèles de génération
-│   ├── cv_prompt.md                      # Exemple de prompt pour générer un CV
-│   ├── cv.json                           # Exemple de réponse JSON pour un CV
-│   ├── invoice_prompt.md                 # Prompt pour générer une facture
-│   ├── invoice.json                      # Exemple de résultat JSON d’une facture
-│   ├── report_prompt.md                  # Prompt pour générer un rapport
-│   └── report.json                       # Exemple de structure JSON d’un rapport
+├── samples/ # Exemples de données d’entrée et modèles de génération
+│ ├── cv_prompt.md # Exemple de prompt pour générer un CV
+│ ├── cv.json # Exemple de réponse JSON pour un CV
+│ ├── invoice_prompt.md # Prompt pour générer une facture
+│ ├── invoice.json # Exemple de résultat JSON d’une facture
+│ ├── report_prompt.md # Prompt pour générer un rapport
+│ └── report.json # Exemple de structure JSON d’un rapport
 |
-├── frontend/                             # Interface React (prompt + choix du type de document)
-│   ├── src/
-│   ├── package.json
-│   └── vite.config.js
+├── frontend/ # Interface React (prompt + choix du type de document)
+│ ├── src/
+│ ├── package.json
+│ └── vite.config.js
 ├
-|── tests/                                # Tests unitaires et d’intégration (Pytest)
-│   ├── __pycache__/                      # Cache compilé Python
-│   ├── test_render_smoke.py              # Test basique de génération PDF
-│   └── test_validate.py                  # Test de validation des schémas JSON
+|── tests/ # Tests unitaires et d’intégration (Pytest)
+│ ├── pycache/ # Cache compilé Python
+│ ├── test_render_smoke.py # Test basique de génération PDF
+│ └── test_validate.py # Test de validation des schémas JSON
 ├
-├── .env                                  # Clé API OpenAI et configuration
-├── .env.example                          # Exemple de configuration d'environnement
-├── .gitignore                            # Fichiers à ignorer par Git
-|── README.md                             # Documentation principale du projet
-└─── requirements.txt                     # Dépendances Python
+├── .env # Clé API OpenAI et configuration
+├── .env.example # Exemple de configuration d'environnement
+├── .gitignore # Fichiers à ignorer par Git
+|── README.md # Documentation principale du projet
+└─── requirements.txt # Dépendances Python
 
 
 ---

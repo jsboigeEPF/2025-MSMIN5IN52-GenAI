@@ -1,20 +1,19 @@
 # Structured Content Generator
 
-Un système complet de **génération de contenu structuré** (CVs, factures, rapports)
-à partir de **prompts en langage naturel** ou de **données JSON**.
+C'est un système complet de **génération de contenu structuré** (CVs, factures, rapports) à partir de **prompts en langage naturel** ou de **données JSON**.
 
 ---
 
 ##  Présentation
 
 Ce projet combine :
-- **FastAPI** → API principale
-- **Semantic Kernel + OpenAI** → génération de contenu intelligent à partir de prompts
-- **ReportLab** → rendu PDF professionnel (CV, invoice, report)
-- **React (Vite + Tailwind)** → interface utilisateur moderne pour interagir avec l’API
+    - **FastAPI**                    → API principale
+    - **Semantic Kernel + OpenAI**   → génération de contenu intelligent à partir de prompts
+    - **ReportLab**                  → rendu PDF professionnel (CV, invoice, report)
+    - **React (Vite + Tailwind)**    → interface utilisateur moderne pour interagir avec l’API
 
 L’objectif :  
-Créer un workflow multi-agents capable de transformer un texte libre en document structuré (et stylisé) au format PDF.
+    Créer un workflow multi-agents capable de transformer un texte libre en document structuré (et stylisé) au format PDF.
 
 ---
 
@@ -61,21 +60,21 @@ Créer un workflow multi-agents capable de transformer un texte libre en documen
 
 ---
 
-##  Fonctionnalités principales
+##  Fonctionnalités principales :
 
-**Génération par prompt (Semantic Kernel + OpenAI)**  
+***Génération par prompt (Semantic Kernel + OpenAI)**  
     “Rédige un CV pour Safae Berrichi, ingénieure en informatique à l’EPF…”
 
- **Validation automatique via JSON Schema**  
+ ***Validation automatique via JSON Schema**  
     Garantit que le document respecte la structure définie
 
-**Rendu PDF avec ReportLab**  
+***Rendu PDF avec ReportLab**  
     Sortie visuelle professionnelle (marges, bande lavande, pagination, etc.)
 
-**API REST complète (FastAPI)**  
+***API REST complète (FastAPI)**  
     Routes `/api/cv`, `/api/invoice`, `/api/report`, `/api/semantic/{doc_type}`
 
-**Frontend moderne (React + Tailwind)**  
+***Frontend moderne (React + Tailwind)**  
     Permet de saisir un prompt et de générer le PDF depuis une interface graphique
 
 ---
@@ -91,20 +90,22 @@ Créer un workflow multi-agents capable de transformer un texte libre en documen
     ==> Ce dépôt est une fork du projet principal 2025-MSMIN5IN52-GenAI, et contient plusieurs sous-projets étudiants.
     ==> Le nôtre correspond au dossier : projet 14 GOFFINET-EL MOKHTARI-BERRICHI
 
-# Créer et activer un venv
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
+# Créer et activer un environnement virtuel
+    .venv\Scripts\Activate.ps1   # sous Windows PowerShell
+    # ou
+    source .venv/bin/activate    # sous Linux / macOS
 
 # Installer les dépendances
 	pip install -r requirements.txt
 
-# Lancer l'API
+# Lancer le serveur FastAPI
     uvicorn src.main:app --reload  
 
 # Accéder à Swagger :
      http://127.0.0.1:8000/docs
 
-# Frontend (React)
+### Frontend (React)
+
     cd frontend
     npm install
     npm run dev
@@ -119,9 +120,9 @@ Créer un workflow multi-agents capable de transformer un texte libre en documen
 
 # Exemple d’appel API
 ==> Prompt vers document
-curl -X POST "http://127.0.0.1:8000/api/semantic/report" \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Rédige un rapport technique sur le projet IMSA Forever Shop développé par Safae Berrichi à l’EPF."}'
+    curl -X POST "http://127.0.0.1:8000/api/semantic/report" \
+    -H "Content-Type: application/json" \
+    -d '{"prompt": "Rédige un rapport technique sur le projet IMSA Forever Shop développé par Safae Berrichi à l’EPF."}'
 
 
 # Le backend :

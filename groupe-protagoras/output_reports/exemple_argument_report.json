@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "source_file": "exemple_argument.txt",
+    "generated_at": "2025-10-30T19:39:43.314334+00:00"
+  },
+  "analyses": [
+    {
+      "meta": {
+        "generated_at": "2025-10-30T19:39:37.246632+00:00",
+        "input_length": 92,
+        "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "pente glissante",
+          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+          "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "pente glissante",
+            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence"
+      ],
+      "extracted": {
+        "premises": [
+          "Si on autorise les voitures électriques"
+        ],
+        "conclusions": [
+          "on interdira toutes les voitures à essence"
+        ],
+        "relations": [
+          "La conclusion est déduite de la prémisse"
+        ]
+      },
+      "formules": [
+        "Si on autorise les voitures électriques",
+        "on interdira toutes les voitures à essence"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "pente glissante",
+            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans prendre en compte les nuances ou les possibilités intermédiaires."
+          }
+        ],
+        "overall_assessment": "Le discours contient un sophisme de pente glissante."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T19:39:40.027782+00:00",
+        "input_length": 82,
+        "original_text": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "attaque ad hominem",
+          "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
+          "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "attaque ad hominem",
+            "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets"
+      ],
+      "extracted": {
+        "premises": [
+          "Paul ne trie pas ses déchets"
+        ],
+        "conclusions": [
+          "On ne devrait pas écouter Paul parler d’écologie"
+        ],
+        "relations": [
+          "Le fait que Paul ne trie pas ses déchets est la raison pour laquelle on ne devrait pas écouter Paul parler d’écologie"
+        ]
+      },
+      "formules": [
+        "Paul ne trie pas ses déchets",
+        "On ne devrait pas écouter Paul parler d’écologie"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "attaque ad hominem",
+            "excerpt": "On ne devrait pas écouter Paul parler d’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Cet argument attaque la personne (Paul) plutôt que ses idées sur l'écologie, ce qui est une attaque ad hominem."
+          }
+        ],
+        "overall_assessment": "Le discours contient un sophisme de type attaque ad hominem."
+      }
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import json
 import logging
 import argparse
 import os
+import pathlib
 from datetime import datetime, UTC
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
@@ -91,7 +92,7 @@ def run_pipeline(
 
     timestamp = datetime.now(UTC).isoformat()
     report: Dict[str, Any] = {
-        "meta": {"generated_at": timestamp, "input_length": len(texte)},
+        "meta": {"generated_at": timestamp, "input_length": len(texte), "original_text": texte},
         "segments": [],
         "sophisms": None,
         "formal": {},
@@ -189,58 +190,134 @@ def run_pipeline(
 
     return report
 
+def generer_rapport_texte(report: Dict[str, Any]) -> str:
+    """Génère un rapport textuel lisible (Markdown) à partir du rapport JSON."""
+    lines = []
+    input_file_name = report.get("meta", {}).get("source_file", "N/A")
+    
+    # Titre et métadonnées
+    lines.append("# Rapport d'Analyse d'Argument")
+    lines.append(f"**Généré le :** {report.get('meta', {}).get('generated_at', 'N/A')}")
+    lines.append("\n---\n")
+
+    # Verdict Final
+    if "analyses" in report: # Mode multi-arguments
+        lines.append(f"## Synthèse pour le fichier : {input_file_name}")
+        total_args = len(report["analyses"])
+        total_fallacies = sum(len(arg.get("sophisms", [])) for arg in report["analyses"])
+        lines.append(f"- **Arguments analysés :** {total_args}")
+        lines.append(f"- **Total des sophismes détectés :** {total_fallacies}")
+        lines.append("\n---\n")
+        for i, single_report in enumerate(report["analyses"], 1):
+            lines.extend(_formater_analyse_unique(single_report, i))
+    else: # Mode argument unique
+        lines.extend(_formater_analyse_unique(report))
+
+    return "\n".join(lines)
+
+def _formater_analyse_unique(report: Dict[str, Any], index: int = 0) -> List[str]:
+    """Helper pour formater une seule analyse d'argument."""
+    lines = []
+    original_text = report.get("meta", {}).get("original_text", "")
+    header = f"### {index}. Analyse de l'argument : \"{original_text}\"" if index > 0 else "## Analyse de l'argument"
+    lines.append(header)
+    
+    # Verdict
+    verdict = report.get("fusion", {}).get("final_verdict", "Analyse incomplète.")
+    lines.append(f"> **Verdict :** {verdict}")
+    
+    # Analyse Informelle (Sophismes)
+    sophismes = report.get("sophisms", [])
+    if not sophismes:
+        lines.append("✅ Aucun sophisme n'a été détecté dans le discours.")
+    else:
+        lines.append(f"\n**Sophisme(s) détecté(s) :**")
+        for i, sophisme in enumerate(sophismes, 1):
+            lines.append(f"- **Type :** `{sophisme.get('type', 'Non spécifié')}`")
+            lines.append(f"   - **Extrait concerné :** \"_{sophisme.get('excerpt', 'N/A')}_\"")
+            lines.append(f"   - **Explication :** {sophisme.get('explanation', 'N/A')}")
+
+    # Analyse Formelle
+    formal = report.get("formal", {})
+    if formal.get('is_valid'):
+        lines.append("\n- **Validité formelle :** ✅ Valide (La conclusion découle logiquement des prémisses).")
+    else:
+        lines.append("\n- **Validité formelle :** ❌ Invalide (La conclusion ne peut pas être prouvée à partir des prémisses).")
+    lines.append("\n---\n")
+    return lines
+
 # -----------------------
 # CLI / Entrypoint
 # -----------------------
-def parse_args():
-    p = argparse.ArgumentParser(description="Pipeline d'analyse d'arguments hybride (LLM + Tweety).")
-    p.add_argument("--input", "-i", help="Texte à analyser (entre guillemets).", default=None)
-    p.add_argument("--input-file", "-I", help="Fichier texte (.txt) à analyser.", default=None)
-    p.add_argument("--out", "-o", help="Fichier JSON de sortie (report).", default=None)
-    p.add_argument("--simulate-llm", action="store_true", help="Simuler le module LLM (utile pour test sans API).")
-    return p.parse_args()
 
 def main():
-    args = parse_args()
+    # Définir les chemins des dossiers d'entrée et de sortie
+    project_root = pathlib.Path(__file__).parent.parent.parent
+    input_dir = project_root / "input_texts"
+    output_dir = project_root / "output_reports"
 
-    if not args.input and not args.input_file:
-        logger.error("Aucun texte d'entrée fourni. Utilise --input ou --input-file.")
+    # Créer le dossier de sortie s'il n'existe pas
+    output_dir.mkdir(exist_ok=True)
+
+    # Vérifier si le dossier d'entrée existe
+    if not input_dir.is_dir():
+        logger.error(f"Le dossier d'entrée '{input_dir}' est introuvable. Veuillez le créer et y ajouter des fichiers .txt.")
+        input_dir.mkdir(exist_ok=True) # On le crée pour la première fois
+        logger.info(f"Dossier '{input_dir}' créé. Ajoutez-y des fichiers .txt à analyser.")
         return
 
-    if args.input_file:
-        if not os.path.exists(args.input_file):
-            logger.error(f"Fichier introuvable : {args.input_file}")
-            return
-        with open(args.input_file, "r", encoding="utf-8") as f:
-            texte = f.read()
-    else:
-        texte = args.input
+    # Trouver tous les fichiers .txt dans le dossier d'entrée
+    text_files = list(input_dir.glob("*.txt"))
+
+    if not text_files:
+        logger.warning(f"Aucun fichier .txt trouvé dans '{input_dir}'. Rien à analyser.")
+        return
+
+    logger.info(f"Found {len(text_files)} argument(s) to analyze in '{input_dir}'.")
 
     # Instancier le client LLM d'OpenAI
-    # Vous pouvez choisir un modèle différent si nécessaire (ex: "gpt-4o-mini", "gpt-4")
-    llm_client = ChatOpenAI(model="gpt-3.5-turbo", temperature=0) 
-    report = run_pipeline(
-        texte=texte,
-        llm_chain=llm_client, # Utilise maintenant le vrai client LLM
-        simulate_llm=args.simulate_llm
-    )
+    llm_client = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
-    # Affichage minimal
-    print("=== VERDICT ===")
-    print(report.get("fusion", {}).get("final_verdict", "Analyse incomplète."))
-    print()
-    print("Détails (synthèse) :")
-    print(f" - Validité formelle : {report['formal'].get('is_valid')}")
-    print(f" - Sophismes détectés (count) : {len(report['sophisms'])}")
+    for text_file in text_files:
+        logger.info(f"\n--- Analyzing file: {text_file.name} ---")
+        all_analyses = []
+        with open(text_file, "r", encoding="utf-8") as f:
+            # Chaque ligne non vide est traitée comme un argument séparé
+            arguments = [line.strip() for line in f if line.strip()]
 
-    if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            json.dump(report, f, ensure_ascii=False, indent=2)
-        logger.info(f"Rapport sauvegardé dans {args.out}")
-    else:
-        # print full report compact
-        print("\nFull report JSON:")
-        print(json.dumps(report, ensure_ascii=False, indent=2))
+        if not arguments:
+            logger.warning(f"Le fichier '{text_file.name}' est vide. Passage au suivant.")
+            continue
+        
+        for i, argument_text in enumerate(arguments, 1):
+            logger.info(f"  -> Processing argument {i}/{len(arguments)}: \"{argument_text[:70]}...\"")
+            single_report = run_pipeline(
+                texte=argument_text,
+                llm_chain=llm_client,
+                simulate_llm=False
+            )
+            all_analyses.append(single_report)
+
+        # Créer un rapport global pour le fichier
+        final_report = {
+            "meta": {"source_file": text_file.name, "generated_at": datetime.now(UTC).isoformat()},
+            "analyses": all_analyses
+        }
+        
+        # Sauvegarder le rapport JSON
+        report_filename = output_dir / f"{text_file.stem}_report.json"
+        with open(report_filename, "w", encoding="utf-8") as f:
+            json.dump(final_report, f, ensure_ascii=False, indent=2)
+        
+        # Générer et sauvegarder le rapport textuel (Markdown)
+        rapport_texte = generer_rapport_texte(final_report)
+        rapport_texte_filename = output_dir / f"{text_file.stem}_report.md"
+        with open(rapport_texte_filename, "w", encoding="utf-8") as f:
+            f.write(rapport_texte)
+
+        logger.info(f"✅ Analysis complete for '{text_file.name}'.")
+        logger.info(f"   - JSON report saved to '{report_filename}'")
+        logger.info(f"   - Text report saved to '{rapport_texte_filename}'")
 
 if __name__ == "__main__":
     main()

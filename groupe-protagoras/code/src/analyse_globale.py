@@ -16,7 +16,12 @@ import json
 import logging
 import argparse
 import os
-from datetime import datetime
+from datetime import datetime, UTC
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement du fichier .env
+load_dotenv()
 
 # --- Configuration robuste de l'environnement ---
 # Initialise la JVM pour Tweety de manière centralisée et sécurisée.
@@ -84,7 +89,7 @@ def run_pipeline(
     - simulate_llm: si True, retourne résultats LLM simulés (utile sans clé API)
     """
 
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    timestamp = datetime.now(UTC).isoformat()
     report: Dict[str, Any] = {
         "meta": {"generated_at": timestamp, "input_length": len(texte)},
         "segments": [],
@@ -121,6 +126,7 @@ def run_pipeline(
     # on essaye d'utiliser explicitement les prémisses + conclusions extraites si présentes
     if isinstance(extracted, dict) and extracted.get("premises"):
         unites_to_normalize.extend(extracted.get("premises", []))
+        unites_to_normalize.extend(extracted.get("conclusions", [])) # Ajout de la conclusion pour l'analyse d'inférence
     else:
         unites_to_normalize.extend(segments[:-1] if len(segments) > 1 else segments)
 
@@ -210,11 +216,12 @@ def main():
     else:
         texte = args.input
 
-    # NOTE: ici on ne crée pas de llm_chain ni de llm_client.
-    # Si tu veux exécuter avec LangChain, importe et passe ton llm_chain au run_pipeline.
+    # Instancier le client LLM d'OpenAI
+    # Vous pouvez choisir un modèle différent si nécessaire (ex: "gpt-4o-mini", "gpt-4")
+    llm_client = ChatOpenAI(model="gpt-3.5-turbo", temperature=0) 
     report = run_pipeline(
         texte=texte,
-        llm_chain=None, # Remplacer par un vrai client LLM pour une utilisation complète
+        llm_chain=llm_client, # Utilise maintenant le vrai client LLM
         simulate_llm=args.simulate_llm
     )
 

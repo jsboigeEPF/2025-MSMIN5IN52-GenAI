@@ -1,0 +1,11 @@
+# Fichier pour ignorer les secrets et les fichiers générés par Python
+
+# Fichier d'environnement contenant les clés API
+.env
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Fichiers d'environnement virtuel
+/venv/

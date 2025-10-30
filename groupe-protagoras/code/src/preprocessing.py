@@ -7,26 +7,9 @@ et de la normalisation en propositions logiques atomiques.
 from typing import List, Dict, Any
 import re
 import json
-
-
-
-def extraire_premisses_conclusions(texte: str, llm_client) -> Dict[str, Any]:
-    prompt = f"""
-    Analyse le discours suivant et retourne les éléments au format JSON :
-    {{
-      "premises": ["..."],
-      "conclusions": ["..."],
-      "relations": ["..."]
-    }}
-
-    Discours : {texte}
-    """
-    reponse = llm_client.generate(prompt)
-    try:
-        data = json.loads(reponse)
-    except json.JSONDecodeError:
-        data = {"premises": [], "conclusions": [], "relations": []}
-    return data
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser # Garder cet import
+from pydantic import BaseModel, Field # Utiliser pydantic directement
 
 
 def segmenter_discours(texte: str) -> List[str]:
@@ -83,11 +66,12 @@ def normaliser_en_logique_atomique(unites: List[str]) -> List[str]:
     propositions = []
     for unite in unites:
         # Remplacements simples pour la démonstration
-        proposition = unite
-        proposition = re.sub(r"Tous les (\w+) sont (\w+)", r"\1(x) → \2(x)", proposition)
-        proposition = re.sub(r"Aucun (\w+) n'est (\w+)", r"\1(x) → ¬\2(x)", proposition)
-        proposition = re.sub(r"(\w+) est (\w+)", r"\1 → \2", proposition)
-        propositions.append(proposition.strip())
+        # La transformation se fait en une seule étape pour directement produire un format compatible Tweety.
+        formule = unite
+        formule = re.sub(r"Tous les (\w+) sont (\w+)", r"\1(x) => \2(x)", formule, flags=re.IGNORECASE)
+        formule = re.sub(r"Aucun (\w+) n'est (\w+)", r"\1(x) => !\2(x)", formule, flags=re.IGNORECASE)
+        formule = re.sub(r"(\w+) est (\w+)", r"\1 => \2", formule, flags=re.IGNORECASE)
+        propositions.append(formule.strip())
     
     return propositions
 

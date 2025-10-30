@@ -18,21 +18,20 @@ import argparse
 import os
 from datetime import datetime
 
+# --- Configuration robuste de l'environnement ---
+# Initialise la JVM pour Tweety de manière centralisée et sécurisée.
+try:
+    from java_config import initialize_tweety
+    JVM_READY = initialize_tweety()
+except ImportError:
+    print("AVERTISSEMENT: java_config.py non trouvé. L'analyse formelle sera désactivée.")
+    JVM_READY = False
+
 # Modules du projet
-try:
-    from preprocessing import segmenter_discours, normaliser_en_logique_atomique, extraire_premisses_conclusions
-except Exception as e:
-    raise ImportError("Impossible d'importer 'preprocessing'. Vérifie que preprocessing.py est dans le PYTHONPATH.") from e
-
-try:
-    from analyse_informelle import detecter_sophismes
-except Exception as e:
-    raise ImportError("Impossible d'importer 'analyse_informelle'. Vérifie que analyse_informelle.py est dans le PYTHONPATH.") from e
-
-try:
-    from analyse_formelle import initialiser_tweety, verifier_inference, verifier_coherence
-except Exception as e:
-    raise ImportError("Impossible d'importer 'analyse_formelle'. Vérifie que analyse_formelle.py est dans le PYTHONPATH.") from e
+from preprocessing import segmenter_discours, normaliser_en_logique_atomique, extraire_premisses_conclusions
+from fallacy_detection import detecter_sophismes  # Utilisation du module correct
+from formal_analysis import analyser_validite_formelle # Utilisation du module correct
+from fusion import fusionner_analyses
 
 # -----------------------
 # Logging
@@ -76,16 +75,12 @@ def summarise_sophismes(sophismes_result: Any) -> List[Dict[str, Any]]:
 def run_pipeline(
     texte: str,
     llm_chain: Optional[Any] = None,
-    llm_client: Optional[Any] = None,
-    tweety_jar: Optional[str] = None,
     simulate_llm: bool = False
 ) -> Dict[str, Any]:
     """
     Orchestrateur principal.
-    - texte: texte à analyser
-    - llm_chain: (optionnel) objet LangChain LLMChain ; utilisé par detecter_sophismes
-    - llm_client: (optionnel) client générique avec méthode generate(prompt) ; utilisé par preproc
-    - tweety_jar: chemin vers le JAR Tweety (si None, on suppose Tweety déjà initialisé ou non nécessaire pour tests)
+    - texte: texte à analyser.
+    - llm_chain: (optionnel) objet LangChain compatible (Runnable) ; utilisé pour les sophismes et l'extraction.
     - simulate_llm: si True, retourne résultats LLM simulés (utile sans clé API)
     """
 
@@ -106,10 +101,9 @@ def run_pipeline(
     # 2) Extraction (-> prémisses / conclusions)
     extracted = None
     try:
-        if llm_client:
-            logger.info("Extraction des prémisses/conclusions via llm_client...")
-            reponse = extraire_premisses_conclusions(texte, llm_client)
-            extracted = safe_json_load(reponse) if isinstance(reponse, str) else reponse
+        if llm_chain and not simulate_llm:
+            logger.info("Extraction des prémisses/conclusions via LLM...")
+            extracted = extraire_premisses_conclusions(texte, llm_chain)
         else:
             logger.info("Aucun llm_client fourni : extraction simulée (segments -> premises/conclusions simples).")
             # heuristique simple : tout sauf dernière phrase comme prémisse, dernière comme conclusion si contient 'Donc' ou 'donc'
@@ -156,14 +150,10 @@ def run_pipeline(
             logger.info("Appel au module detecter_sophismes (LLM)...")
             # detecter_sophismes attend llm_chain (selon ton module)
             if llm_chain is not None:
-                sophismes_result = detecter_sophismes(texte, llm_chain)
+                sophismes_result = detecter_sophismes(texte, llm_chain) # Appel à la bonne fonction
             else:
-                # si detecter_sophismes dépend d'un llm_chain, on essaye de l'appeler avec None (il peut lever)
-                try:
-                    sophismes_result = detecter_sophismes(texte, None)
-                except Exception as e:
-                    logger.warning("Aucun LLM utilisable pour detecter_sophismes ; passage en simulation.")
-                    sophismes_result = {"fallacies": []}
+                logger.warning("Aucun LLM fourni pour detecter_sophismes ; passage en simulation.")
+                sophismes_result = {"fallacies": []}
     except Exception as e:
         logger.exception("Erreur lors de la détection des sophismes.")
         sophismes_result = {"fallacies": []}
@@ -171,62 +161,25 @@ def run_pipeline(
     report["sophisms_raw"] = sophismes_result
     report["sophisms"] = summarise_sophismes(sophismes_result)
 
-    # 5) Initialiser Tweety (si nécessaire)
-    if tweety_jar:
-        try:
-            initialiser_tweety(tweety_jar)
-            logger.info("Tweety initialisé.")
-        except Exception as e:
-            logger.warning(f"Impossible d'initialiser TweetyProject avec {tweety_jar}: {e}")
-
-    # 6) Analyse formelle : cohérence & validité
-    # On prendra la dernière formule comme conclusion candidate si possible
+    # 5) Analyse formelle : cohérence & validité
     formal_results = {}
-    try:
-        if formules:
-            # Si plusieurs formules, tenter inférence : dernières comme conclusion
-            if len(formules) >= 2:
-                premisses_for_inference = formules[:-1]
-                conclusion_candidate = formules[-1]
-                inf_res = verifier_inference(premisses_for_inference, conclusion_candidate)
-                formal_results["inference"] = inf_res
+    if JVM_READY:
+        try:
+            if formules:
+                formal_results = analyser_validite_formelle(formules) # Appel à la bonne fonction
             else:
-                formal_results["inference"] = {"valid": False, "reason": "Pas assez de formules pour inférer."}
-
-            # cohérence sur l'ensemble
-            coh_res = verifier_coherence(formules)
-            formal_results["coherence"] = coh_res
-        else:
-            formal_results["inference"] = {"valid": False, "reason": "Aucune formule fournie."}
-            formal_results["coherence"] = {"coherent": False, "reason": "Aucune formule fournie."}
-    except Exception as e:
-        logger.exception("Erreur durant l'analyse formelle.")
-        formal_results = {"error": str(e)}
+                formal_results = {"is_valid": False, "reason": "Aucune formule fournie."}
+        except Exception as e:
+            logger.exception("Erreur durant l'analyse formelle.")
+            formal_results = {"error": str(e), "is_valid": False}
+    else:
+        logger.warning("Analyse formelle ignorée car la JVM n'est pas prête.")
+        formal_results = {"is_valid": False, "reason": "JVM non initialisée."}
 
     report["formal"] = formal_results
 
-    # 7) Fusion des résultats (règles heuristiques simples)
-    fusion = {}
-    valid_inference = bool(formal_results.get("inference", {}).get("valid", False))
-    coherent = bool(formal_results.get("coherence", {}).get("coherent", False))
-    has_fallacies = len(report["sophisms"]) > 0
-
-    if valid_inference and coherent and not has_fallacies:
-        fusion["verdict"] = "Argument solide : logique valide et pas de sophismes détectés."
-    elif valid_inference and coherent and has_fallacies:
-        fusion["verdict"] = "Conclusion valide d'un point de vue logique, mais des sophismes informels ont été détectés (attention aux prémisses)."
-    elif not valid_inference and coherent and has_fallacies:
-        fusion["verdict"] = "Argument cohérent mais la conclusion ne suit pas logiquement; de plus, des sophismes ont été détectés."
-    elif not coherent:
-        fusion["verdict"] = "Incohérence détectée dans l'ensemble des propositions."
-    else:
-        fusion["verdict"] = "Résultat mitigé — merci d'examiner les détails."
-
-    fusion["valid_inference"] = valid_inference
-    fusion["coherent"] = coherent
-    fusion["has_fallacies"] = has_fallacies
-    fusion["num_fallacies"] = len(report["sophisms"])
-    report["fusion"] = fusion
+    # 6) Fusion des résultats
+    report["fusion"] = fusionner_analyses(report["sophisms_raw"], report["formal"])
 
     return report
 
@@ -237,7 +190,6 @@ def parse_args():
     p = argparse.ArgumentParser(description="Pipeline d'analyse d'arguments hybride (LLM + Tweety).")
     p.add_argument("--input", "-i", help="Texte à analyser (entre guillemets).", default=None)
     p.add_argument("--input-file", "-I", help="Fichier texte (.txt) à analyser.", default=None)
-    p.add_argument("--tweety-jar", "-j", help="Chemin vers le jar TweetyProject.", default=None)
     p.add_argument("--out", "-o", help="Fichier JSON de sortie (report).", default=None)
     p.add_argument("--simulate-llm", action="store_true", help="Simuler le module LLM (utile pour test sans API).")
     return p.parse_args()
@@ -262,19 +214,16 @@ def main():
     # Si tu veux exécuter avec LangChain, importe et passe ton llm_chain au run_pipeline.
     report = run_pipeline(
         texte=texte,
-        llm_chain=None,
-        llm_client=None,
-        tweety_jar=args.tweety_jar,
+        llm_chain=None, # Remplacer par un vrai client LLM pour une utilisation complète
         simulate_llm=args.simulate_llm
     )
 
     # Affichage minimal
     print("=== VERDICT ===")
-    print(report["fusion"]["verdict"])
+    print(report.get("fusion", {}).get("final_verdict", "Analyse incomplète."))
     print()
     print("Détails (synthèse) :")
-    print(f" - Cohérence logique : {report['formal'].get('coherence')}")
-    print(f" - Validité de l'inférence : {report['formal'].get('inference')}")
+    print(f" - Validité formelle : {report['formal'].get('is_valid')}")
     print(f" - Sophismes détectés (count) : {len(report['sophisms'])}")
 
     if args.out:

@@ -5,8 +5,8 @@ Utilise LangChain pour intégrer un LLM et identifier les erreurs de raisonnemen
 
 from typing import List, Dict, Any
 from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.output_parsers import JsonOutputParser # Garder cet import
+from pydantic import BaseModel, Field # Utiliser pydantic directement
 
 class FallacyDetection(BaseModel):
     fallacies: List[Dict[str, str]] = Field(description="Liste des sophismes détectés")

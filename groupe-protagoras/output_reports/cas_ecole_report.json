@@ -1,0 +1,394 @@
+{
+  "meta": {
+    "source_file": "cas_ecole.txt",
+    "generated_at": "2025-10-30T22:08:02.552196+00:00"
+  },
+  "analyses": [
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:46.752405+00:00",
+        "input_length": 73,
+        "original_text": "S'il pleut, alors le sol est mouillé. Il pleut. Donc, le sol est mouillé."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": 1,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": true,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": 1,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement valide et ne contient pas de sophismes apparents. C'est un argument solide."
+      },
+      "segments_raw": [
+        "S'il pleut, alors le sol est mouillé",
+        "Il pleut",
+        "Donc, le sol est mouillé"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "pleut => sol_mouille",
+          "pleut"
+        ],
+        "conclusion": "sol_mouille"
+      },
+      "formules": [
+        "pleut => sol_mouille",
+        "pleut",
+        "sol_mouille"
+      ],
+      "sophisms_raw": {
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté, c'est un raisonnement logique valide."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:48.396934+00:00",
+        "input_length": 80,
+        "original_text": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Raisonnement circulaire",
+          "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
+          "explanation": "Ce raisonnement est circulaire car la conclusion ('j'ai étudié') est essentiellement la même que la prémisse ('si j'étudie, je réussirai mon examen'). Il n'y a pas de véritable justification ou preuve de l'étude réelle."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Raisonnement circulaire",
+            "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
+            "explanation": "Ce raisonnement est circulaire car la conclusion ('j'ai étudié') est essentiellement la même que la prémisse ('si j'étudie, je réussirai mon examen'). Il n'y a pas de véritable justification ou preuve de l'étude réelle."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Si j'étudie, je réussirai mon examen",
+        "J'ai réussi mon examen",
+        "Donc, j'ai étudié"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "etudie => reussi_examen",
+          "reussi_examen"
+        ],
+        "conclusion": "etudie"
+      },
+      "formules": [
+        "etudie => reussi_examen",
+        "reussi_examen",
+        "etudie"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Raisonnement circulaire",
+            "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
+            "explanation": "Ce raisonnement est circulaire car la conclusion ('j'ai étudié') est essentiellement la même que la prémisse ('si j'étudie, je réussirai mon examen'). Il n'y a pas de véritable justification ou preuve de l'étude réelle."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison d'un raisonnement circulaire."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:50.910620+00:00",
+        "input_length": 91,
+        "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Affirmation du conséquent",
+          "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+          "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+        }
+      ],
+      "formal": {
+        "is_valid": 1,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 1,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement valide mais repose sur des sophismes. La conclusion pourrait être correcte, mais le raisonnement est fallacieux."
+      },
+      "segments_raw": [
+        "Si le feu est rouge, je m'arrête",
+        "Je ne me suis pas arrêté",
+        "Donc, le feu n'était pas rouge"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "feu_rouge => m_arrete",
+          "!m_arrete"
+        ],
+        "conclusion": "!feu_rouge"
+      },
+      "formules": [
+        "feu_rouge => m_arrete",
+        "!m_arrete",
+        "!feu_rouge"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:53.768909+00:00",
+        "input_length": 79,
+        "original_text": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Attaque personnelle",
+          "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+          "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, ce qui ne prouve ni n'infirme la validité de ses propos sur ce sujet."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Attaque personnelle",
+            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, ce qui ne prouve ni n'infirme la validité de ses propos sur ce sujet."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "!trie_dechets => !ecoute_Paul"
+        ],
+        "conclusion": "!ecoute_Paul"
+      },
+      "formules": [
+        "!trie_dechets => !ecoute_Paul",
+        "!ecoute_Paul"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Attaque personnelle",
+            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, ce qui ne prouve ni n'infirme la validité de ses propos sur ce sujet."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'une attaque personnelle."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:55.882248+00:00",
+        "input_length": 92,
+        "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Pente glissante",
+          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+          "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'autoriser les voitures électriques entraînera inévitablement l'interdiction de toutes les voitures à essence."
+        }
+      ],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Pente glissante",
+            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'autoriser les voitures électriques entraînera inévitablement l'interdiction de toutes les voitures à essence."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "voitures_electriques => !voitures_essence"
+        ],
+        "conclusion": "!voitures_essence"
+      },
+      "formules": [
+        "voitures_electriques => !voitures_essence",
+        "!voitures_essence"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Pente glissante",
+            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
+            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'autoriser les voitures électriques entraînera inévitablement l'interdiction de toutes les voitures à essence."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme de la pente glissante."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:07:58.891583+00:00",
+        "input_length": 45,
+        "original_text": "Soit tu es avec nous, soit tu es contre nous."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "faux dilemme",
+          "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
+          "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix extrêmes, alors qu'il pourrait exister d'autres positions intermédiaires ou alternatives."
+        }
+      ],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "faux dilemme",
+            "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
+            "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix extrêmes, alors qu'il pourrait exister d'autres positions intermédiaires ou alternatives."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Soit tu es avec nous, soit tu es contre nous"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "avec_nous || contre_nous"
+        ],
+        "conclusion": "avec_nous"
+      },
+      "formules": [
+        "avec_nous || contre_nous",
+        "avec_nous"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "faux dilemme",
+            "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
+            "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix extrêmes, alors qu'il pourrait exister d'autres positions intermédiaires ou alternatives."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'un faux dilemme."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-30T22:08:00.987212+00:00",
+        "input_length": 54,
+        "original_text": "La Terre tourne autour du Soleil en environ 365 jours."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
+      },
+      "segments_raw": [
+        "La Terre tourne autour du Soleil en environ 365 jours"
+      ],
+      "extracted_logic": {
+        "premises": [],
+        "conclusion": "terre_autour_soleil_environ_365_jours"
+      },
+      "formules": [
+        "terre_autour_soleil_environ_365_jours"
+      ],
+      "sophisms_raw": {
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté, c'est une affirmation factuelle."
+      }
+    }
+  ]
+}

@@ -34,7 +34,7 @@ except ImportError:
     JVM_READY = False
 
 # Modules du projet
-from preprocessing import segmenter_discours, normaliser_en_logique_atomique, extraire_premisses_conclusions
+from preprocessing import segmenter_discours, traduire_argument_en_logique, normaliser_en_logique_atomique
 from fallacy_detection import detecter_sophismes  # Utilisation du module correct
 from formal_analysis import analyser_validite_formelle # Utilisation du module correct
 from fusion import fusionner_analyses
@@ -104,39 +104,22 @@ def run_pipeline(
     logger.info(f"{len(segments)} segments extraits.")
     report["segments_raw"] = segments
 
-    # 2) Extraction (-> prémisses / conclusions)
-    extracted = None
+    # 2) Traduction en logique formelle
+    formules = []
     try:
         if llm_chain and not simulate_llm:
-            logger.info("Extraction des prémisses/conclusions via LLM...")
-            extracted = extraire_premisses_conclusions(texte, llm_chain)
+            logger.info("Traduction de l'argument en formules logiques via LLM...")
+            logical_structure = traduire_argument_en_logique(texte, llm_chain)
+            # La liste des formules pour l'analyse formelle est la concaténation des prémisses et de la conclusion
+            if logical_structure.get("premises") is not None and logical_structure.get("conclusion") is not None:
+                formules = logical_structure.get("premises", []) + [logical_structure.get("conclusion", "")]
+            report["extracted_logic"] = logical_structure # Stocker la structure pour le rapport
         else:
-            logger.info("Aucun llm_client fourni : extraction simulée (segments -> premises/conclusions simples).")
-            # heuristique simple : tout sauf dernière phrase comme prémisse, dernière comme conclusion si contient 'Donc' ou 'donc'
-            premises = segments[:-1] if len(segments) > 1 else segments
-            conclusions = [segments[-1]] if len(segments) > 0 else []
-            extracted = {"premises": premises, "conclusions": conclusions, "relations": []}
+            logger.warning("Aucun LLM fourni, l'analyse formelle sera basée sur une segmentation simple.")
+            formules = normaliser_en_logique_atomique(segments) # Fallback très simple
     except Exception as e:
-        logger.warning(f"Extraction LLM a échoué : {e}")
-        extracted = {"premises": [], "conclusions": [], "relations": []}
-
-    report["extracted"] = extracted
-
-    # 3) Normalisation en formules logiques
-    unites_to_normalize = []
-    # on essaye d'utiliser explicitement les prémisses + conclusions extraites si présentes
-    if isinstance(extracted, dict) and extracted.get("premises"):
-        unites_to_normalize.extend(extracted.get("premises", []))
-        unites_to_normalize.extend(extracted.get("conclusions", [])) # Ajout de la conclusion pour l'analyse d'inférence
-    else:
-        unites_to_normalize.extend(segments[:-1] if len(segments) > 1 else segments)
-
-    # normaliser (préprocessing.normaliser_en_logique_atomique)
-    try:
-        formules = normaliser_en_logique_atomique(unites_to_normalize)
-    except Exception as e:
-        logger.warning(f"Erreur lors de la normalisation : {e}")
-        formules = [u for u in unites_to_normalize]
+        logger.error(f"La traduction en logique a échoué : {e}")
+        formules = normaliser_en_logique_atomique(segments)
 
     report["formules"] = formules
 
@@ -245,10 +228,6 @@ def _formater_analyse_unique(report: Dict[str, Any], index: int = 0) -> List[str
         lines.append("\n- **Validité formelle (analyse formelle) :** ❌ Invalide (La conclusion ne peut pas être prouvée à partir des prémisses).")
     lines.append("\n---\n")
     return lines
-
-# -----------------------
-# CLI / Entrypoint
-# -----------------------
 
 def main():
     # Définir les chemins des dossiers d'entrée et de sortie

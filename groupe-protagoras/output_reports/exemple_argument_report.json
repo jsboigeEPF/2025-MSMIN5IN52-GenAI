@@ -1,64 +1,84 @@
 {
   "meta": {
     "source_file": "exemple_argument.txt",
-    "generated_at": "2025-10-30T21:14:13.783380+00:00"
+    "generated_at": "2025-10-30T22:08:08.006699+00:00"
   },
   "analyses": [
     {
       "meta": {
-        "generated_at": "2025-10-30T21:14:01.174266+00:00",
-        "input_length": 52,
-        "original_text": "L’eau bout à 100 degrés Celsius au niveau de la mer."
+        "generated_at": "2025-10-30T22:08:02.554736+00:00",
+        "input_length": 91,
+        "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
       },
       "segments": [],
-      "sophisms": [],
+      "sophisms": [
+        {
+          "type": "Affirmation du conséquent",
+          "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+          "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+        }
+      ],
       "formal": {
-        "is_valid": 0,
+        "is_valid": 1,
         "inconsistencies": [],
         "logical_implications": []
       },
       "fusion": {
         "overall_validity": false,
-        "informal_fallacies": [],
+        "informal_fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+          }
+        ],
         "formal_validity": {
-          "is_valid": 0,
+          "is_valid": 1,
           "inconsistencies": [],
           "logical_implications": []
         },
-        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
+        "final_verdict": "L'argument est logiquement valide mais repose sur des sophismes. La conclusion pourrait être correcte, mais le raisonnement est fallacieux."
       },
       "segments_raw": [
-        "L’eau bout à 100 degrés Celsius au niveau de la mer"
+        "Si le feu est rouge, je m'arrête",
+        "Je ne me suis pas arrêté",
+        "Donc, le feu n'était pas rouge"
       ],
-      "extracted": {
+      "extracted_logic": {
         "premises": [
-          "L’eau bout à 100 degrés Celsius",
-          "au niveau de la mer"
+          "feu_rouge => arret",
+          "!arret"
         ],
-        "conclusions": [],
-        "relations": []
+        "conclusion": "!feu_rouge"
       },
       "formules": [
-        "A",
-        "B"
+        "feu_rouge => arret",
+        "!arret",
+        "!feu_rouge"
       ],
       "sophisms_raw": {
-        "fallacies": [],
-        "overall_assessment": "Aucun sophisme détecté, c'est une affirmation factuelle."
+        "fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge.",
+            "explanation": "Ce sophisme consiste à affirmer que si une condition est vraie, alors sa conséquence est vraie. Cependant, le contraire n'est pas nécessairement vrai, car il peut y avoir d'autres raisons pour lesquelles la conséquence ne se produit pas."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme (Affirmation du conséquent)."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T21:14:03.603797+00:00",
-        "input_length": 106,
-        "original_text": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur."
+        "generated_at": "2025-10-30T22:08:05.840912+00:00",
+        "input_length": 83,
+        "original_text": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas."
       },
       "segments": [],
       "sophisms": [
         {
-          "type": "Syllogisme invalide",
-          "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
-          "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
+          "type": "Affirmation du conséquent",
+          "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
+          "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
         }
       ],
       "formal": {
@@ -70,9 +90,9 @@
         "overall_validity": false,
         "informal_fallacies": [
           {
-            "type": "Syllogisme invalide",
-            "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
-            "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
+            "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
           }
         ],
         "formal_validity": {
@@ -83,207 +103,31 @@
         "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
       },
       "segments_raw": [
-        "Tous les chats sont des mammifères",
-        "Or, tous les mammifères ont un cœur",
-        "Donc, tous les chats ont un cœur"
+        "Si le feu est rouge, je m'arrête",
+        "Le feu n'est pas rouge",
+        "Donc, je ne m'arrête pas"
       ],
-      "extracted": {
+      "extracted_logic": {
         "premises": [
-          "Tous les chats sont des mammifères",
-          "Tous les mammifères ont un cœur"
+          "feu_rouge => m_arrete",
+          "!feu_rouge"
         ],
-        "conclusions": [
-          "Tous les chats ont un cœur"
-        ],
-        "relations": [
-          "Implication logique entre les prémisses et les conclusions"
-        ]
+        "conclusion": "!m_arrete"
       },
       "formules": [
-        "A",
-        "B",
-        "C"
+        "feu_rouge => m_arrete",
+        "!feu_rouge",
+        "!m_arrete"
       ],
       "sophisms_raw": {
         "fallacies": [
           {
-            "type": "Syllogisme invalide",
-            "excerpt": "Tous les chats sont des mammifères. Or, tous les mammifères ont un cœur. Donc, tous les chats ont un cœur.",
-            "explanation": "Ce raisonnement est un syllogisme invalide car la conclusion ne découle pas logiquement des prémisses. Même si tous les mammifères ont un cœur, cela ne signifie pas que tous les chats ont nécessairement un cœur."
+            "type": "Affirmation du conséquent",
+            "excerpt": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas.",
+            "explanation": "Ce sophisme consiste à affirmer une conséquence comme preuve de la véracité de la condition. Dans ce cas, le locuteur affirme que parce que le feu n'est pas rouge, il ne s'arrête pas, ce qui est une erreur de raisonnement."
           }
         ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison d'un syllogisme invalide."
-      }
-    },
-    {
-      "meta": {
-        "generated_at": "2025-10-30T21:14:06.870184+00:00",
-        "input_length": 92,
-        "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
-      },
-      "segments": [],
-      "sophisms": [
-        {
-          "type": "Pente glissante",
-          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-          "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
-        }
-      ],
-      "formal": {
-        "is_valid": 0,
-        "inconsistencies": [],
-        "logical_implications": []
-      },
-      "fusion": {
-        "overall_validity": false,
-        "informal_fallacies": [
-          {
-            "type": "Pente glissante",
-            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
-          }
-        ],
-        "formal_validity": {
-          "is_valid": 0,
-          "inconsistencies": [],
-          "logical_implications": []
-        },
-        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
-      },
-      "segments_raw": [
-        "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence"
-      ],
-      "extracted": {
-        "premises": [
-          "Si on autorise les voitures électriques"
-        ],
-        "conclusions": [
-          "on interdira toutes les voitures à essence"
-        ],
-        "relations": [
-          "La conclusion est déduite de la prémisse, suggérant une relation de cause à effet entre les deux"
-        ]
-      },
-      "formules": [
-        "A",
-        "B"
-      ],
-      "sophisms_raw": {
-        "fallacies": [
-          {
-            "type": "Pente glissante",
-            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de la pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuves suffisantes pour étayer cette progression."
-          }
-        ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme de la pente glissante."
-      }
-    },
-    {
-      "meta": {
-        "generated_at": "2025-10-30T21:14:09.815476+00:00",
-        "input_length": 79,
-        "original_text": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets."
-      },
-      "segments": [],
-      "sophisms": [
-        {
-          "type": "Attaque personnelle",
-          "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-          "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
-        }
-      ],
-      "formal": {
-        "is_valid": 0,
-        "inconsistencies": [],
-        "logical_implications": []
-      },
-      "fusion": {
-        "overall_validity": false,
-        "informal_fallacies": [
-          {
-            "type": "Attaque personnelle",
-            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
-          }
-        ],
-        "formal_validity": {
-          "is_valid": 0,
-          "inconsistencies": [],
-          "logical_implications": []
-        },
-        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
-      },
-      "segments_raw": [
-        "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets"
-      ],
-      "extracted": {
-        "premises": [
-          "Paul ne trie pas ses déchets"
-        ],
-        "conclusions": [
-          "On ne devrait pas écouter Paul sur l’écologie"
-        ],
-        "relations": [
-          "Le fait que Paul ne trie pas ses déchets est la raison pour laquelle on ne devrait pas écouter Paul sur l’écologie"
-        ]
-      },
-      "formules": [
-        "A",
-        "B"
-      ],
-      "sophisms_raw": {
-        "fallacies": [
-          {
-            "type": "Attaque personnelle",
-            "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant son comportement de tri des déchets."
-          }
-        ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'une attaque personnelle."
-      }
-    },
-    {
-      "meta": {
-        "generated_at": "2025-10-30T21:14:12.082885+00:00",
-        "input_length": 54,
-        "original_text": "La Terre tourne autour du Soleil en environ 365 jours."
-      },
-      "segments": [],
-      "sophisms": [],
-      "formal": {
-        "is_valid": 0,
-        "inconsistencies": [],
-        "logical_implications": []
-      },
-      "fusion": {
-        "overall_validity": false,
-        "informal_fallacies": [],
-        "formal_validity": {
-          "is_valid": 0,
-          "inconsistencies": [],
-          "logical_implications": []
-        },
-        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
-      },
-      "segments_raw": [
-        "La Terre tourne autour du Soleil en environ 365 jours"
-      ],
-      "extracted": {
-        "premises": [
-          "La Terre tourne autour du Soleil",
-          "Environ 365 jours"
-        ],
-        "conclusions": [],
-        "relations": []
-      },
-      "formules": [
-        "A",
-        "B"
-      ],
-      "sophisms_raw": {
-        "fallacies": [],
-        "overall_assessment": "Aucun sophisme détecté, c'est une affirmation factuelle."
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme."
       }
     }
   ]

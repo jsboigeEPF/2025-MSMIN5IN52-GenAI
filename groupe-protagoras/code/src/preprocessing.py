@@ -21,6 +21,42 @@ def segmenter_discours(texte: str) -> List[str]:
     # Nettoyage et suppression des éléments vides
     return [phrase.strip() for phrase in phrases if phrase.strip()]
 
+class ArgumentFormulas(BaseModel):
+    """Modèle pour la structure logique d'un argument."""
+    premises: List[str] = Field(description="Liste des prémisses sous forme de formules logiques.")
+    conclusion: str = Field(description="La conclusion sous forme de formule logique.")
+
+def traduire_argument_en_logique(texte: str, llm_client) -> Dict[str, Any]:
+    """
+    Utilise un LLM pour traduire un argument complet en un ensemble de prémisses et une conclusion logiques.
+    """
+    parser = JsonOutputParser(pydantic_object=ArgumentFormulas)
+
+    prompt_template = """Tu es un expert en logique propositionnelle. Analyse l'argument suivant et traduis-le en une structure logique formelle.
+
+**Instructions :**
+1.  Identifie les prémisses et la conclusion de l'argument.
+2.  Assigne des atomes simples (mots courts en minuscules, ex: 'pleut', 'sol_mouille') aux concepts.
+3.  Construis les formules logiques pour les prémisses et la conclusion en utilisant les opérateurs compatibles Tweety : `=>` (implication), `&&` (ET), `||` (OU), `!` (NON).
+4.  Retourne le résultat au format JSON demandé.
+
+**Exemple 1 :**
+- **Argument d'entrée :** "S'il pleut, alors le sol sera mouillé. Il pleut. Donc, le sol est mouillé."
+- **Analyse attendue :** {{"premises": ["pleut => sol_mouille", "pleut"], "conclusion": "sol_mouille"}}
+
+**Exemple 2 :**
+- **Argument d'entrée :** "Tous les chats sont des mammifères. Tous les mammifères ont un cœur. Donc, tous les chats ont un cœur."
+- **Analyse attendue :** {{"premises": ["chats => mammiferes", "mammiferes => coeur"], "conclusion": "chats => coeur"}}
+
+**Argument à analyser :**
+{texte}
+
+{format_instructions}
+"""
+    prompt = PromptTemplate(template=prompt_template, input_variables=["texte"], partial_variables={"format_instructions": parser.get_format_instructions()})
+    chain = prompt | llm_client | parser
+    return chain.invoke({"texte": texte})
+
 class ArgumentExtraction(BaseModel):
     premises: List[str] = Field(description="Les prémisses de l'argument")
     conclusions: List[str] = Field(description="Les conclusions de l'argument")
@@ -57,6 +93,38 @@ Discours : {texte}
     resultat = chain.invoke({"texte": texte})
     
     return resultat
+
+class LogicalForm(BaseModel):
+    formulas: List[str] = Field(description="La liste des phrases traduites en formules logiques propositionnelles.")
+
+def normaliser_avec_llm(phrases: List[str], llm_client) -> List[str]:
+    """
+    Utilise un LLM pour convertir une liste de phrases en formules logiques.
+    """
+    parser = JsonOutputParser(pydantic_object=LogicalForm)
+
+    prompt_template = """Tu es un logicien. Traduis chaque phrase de la liste suivante en une formule de logique propositionnelle.
+Utilise des atomes simples (ex: 'chats', 'mammiferes', 'coeur') et les opérateurs logiques compatibles avec Tweety ('=>' pour l'implication, '&&' pour ET, '||' pour OU, '!' pour NON).
+
+**Instructions :**
+1.  Identifie les concepts clés dans chaque phrase.
+2.  Assigne un atome (un mot court en minuscules) à chaque concept.
+3.  Construis une formule logique pour chaque phrase.
+4.  Retourne la liste des formules dans le même ordre que les phrases d'entrée.
+
+**Exemple :**
+- **Phrases d'entrée :** ["Tous les chats sont des mammifères", "tous les mammifères ont un cœur"]
+- **Analyse attendue :** ["chats => mammiferes", "mammiferes => coeur"]
+
+**Phrases à traduire :**
+{phrases_json}
+
+{format_instructions}
+"""
+    prompt = PromptTemplate(template=prompt_template, input_variables=["phrases_json"], partial_variables={"format_instructions": parser.get_format_instructions()})
+    chain = prompt | llm_client | parser
+    resultat = chain.invoke({"phrases_json": json.dumps(phrases)})
+    return resultat.get("formulas", [])
 
 def normaliser_en_logique_atomique(phrases: List[str]) -> List[str]:
     """

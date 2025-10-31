@@ -1,97 +1,310 @@
-# Projet de Fin de Cours - IA Générative 2025
+# 🎵 Compositeur de Bandes Sonores d'Ambiance
 
-Bienvenue sur le dépôt officiel pour la soumission du projet de fin de cours sur l'IA Générative.
+## Description
 
-## Instructions de Soumission
+Application de génération musicale utilisant l'intelligence artificielle pour créer des boucles musicales instrumentales adaptées à des ambiances spécifiques. Le projet utilise **MusicGen** (Meta) pour la génération musicale locale et **Pollinations.ai** pour la génération d'images d'illustration.
 
-1.  **Forkez ce dépôt :** Chaque groupe doit créer un "fork" de ce dépôt pour y travailler.
-2.  **Créez un dossier pour votre groupe :** À la racine de votre fork, créez un dossier unique pour votre groupe (ex: `groupe-alpha`, `projet-rag-chatbot`, etc.).
-3.  **Placez vos livrables :** Tous vos livrables (code, `README.md` de votre projet, slides, etc.) doivent être placés à l'intérieur de ce dossier.
-4.  **Soumettez via une Pull Request :** Une fois votre projet terminé, créez une Pull Request depuis votre fork vers le dépôt principal. La PR doit être soumise au plus tard **l'avant-veille de la présentation finale**.
+## Membres du Groupe
 
-## Sujets Proposés
+- Lucas
+- Ivan
 
-Voici quelques pistes de sujets. Vous êtes encouragés à proposer les vôtres.
+## Architecture du Projet
 
-### Catégorie : Agents et Systèmes Intelligents
+```
+Groupe-compositeur-Lucas-Ivan/
+├── backend/
+│   ├── app.py                    # Serveur Flask (API Python)
+│   ├── server.js                 # Serveur Node.js (API REST)
+│   ├── requirements.txt          # Dépendances Python
+│   ├── package.json              # Dépendances Node.js
+│   ├── controllers/              # Contrôleurs API
+│   ├── routes/                   # Routes Express
+│   └── services/                 # Services de génération (MusicGen, Images)
+└── frontend/
+    ├── src/                      # Code source React
+    ├── package.json              # Dépendances frontend
+    └── vite.config.js            # Configuration Vite
+```
 
-1.  **Agent RAG pour la documentation du cours**
-    *   Description : Créer un chatbot capable de répondre aux questions des étudiants sur le contenu du cours en se basant sur les supports fournis.
-    *   Technologies clés : RAG, Base de données vectorielle, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+## Technologies Utilisées
 
-2.  **Agent autonome pour la planification de voyage**
-    *   Description : Créer un agent capable de planifier un itinéraire de voyage en utilisant des outils (recherche web, API) via du "Function Calling".
-    *   Technologies clés : IA Agentique, Function Calling, API externes.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### Backend
+- **Python 3.8+** : API Flask pour la génération musicale
+- **Node.js 16+** : API REST intermédiaire
+- **Flask & Flask-CORS** : Serveur API Python
+- **Express.js** : Serveur API Node.js
+- **MusicGen (Meta)** : Modèle de génération musicale local
+- **Transformers (HuggingFace)** : Chargement du modèle
+- **PyTorch** : Framework de deep learning
+- **Pollinations.ai** : Génération d'images (API gratuite)
 
-3.  **Tuteur de code adaptatif**
-    *   Description : Développer un agent qui aide les étudiants à apprendre un concept de programmation en posant des questions et en expliquant les erreurs.
-    *   Technologies clés : Prompt engineering avancé (rôle, CoT), analyse de code.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Frontend
+- **React 18** : Interface utilisateur
+- **Vite** : Build tool moderne
+- **CSS moderne** : Styling avec variables CSS
 
-4.  **Agent d'Analyse d'Arguments Hybride**
-    *   Description : Un système qui analyse un débat en utilisant un LLM pour l'analyse informelle (sophismes) et une bibliothèque d'IA symbolique (TweetyProject) pour valider la structure logique.
-    *   Technologies clés : IA Hybride, TweetyProject, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+## Prérequis
 
-5.  **Simulateur de Scénario Ludique Multi-Agents**
-    *   Description : Concevoir une simulation textuelle (escape game, mini-jeu de rôle) où plusieurs agents IA dotés de personnalités distinctes doivent interagir pour atteindre un objectif.
-    *   Technologies clés : Semantic Kernel (AgentGroupChat), stratégies de conversation.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Système
+- **Python 3.8 ou supérieur**
+- **Node.js 16 ou supérieur**
+- **npm ou yarn**
+- **8 Go de RAM minimum** (16 Go recommandés)
+- **~5 Go d'espace disque** (pour le modèle MusicGen)
 
-### Catégorie : Applications Métier
+### GPU (Optionnel mais recommandé)
+- CUDA compatible si disponible (accélère la génération de 10x)
+- Sinon, le CPU fonctionnera (génération plus lente : 60-100 secondes)
 
-6.  **Agent de Recrutement Augmenté**
-    *   Description : Développez un outil qui compare un lot de CVs à une fiche de poste et produit un classement justifié des candidats.
-    *   Technologies clés : RAG, extraction d'entités, Pandas.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## Installation
 
-7.  **Veille Concurrentielle Automatisée**
-    *   Description : Créez un agent qui scrape les sites de concurrents et synthétise les informations clés dans un rapport de veille hebdomadaire.
-    *   Technologies clés : Scraping web, analyse et synthèse de texte.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### 1. Cloner le repository
 
-8.  **Assistant de Réponse à Appel d'Offres**
-    *   Description : Concevez un système qui génère une première ébauche de réponse technique à un appel d'offres en se basant sur le cahier des charges et une base de connaissances interne.
-    *   Technologies clés : RAG, génération de texte long format.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+```bash
+git clone https://github.com/ivanoffffff/2025-MSMIN5IN52-GenAI
+cd Groupe-compositeur-Lucas-Ivan
+```
 
-### Catégorie : Génération Multimédia et Créative
+### 2. Installation du Backend Python
 
-9.  **Générateur d'histoires multimodales**
-    *   Description : Développer une application qui génère une histoire courte et illustre chaque paragraphe avec une image générée.
-    *   Technologies clés : API OpenAI (GPT-4o, DALL-E 3) ou modèles locaux.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+```bash
+cd backend
+pip install -r requirements.txt
+```
 
-10. **Compositeur de Bandes Sonores d'Ambiance**
-    *   Description : Créez une application qui génère des boucles musicales instrumentales pour des ambiances spécifiques (ex: "forêt mystérieuse", "cyberpunk sous la pluie").
-    *   Technologies clés : API de génération musicale (Suno, Udio, Stable Audio).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+**Note** : Le premier lancement téléchargera automatiquement le modèle MusicGen (~2 Go).
 
-11. **Générateur de Storyboards Vidéo**
-    *   Description : Développez un outil qui prend un court scénario et le transforme en une séquence de clips vidéo courts (storyboard animé).
-    *   Technologies clés : LLM pour la scénarisation, API de génération vidéo (Luma Dream Machine).
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### 3. Installation du Backend Node.js
 
-12. **Créateur d'Assets 3D pour le Prototypage**
-    *   Description : Concevez une application qui génère rapidement des modèles 3D simples à partir d'images ou de textes pour une utilisation dans un moteur de jeu.
-    *   Technologies clés : Modèles Image-to-3D (TripoSR) ou Text-to-3D (Luma Genie).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+```bash
+# Depuis le dossier backend
+npm install
+```
 
-### Catégorie : Outils de Développement et d'Analyse
+### 4. Installation du Frontend
 
-13. **Auditeur de biais dans les LLMs**
-    *   Description : Concevoir un outil qui évalue les biais d'un modèle de langage en lui soumettant des prompts standardisés et en analysant les réponses.
-    *   Technologies clés : Prompt engineering, analyse de texte, visualisation de données.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+```bash
+cd ../frontend
+npm install
+```
 
-14. **Générateur de Contenu Structuré (CV, Facture, Rapport)**
-    *   Description : Développez un workflow multi-agents qui prend des informations en langage naturel et génère un document structuré au format PDF.
-    *   Technologies clés : Semantic Kernel, ReportLab (pour PDF), gestion de workflow.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## Configuration
+
+### Variables d'environnement (Optionnel)
+
+Créer un fichier `.env` dans le dossier `backend/` :
+
+```env
+PORT=3001
+SUNO_API_KEY=votre_cle_api_suno  # Optionnel, pour utilisation future
+```
+
+**Note** : Actuellement, le projet utilise MusicGen en local, donc aucune clé API n'est nécessaire.
+
+## Lancement du Projet
+
+Le projet nécessite **3 serveurs** qui doivent tourner simultanément.
+
+### Terminal 1 : Backend Python (Flask)
+
+```bash
+cd backend
+python app.py
+```
+
+Le serveur Flask démarre sur **http://localhost:5001**
+
+### Terminal 2 : Backend Node.js (Express)
+
+```bash
+cd backend
+npm run dev
+# ou
+node server.js
+```
+
+Le serveur Node.js démarre sur **http://localhost:3001**
+
+### Terminal 3 : Frontend React
+
+```bash
+cd frontend
+npm run dev
+```
+
+L'interface démarre sur **http://localhost:5173**
+
+### Ordre de démarrage recommandé
+
+1. ✅ **D'abord** : Backend Python (Flask) - Port 5001
+2. ✅ **Ensuite** : Backend Node.js (Express) - Port 3001  
+3. ✅ **Enfin** : Frontend (React) - Port 5173
+
+## Utilisation
+
+1. **Ouvrez votre navigateur** à l'adresse `http://localhost:5173`
+
+2. **Choisissez une ambiance prédéfinie** :
+   - Forêt Mystérieuse
+   - Cyberpunk sous la Pluie
+   - Plage au Coucher du Soleil
+   - Méditation Zen
+   - Café Jazz
+   - Montagne Majestueuse
+   - Désert Nocturne
+   - Ville Futuriste
+
+3. **OU créez une composition personnalisée** :
+   - Cliquez sur "Création Personnalisée"
+   - Décrivez l'ambiance souhaitée
+   - Ajoutez un nom et un style (optionnel)
+   - Cliquez sur "Générer la musique"
+
+4. **Patientez** pendant la génération (60-100 secondes sur CPU)
+
+5. **Écoutez et téléchargez** votre création :
+   - Lecture audio avec contrôles
+   - Image d'illustration générée
+   - Bouton de téléchargement au format WAV
+   - Mode boucle pour lecture continue
+
+## Fonctionnalités
+
+### ✅ Génération Musicale
+- Génération locale avec MusicGen (Meta)
+- 8 ambiances prédéfinies
+- Mode personnalisé avec description libre
+- Audio haute qualité (WAV, 32 kHz)
+- Durée : ~20-30 secondes par génération
+
+### ✅ Interface Utilisateur
+- Design moderne dark mode
+- Lecteur audio intégré avec contrôles
+- Barre de progression temps réel
+- Contrôle du volume
+- Mode boucle automatique
+- Téléchargement des créations
+
+### ✅ Génération d'Images
+- Image d'illustration pour chaque ambiance
+- API Pollinations.ai (gratuite, sans clé)
+- Affichage dans le lecteur audio
+
+## Temps de Génération
+
+| Matériel | Temps moyen |
+|----------|-------------|
+| CPU (Intel i7/AMD Ryzen 7) | 60-100 secondes |
+| GPU (NVIDIA RTX 2060+) | 5-15 secondes |
+| GPU (NVIDIA RTX 4090) | 2-5 secondes |
+
+## Structure des Fichiers Générés
+
+```
+backend/
+├── generated_music/
+│   └── music_[uuid].wav      # Fichiers audio générés
+└── generated_images/
+    └── image_[uuid].jpg      # Images générées
+```
+
+## Dépannage
+
+### Problème : "Erreur de connexion"
+**Solution** : Vérifiez que les 3 serveurs sont bien lancés
+
+### Problème : "Module not found"
+**Solution** : 
+```bash
+cd backend && pip install -r requirements.txt
+cd backend && npm install
+cd frontend && npm install
+```
+
+### Problème : Génération très lente
+**Solution** : 
+- Normal sur CPU (60-100s)
+- Utilisez un GPU CUDA si disponible
+- Fermez les applications gourmandes en ressources
+
+### Problème : Le modèle ne se charge pas
+**Solution** :
+- Vérifiez votre connexion internet (premier téléchargement)
+- Libérez de l'espace disque (~5 Go nécessaires)
+- Vérifiez les logs dans le terminal Python
+
+### Problème : CORS errors
+**Solution** : Vérifiez que Flask-CORS est installé
+```bash
+pip install flask-cors
+```
+
+## API Endpoints
+
+### Backend Node.js (Port 3001)
+
+- `GET /api/music/ambiances` - Liste des ambiances disponibles
+- `POST /api/music/generate` - Générer une musique
+- `GET /api/music/status/:generationId` - Statut d'une génération
+
+### Backend Python (Port 5001)
+
+- `POST /api/generate` - Générer musique + image
+- `GET /api/audio/:generation_id` - Récupérer le fichier audio
+- `GET /api/image/:generation_id` - Récupérer l'image
+
+## Développement
+
+### Lancer en mode développement
+
+```bash
+# Backend Node.js avec auto-reload
+cd backend && npm run dev
+
+# Frontend avec hot-reload
+cd frontend && npm run dev
+```
+
+### Build de production
+
+```bash
+cd frontend
+npm run build
+```
+
+Les fichiers de production seront dans `frontend/dist/`
+
+## Améliorations Futures
+
+- [ ] Personnalisation fine (tempo, instruments, intensité)
+- [ ] Sauvegarde des compositions favorites
+- [ ] Export en différents formats (MP3, OGG)
+- [ ] Génération de playlists d'ambiances
+- [ ] Mode collaboratif
+- [ ] Intégration avec Spotify/YouTube
+- [ ] Support de durées personnalisées
+- [ ] Amélioration de la qualité audio avec upsampling
+
+## Ressources
+
+- [Documentation MusicGen](https://huggingface.co/facebook/musicgen-small)
+- [Documentation Flask](https://flask.palletsprojects.com/)
+- [Documentation React](https://react.dev/)
+- [Documentation Vite](https://vitejs.dev/)
+
+## Licence
+
+MIT
+
+## Crédits
+
+Projet réalisé dans le cadre du module **2025-MSMIN5IN52-GenAI** - EPF 2025
+
+**Technologies IA :**
+- MusicGen par Meta AI
+- Pollinations.ai pour la génération d'images
 
 ---
-Pour toutes les autres informations (planning, critères d'évaluation détaillés), veuillez vous référer au document de modalités fourni dans le dossier du cours.
 
-Bon projet à tous !
+*Pour toute question ou problème, consultez les issues GitHub ou contactez l'équipe.*

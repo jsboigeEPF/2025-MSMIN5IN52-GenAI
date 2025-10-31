@@ -62,6 +62,10 @@ temp/
 coverage/
 coverage-final.json
 
+# Generated files
+**/generated_images/*
+**/generated_music/*
+
 # Lockfiles (usually committed, keep commented out unless you want to ignore them)
 # package-lock.json
 # yarn.lock

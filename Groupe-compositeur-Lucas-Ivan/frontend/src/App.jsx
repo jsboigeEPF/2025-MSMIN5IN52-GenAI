@@ -11,18 +11,15 @@ function App() {
   const [ambiances, setAmbiances] = useState([]);
   const [selectedAmbiance, setSelectedAmbiance] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationData, setGenerationData] = useState(null);
   const [error, setError] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [allTracks, setAllTracks] = useState([]);
-  const [customAmbianceData, setCustomAmbianceData] = useState(null); // Pour stocker les infos custom
+  const [generationTime, setGenerationTime] = useState(0);
+  const [currentAmbiance, setCurrentAmbiance] = useState(null);
 
-  // Charger les ambiances au démarrage
   useEffect(() => {
     fetchAmbiances();
   }, []);
 
-  // Récupérer les ambiances disponibles
   const fetchAmbiances = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/music/ambiances`);
@@ -36,13 +33,25 @@ function App() {
     }
   };
 
-  // Générer une musique
-  const handleGenerate = async (ambianceId) => {
+  const handleGenerate = async (ambianceId, customSettings = null) => {
     setIsGenerating(true);
     setError(null);
     setAudioUrl(null);
-    setAllTracks([]);
     setSelectedAmbiance(ambianceId);
+    setGenerationTime(0);
+
+    // Définir l'ambiance actuelle
+    const ambiance = customSettings 
+      ? { name: customSettings.name || 'Personnalisée', style: customSettings.style || 'Custom' }
+      : ambiances.find(a => a.id === ambianceId);
+    
+    setCurrentAmbiance(ambiance);
+
+    // Timer pour afficher le temps de génération
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      setGenerationTime(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
 
     try {
       const response = await fetch(`${API_BASE_URL}/music/generate`, {
@@ -52,139 +61,101 @@ function App() {
         },
         body: JSON.stringify({
           ambiance: ambianceId,
+          customSettings: customSettings
         }),
       });
 
       const data = await response.json();
+      clearInterval(timer);
 
       if (data.success) {
-        setGenerationData(data.data);
-        // Démarrer le polling pour vérifier le statut
-        pollGenerationStatus(data.data.generationId);
+        setAudioUrl(data.data.audioUrl);
+        setIsGenerating(false);
       } else {
         setError(data.error || 'Erreur lors de la génération');
         setIsGenerating(false);
       }
     } catch (err) {
+      clearInterval(timer);
       console.error('Erreur:', err);
-      setError('Erreur de connexion au serveur');
+      setError('Erreur de connexion. Vérifiez que les serveurs sont lancés.');
       setIsGenerating(false);
     }
-  };
-
-  // Vérifier le statut de la génération
-  const pollGenerationStatus = async (generationId) => {
-    const maxAttempts = 60; // 5 minutes max (60 * 5 secondes)
-    let attempts = 0;
-
-    const checkStatus = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/music/status/${generationId}`);
-        const data = await response.json();
-
-        if (data.success) {
-          console.log('📊 Statut reçu:', data.data);
-          
-          const statusData = data.data.data || data.data;
-          const status = statusData.status;
-
-          // Si la génération est terminée avec succès
-          if (status === 'SUCCESS' || status === 'completed') {
-            // Extraire l'URL audio de la structure Suno
-            const sunoData = statusData.response?.sunoData;
-            
-            if (sunoData && sunoData.length > 0) {
-              // Stocker toutes les pistes
-              setAllTracks(sunoData);
-              // Prendre la première piste audio générée par défaut
-              const audioUrl = sunoData[0].audioUrl || sunoData[0].sourceAudioUrl;
-              
-              if (audioUrl) {
-                console.log('🎵 URL audio trouvée:', audioUrl);
-                setAudioUrl(audioUrl);
-                setIsGenerating(false);
-                return;
-              }
-            }
-          } else if (status === 'FAILED' || status === 'failed' || status === 'error') {
-            setError('La génération a échoué');
-            setIsGenerating(false);
-            return;
-          }
-          // Si status est autre chose (PROCESSING, PENDING, etc.), on continue à poller
-        }
-
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 5000); // Vérifier toutes les 5 secondes
-        } else {
-          setError('Timeout: la génération prend trop de temps');
-          setIsGenerating(false);
-        }
-      } catch (err) {
-        console.error('Erreur lors de la vérification du statut:', err);
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 5000);
-        }
-      }
-    };
-
-    checkStatus();
   };
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>🎵 Compositeur d'Ambiances</h1>
-          <p className="subtitle">Créez des boucles musicales immersives en quelques clics</p>
+          <div className="logo">
+            <span className="logo-icon">🎵</span>
+            <div className="logo-text">
+              <h1>MusicGen Studio</h1>
+              <p className="subtitle">Génération musicale locale par IA</p>
+            </div>
+          </div>
+          <div className="status-badge">
+            <span className="status-dot"></span>
+            Modèle Local Actif
+          </div>
         </div>
       </header>
 
       <main className="app-main">
         {error && (
           <div className="error-banner">
-            <span>⚠️ {error}</span>
-            <button onClick={() => setError(null)}>✕</button>
+            <span className="error-icon">⚠️</span>
+            <span className="error-text">{error}</span>
+            <button className="error-close" onClick={() => setError(null)}>✕</button>
           </div>
         )}
 
-        <AmbianceSelector
-          ambiances={ambiances}
-          selectedAmbiance={selectedAmbiance}
-          onSelect={handleGenerate}
-          isGenerating={isGenerating}
-        />
+        <div className="content-grid">
+          <div className="left-panel">
+            <AmbianceSelector
+              ambiances={ambiances}
+              selectedAmbiance={selectedAmbiance}
+              onSelect={handleGenerate}
+              isGenerating={isGenerating}
+            />
 
-        <CustomGenerator
-          onGenerate={handleGenerate}
-          isGenerating={isGenerating}
-        />
+            <CustomGenerator
+              onGenerate={(customSettings) => handleGenerate('custom', customSettings)}
+              isGenerating={isGenerating}
+            />
+          </div>
 
-        {isGenerating && (
-          <GenerationStatus 
-            ambiance={ambiances.find(a => a.id === selectedAmbiance)}
-            isCustom={selectedAmbiance === 'custom'}
-            customData={customAmbianceData}
-          />
-        )}
+          <div className="right-panel">
+            {isGenerating && (
+              <GenerationStatus 
+                ambiance={currentAmbiance}
+                generationTime={generationTime}
+              />
+            )}
 
-        {audioUrl && !isGenerating && (
-          <MusicPlayer
-            audioUrl={audioUrl}
-            ambiance={customAmbianceData || ambiances.find(a => a.id === selectedAmbiance)}
-            allTracks={allTracks}
-            onTrackChange={(trackIndex) => {
-              const newUrl = allTracks[trackIndex].audioUrl || allTracks[trackIndex].sourceAudioUrl;
-              setAudioUrl(newUrl);
-            }}
-          />
-        )}
+            {audioUrl && !isGenerating && (
+              <MusicPlayer
+                audioUrl={audioUrl}
+                ambiance={currentAmbiance}
+              />
+            )}
+
+            {!isGenerating && !audioUrl && (
+              <div className="placeholder">
+                <div className="placeholder-icon">🎼</div>
+                <h3>Prêt à créer</h3>
+                <p>Sélectionnez une ambiance ou créez votre propre composition</p>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
       <footer className="app-footer">
-        <p>Projet réalisé par Lucas & Ivan - 2025-MSMIN5IN52-GenAI</p>
+        <div className="footer-content">
+          <p>Projet Lucas & Ivan - EPF 2025</p>
+          <p className="tech-stack">MusicGen (Meta) • Flask • React • Node.js</p>
+        </div>
       </footer>
     </div>
   );

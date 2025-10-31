@@ -1,4 +1,18 @@
-const sunoService = require('../services/sunoService');
+const axios = require('axios');
+
+const PYTHON_API_URL = 'http://localhost:5001/api';
+
+// Mapper les ambiances (optionnel, pour enrichir les descriptions)
+const AMBIANCE_DESCRIPTIONS = {
+  'foret-mysterieuse': 'Ambient forest sounds with mysterious piano and ethereal pads',
+  'cyberpunk-pluie': 'Cyberpunk synthwave with rain sounds and electronic beats',
+  'plage-coucher-soleil': 'Relaxing tropical beach music with soft guitar and ocean waves',
+  'meditation-zen': 'Peaceful zen meditation music with bells and nature sounds',
+  'cafe-jazz': 'Smooth jazz music perfect for a cozy café atmosphere',
+  'montagne-majestueuse': 'Epic orchestral music with majestic mountain atmosphere',
+  'desert-nocturne': 'Atmospheric ethnic music with desert night ambiance',
+  'ville-futuriste': 'Futuristic electronic cinematic music with urban atmosphere'
+};
 
 // Générer une musique d'ambiance
 exports.generateMusic = async (req, res) => {
@@ -7,34 +21,46 @@ exports.generateMusic = async (req, res) => {
 
     if (!ambiance) {
       return res.status(400).json({ 
+        success: false,
         error: 'L\'ambiance est requise' 
       });
     }
 
-    console.log(`🎼 Génération de musique pour l'ambiance: ${ambiance}`);
+    console.log(`🎼 Génération locale pour l'ambiance: ${ambiance}`);
 
-    // Générer la musique via le service Suno
-    const result = await sunoService.generateMusic(ambiance, customSettings);
+    // Préparer la description
+    const description = customSettings?.description || AMBIANCE_DESCRIPTIONS[ambiance] || ambiance;
 
-    // Vérifier qu'on a bien reçu un ID de génération
-    if (!result.generationId) {
-      console.error('⚠️ Pas d\'ID de génération reçu. Réponse complète:', result);
-      return res.status(500).json({ 
+    // Appeler l'API Python locale
+    const response = await axios.post(`${PYTHON_API_URL}/generate`, {
+      ambiance,
+      customDescription: description
+    }, {
+      timeout: 300000 // Timeout de 5 minutes
+    });
+
+    const result = response.data;
+
+    if (!result.success) {
+      return res.status(500).json({
         success: false,
-        error: 'La génération a été lancée mais aucun ID n\'a été retourné',
-        details: 'Vérifiez les logs du serveur pour plus de détails',
-        data: result.data
+        error: result.error || 'Erreur lors de la génération'
       });
     }
 
+    // Retourner immédiatement l'URL de l'audio (génération synchrone)
     res.json({
       success: true,
-      data: result,
+      data: {
+        generationId: result.data.generation_id,
+        status: 'complete',
+        audioUrl: `http://localhost:5001/api/audio/${result.data.generation_id}`
+      },
       message: 'Musique générée avec succès'
     });
 
   } catch (error) {
-    console.error('Erreur lors de la génération:', error);
+    console.error('Erreur lors de la génération:', error.message);
     res.status(500).json({ 
       success: false,
       error: 'Erreur lors de la génération de la musique',
@@ -43,22 +69,27 @@ exports.generateMusic = async (req, res) => {
   }
 };
 
-// Récupérer le statut d'une génération
+// Récupérer le statut d'une génération (pour la compatibilité)
 exports.getGenerationStatus = async (req, res) => {
   try {
     const { generationId } = req.params;
 
     if (!generationId) {
       return res.status(400).json({ 
+        success: false,
         error: 'L\'ID de génération est requis' 
       });
     }
 
-    const status = await sunoService.getStatus(generationId);
-
+    // Avec MusicGen local, la génération est synchrone
+    // On retourne toujours "complete"
     res.json({
       success: true,
-      data: status
+      data: {
+        status: 'complete',
+        generationId: generationId,
+        audioUrl: `http://localhost:5001/api/audio/${generationId}`
+      }
     });
 
   } catch (error) {

@@ -1,0 +1,74 @@
+# Node modules
+node_modules/
+**/node_modules*/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build / bundler / output
+dist/
+build/
+out/
+.vite/
+.vite_deps/
+.vite/deps/
+.parcel-cache/
+.esbuild/
+.next/
+.nuxt/
+public/dist/
+
+# Environment files
+.env
+.env.*
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary / cache
+.cache/
+tmp/
+temp/
+*.tmp
+
+# System files
+*.swp
+*~
+
+# Misc
+coverage/
+coverage-final.json
+
+# Lockfiles (usually committed, keep commented out unless you want to ignore them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Ignore build artifacts from macOS or other tools
+.DS_Store
+
+# Allow exceptions (uncomment to keep a specific file tracked)
+# !/important-file.txt

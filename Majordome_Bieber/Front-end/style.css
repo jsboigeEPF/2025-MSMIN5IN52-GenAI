@@ -1,31 +1,32 @@
 /* Définition des variables de couleurs et ombres pour une DA douce, épurée, "Apple-like" */
 :root {
-    --primary: #95AEBE; /* Gris-bleu clair et raffiné, doux et aérien */
-    --primary-hover: #7F93A4; /* Teinte légèrement plus foncée pour les survols */
-    --primary-rgb-value: 149, 174, 190; /* Valeur RGB pour rgba() */
+    --primary: #8EADD5; /* Un bleu-mauve doux, plus affirmé mais toujours élégant */
+    --primary-hover: #7C98C3; /* Teinte légèrement plus foncée et saturée pour les survols */
+    --primary-rgb-value: 142, 173, 213; /* Valeur RGB pour rgba() */
 
     --secondary: #9099A4; /* Gris très doux et légèrement bleuté pour le texte secondaire */
     --success: #6ACC6D; /* Vert frais pour le succès */
     --warning: #FFBB40; /* Orange doux pour l'alerte */
 
     --background-veil-opacity: 0.05; /* Voile de fond très très léger pour les images de body */
-    --surface-glass-bg-opacity-light: 0.7; /* Opacité des "surfaces de verre" des cards et carrousel */
-    --surface-glass-bg-opacity-strong: 0.88; /* Opacité des "surfaces de verre" pour Assistant Justin */
+    --surface-glass-bg-opacity-light: 0.6; /* Opacité des "surfaces de verre" des cards (un peu plus transparent) */
+    --surface-glass-bg-opacity-strong: 0.8; /* Opacité des "surfaces de verre" pour Assistant Justin */
     --surface-glass-blur-amount: 30px; /* Valeur de blur pour l'effet verre dépoli */
 
     --text-main: #3C424C; /* Texte principal foncé, mais doux, avec une pointe de bleu-gris */
     --text-secondary: #7F8B98; /* Texte secondaire plus clair et aéré */
     --text-placeholder: #B8C2CC; /* Couleur pour le texte placeholder */
 
-    --border-ghost: rgba(0, 0, 0, 0.01); /* Bordure quasi-invisible pour définir la forme */
+    --border-ghost: rgba(255, 255, 255, 0.1); /* Bordure "verre" plus visible */
     
-    --shadow-minimal: 0 0.5px 1px rgba(0, 0, 0, 0.01); /* Ombres les plus légères */
-    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.015); /* Ombres douces pour éléments en légère élévation */
-    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.02); /* Ombre pour les éléments en légère élévation */
-    --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.025); /* Ombre principale pour les éléments clés "flottants" */
-    --shadow-hover: 0 4px 15px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.025); /* Ombre de survol délicate */
+    /* Ombres retravaillées pour un effet plus doux et diffus */
+    --shadow-minimal: 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-light: 0 3px 8px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.06);
+    --shadow-float: 0 15px 35px rgba(0, 0, 0, 0.07), 0 5px 15px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
 
-    --surface-light: rgba(255, 255, 255, 0.95); /* Définit une couleur de surface légère et quasi-opaque pour les éléments (modals, etc.) */
+    --surface-light: rgba(255, 255, 255, 0.9); /* Surface un peu plus translucide */
 }
 
 /* Base Styles */
@@ -176,32 +177,61 @@ a:hover {
     color: var(--text-secondary) !important;
 }
 
+/* Cartes spécifiques pour la page Paramètres */
+.setting-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.setting-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
 
 /* Assistant Justin Card - DESIGN "FLOTTANT", ENFIN AU TOP ! */
 .main-assistant-card {
-    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-strong)); /* Fond blanc pur avec forte translucence */
+    /* Dégradé subtil pour un effet plus riche */
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
     backdrop-filter: blur(var(--surface-glass-blur-amount)); /* Effet verre dépoli fort */
     border-radius: 40px; /* Bords ULTRA-arrondis et organiques */
     padding: 2rem 1.8rem; /* Padding uniforme plus compact pour le faire "flotter" */
     box-shadow: var(--shadow-float); /* Ombre douce et large pour un effet flottant accentué */
     margin-bottom: 2.5rem !important; /* Espacement après */
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    flex-direction: column; /* Aligne les enfants verticalement */
+    align-items: center; /* Centre les enfants horizontalement */
     position: relative;
-    border: 1px solid rgba(var(--primary-rgb-value), 0.05); /* Très fine bordure transparente */
+    /* Bordure lumineuse pour un effet "glow" subtil */
+    border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     width: 100%;
-    max-width: 650px; /* Limite de taille plus petite */
+    max-width: 700px; /* Légèrement plus large pour plus d'aisance */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.main-assistant-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Carte Assistant pour les pages secondaires (Messages, etc.) - Plus simple */
+.assistant-card-secondary {
+    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-strong));
+    backdrop-filter: blur(var(--surface-glass-blur-amount));
+    border-radius: 25px; /* Arrondi standard */
+    padding: 1.5rem;
+    box-shadow: var(--shadow-medium);
+    border: 1px solid rgba(var(--primary-rgb-value), 0.05);
+    width: 100%;
+    max-width: 800px; /* Un peu plus large pour s'adapter */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Conteneur pour le texte d'introduction de l'Assistant (Icône, Titre, Question) */
-.main-assistant-card > div:first-child { 
+.main-assistant-card .assistant-intro { 
     margin-bottom: 1.2rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    width: 100%;
+    text-align: left;
 }
 
 /* Icône du robot */
@@ -209,7 +239,7 @@ a:hover {
     background-color: var(--primary);
     color: white;
     width: 50px; /* Taille modérée */
-    height: 50px;
+    height: 50px;    
     margin-bottom: 0.8rem;
     box-shadow: var(--shadow-minimal);
     display: flex; /* Assurer que l'icône FontAwesome est bien centrée */
@@ -222,19 +252,19 @@ a:hover {
 }
 
 /* Titre "Assistant Justin" */
-.main-assistant-card h4 {
+.main-assistant-card .assistant-intro h4 {
     font-size: 1.5rem; /* Titre plus percutant, mais pas trop grand */
     font-weight: 700;
     letter-spacing: -0.02em;
     margin-bottom: 0.3rem;
     color: var(--text-main);
 }
-/* Question "Comment puis-je vous aider..." */
-.main-assistant-card p.text-muted {
+
+.main-assistant-card .assistant-intro p {
     font-size: 0.9rem; /* Texte aéré mais pas envahissant */
     color: var(--text-secondary);
-    max-width: 90%;
     margin-bottom: 0;
+    line-height: 1.4;
 }
 
 /* Input et Bouton de l'assistant - L'aspect de BARRE DE RECHERCHE LÉGÈRE ET FONCTIONNELLE */
@@ -242,11 +272,12 @@ a:hover {
     width: 100%;
     max-width: 500px; /* Limite la largeur pour une esthétique fine de barre de recherche */
     background-color: rgba(255, 255, 255, 0.98); /* Fond presque opaque blanc pour la barre elle-même */
-    border-radius: 40px; /* Ultra-arrondi pour toute la barre */
+    border-radius: 16px; /* Moins arrondi pour un look plus pro */
     box-shadow: var(--shadow-medium); /* Ombre douce mais visible */
     border: 1px solid rgba(var(--primary-rgb-value), 0.1); /* Fine bordure transparente */
     padding: 0.4rem; /* Un léger padding pour créer un espace interne propre */
     margin-top: 1rem;
+    transition: all 0.3s ease;
 }
 
 /* Le champ de saisie de l'Assistant */
@@ -276,7 +307,7 @@ a:hover {
 /* Bouton Envoyer de l'Assistant - Centré */
 .main-assistant-card .btn-primary {
     padding: 0.6rem 1.2rem; /* Padding compact */
-    border-radius: 30px;
+    border-radius: 12px; /* Cohérent avec la barre */
     font-size: 0.9rem;
     margin: 0;
     min-width: 90px;
@@ -286,6 +317,7 @@ a:hover {
     align-items: center;
     justify-content: center; /* CENTRAGE DU TEXTE ET DE L'ICÔNE DANS LE BOUTON */
 }
+
 .main-assistant-card .btn-primary .bi {
     font-size: 1.1rem;
     margin-right: 0.3rem; /* Espace réduit */
@@ -323,12 +355,14 @@ a:hover {
     background: var(--primary);
     border-color: var(--primary);
     color: white;
+    box-shadow: var(--shadow-light);
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
     border-color: var(--primary-hover);
-    box-shadow: var(--shadow-light);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
 }
 
 .btn-outline-primary {
@@ -340,7 +374,24 @@ a:hover {
 .btn-outline-primary:hover {
     background-color: var(--primary);
     color: white;
-    box-shadow: var(--shadow-light);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+/* Bouton secondaire pour les en-têtes de page (Retour) */
+.btn-secondary-glass {
+    background-color: rgba(var(--primary-rgb-value), 0.15); /* Fond semi-transparent */
+    border-color: transparent;
+    color: var(--text-main);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-minimal);
+}
+
+.btn-secondary-glass:hover {
+    background-color: rgba(var(--primary-rgb-value), 0.25); /* Plus clair au survol */
+    border-color: transparent;
+    color: var(--text-main);
+    box-shadow: var(--shadow-medium);
 }
 
 /* Modals */
@@ -374,22 +425,18 @@ a:hover {
 
 /* Carrousel - NOUVELLE STRUCTURE POUR DES CARTES QUI REMPLISSENT LE CADRE ET FLÈCHES EXTERNES */
 
-/* Wrapper pour le carrousel afin de positionner les flèches */
-.carousel-wrapper {
-    position: relative; /* Pour positionner les flèches absolument par rapport à ce wrapper */
-    margin-bottom: 2.5rem;
-    display: flex; /* Pour centrer le carrousel horizontalement */
-    justify-content: center;
-    align-items: center; /* Pour que les flèches soient bien centrées par rapport à la hauteur du carrousel */
-    max-width: 800px; /* LARGEUR MAXIMALE DU WRAPPER POUR RENDRE LE CARROUSEL PLUS PETIT */
-    margin-left: auto;
-    margin-right: auto;
-}
-
 #heroCarousel {
-    width: 100%; /* Prend la largeur de son parent, le wrapper */
-    height: 120px; /* HAUTEUR FIXE ET PETITE */
-    min-height: 100px;
+    position: relative; /* Indispensable pour positionner les flèches à l'intérieur */
+    width: 100%;
+    max-width: 800px; /* Largeur maximale du carrousel */
+    margin-left: auto;
+    margin-top: 4rem; /* AJOUT : Espace généreux au-dessus du carrousel */
+    margin-right: auto;
+    margin-bottom: 4rem; /* Plus d'espace en dessous, incluant les indicateurs */
+
+    /* Ajustement de la hauteur pour un rendu plus élégant */
+    height: 140px; 
+    min-height: 120px;
     border-radius: 30px;
     overflow: hidden; /* Cache tout ce qui dépasse des bords arrondis */
     box-shadow: var(--shadow-float); /* Ombre douce */
@@ -478,58 +525,58 @@ a:hover {
 /* Contrôles du Carrousel (flèches) - EXTERNES ET TOUJOURS VISIBLES AVEC ICÔNES */
 .carousel-control-prev,
 .carousel-control-next {
-    position: absolute; /* Positionne les flèches par rapport au .carousel-wrapper */
+    position: absolute; /* Positionne les flèches par rapport à #heroCarousel */
     top: 50%;
     transform: translateY(-50%);
     width: 45px; /* Taille fixe pour les boutons de flèches */
     height: 45px; /* Taille fixe */
     opacity: 1; /* Toujours visibles */
-    z-index: 11; /* Au-dessus du carrousel */
+    z-index: 5; /* Au-dessus du contenu du carrousel */
     transition: all 0.2s ease-in-out;
 
     /* Styling pour le bouton parent (le cercle blanc) */
-    background-color: rgba(255, 255, 255, 0.95); /* Fond très opaque pour le cercle */
+    background-color: rgba(255, 255, 255, 0.8); /* Fond semi-transparent pour le cercle */
+    backdrop-filter: blur(5px); /* Léger flou sur les flèches */
     border-radius: 50%;
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.25); /* Ombre bien prononcée */
-    border: 1px solid rgba(0,0,0,0.2); /* Bordure fine mais visible */
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure de verre */
 
     /* Reset Bootstrap default styles for inner icon image */
     background-image: none; /* IMPORTANT : retire l'image de fond SVG par défaut */
 }
 
 .carousel-control-prev {
-    left: -60px; /* Décale la flèche à gauche du carrousel */
+    left: 1rem; /* Positionne la flèche à l'intérieur, sur la gauche */
 }
 
 .carousel-control-next {
-    right: -60px; /* Décale la flèche à droite du carrousel */
+    right: 1rem; /* Positionne la flèche à l'intérieur, sur la droite */
 }
 
 /* Style des icônes de flèche à l'intérieur des boutons */
 .carousel-control-prev .bi,
 .carousel-control-next .bi {
     font-size: 1.5rem; /* Taille de l'icône */
-    color: var(--text-main); /* Couleur foncée pour le chevron pour un bon contraste */
+    color: var(--text-secondary); /* Couleur plus douce */
     line-height: 1; /* Assure un bon alignement vertical */
+    transition: color 0.2s ease;
 }
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-    background-color: rgba(255, 255, 255, 1); /* Entièrement opaque au survol */
-    box-shadow: 0px 3px 8px rgba(0,0,0,0.35); /* Ombre encore plus forte */
-    transform: translateY(-50%) scale(1.05); /* Léger agrandissement du cercle au survol (ajuste le translateY) */
+    background-color: rgba(255, 255, 255, 0.95); /* Plus opaque au survol */
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-50%) scale(1.05); /* Léger agrandissement au survol */
+}
+.carousel-control-prev:hover .bi,
+.carousel-control-next:hover .bi {
+    color: var(--text-main); /* Icône plus foncée au survol */
 }
 
 
 /* Indicateurs du Carrousel (les points) - TOUJOURS VISIBLES */
 .carousel-indicators {
-    position: absolute;
     bottom: -30px; /* Positionne les indicateurs sous le carrousel */
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 0;
-    opacity: 1; /* Toujours visibles */
-    z-index: 10;
 }
 
 .carousel-indicators [data-bs-target] {
@@ -589,6 +636,40 @@ a:hover {
     border-bottom: 12px solid transparent;
 }
 
+
+/* --- DÉBUT DU NOUVEAU CODE POUR LE FOOTER --- */
+.footer {
+    padding: 3rem 0; /* Espace vertical généreux */
+    background-color: rgba(255, 255, 255, 0.3); /* Même fond que la navbar pour la cohérence */
+    backdrop-filter: blur(25px); /* Même effet de flou que la navbar */
+    border-top: 1px solid rgba(var(--primary-rgb-value), 0.1); /* Ligne de séparation subtile */
+    margin-top: 4rem; /* Ajoute un espace avant le footer pour ne pas qu'il colle au contenu */
+}
+
+/* S'assurer que les titres, paragraphes et icônes sont bien visibles */
+.footer h5 {
+    color: var(--text-main);
+}
+
+.footer p,
+.footer li {
+    color: var(--text-secondary) !important;
+}
+
+/* Style spécifique pour les liens dans le footer pour un meilleur contraste et interaction */
+.footer a.text-muted {
+    color: var(--text-secondary) !important;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.footer a.text-muted:hover {
+    color: var(--text-main) !important;
+    text-decoration: underline;
+}
+/* --- FIN DU NOUVEAU CODE POUR LE FOOTER --- */
+
+
 /* Bouton Aide */
 .help-btn {
     position: fixed;
@@ -597,7 +678,7 @@ a:hover {
     border-radius: 50px;
     padding: 1rem 1.75rem;
     box-shadow: var(--shadow-medium);
-    font-weight: 600;
+    font-weight: 500;
     z-index: 1050;
     background-color: rgba(var(--primary-rgb-value), 0.7); /* Opacité plus élevée */
     backdrop-filter: blur(10px); /* Effet verre sur ce bouton aussi */
@@ -611,6 +692,14 @@ a:hover {
 .bg-primary.bg-opacity-10, .bg-success.bg-opacity-10, .bg-warning.bg-opacity-10 {
     background-color: rgba(var(--primary-rgb-value), 0.1) !important;
 }
+/* Amélioration de la visibilité des icônes du dashboard */
+.icon-circle.bg-primary-light {
+    background-color: rgba(var(--primary-rgb-value), 0.15) !important;
+}
+.icon-circle.bg-success-light {
+    background-color: rgba(64, 204, 109, 0.15) !important; /* Utilise la couleur de --success */
+}
+
 .text-primary { color: var(--primary) !important; }
 .text-success { color: var(--success) !important; }
 .text-warning { color: var(--warning) !important; }
@@ -672,11 +761,6 @@ a:hover {
 .body-messages::before {
     background-color: rgba(255, 255, 255, 0.35); /* AUGMENTÉ encore pour un meilleur contraste du titre */
 }
-.body-messages .container h1 { /* Cible le titre H1 sur la page messages */
-    color: white; /* Couleur claire pour le titre */
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); /* Ombre plus forte pour un meilleur contraste */
-}
-
 
 /* Fond pour la page Paramètres (settings.html) */
 .body-settings {
@@ -684,8 +768,4 @@ a:hover {
 }
 .body-settings::before {
     background-color: rgba(255, 255, 255, 0.4); /* AUGMENTÉ encore pour un meilleur contraste du titre */
-}
-.body-settings .container h1 { /* Cible le titre H1 sur la page paramètres */
-    color: white; /* Couleur claire pour le titre */
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); /* Ombre plus forte pour un meilleur contraste */
 }

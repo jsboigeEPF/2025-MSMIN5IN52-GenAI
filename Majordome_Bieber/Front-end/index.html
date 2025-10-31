@@ -69,41 +69,39 @@
     <main class="container my-5">
 
         <!-- Assistant Justin - REMONTÉ EN TÊTE ET AU CENTRE, AVEC NOUVELLE CLASSE -->
-        <div class="card p-5 mx-auto main-assistant-card">
-            <div class="d-flex align-items-center gap-4 mb-4">
-                <div class="icon-circle p-3">
+        <div class="card p-4 mx-auto main-assistant-card">
+            <div class="assistant-intro gap-3 mb-3">
+                <div class="icon-circle p-3 flex-shrink-0">
                     <i class="bi bi-robot fs-icon text-white"></i> <!-- Texte blanc sur le fond coloré -->
                 </div>
-                <div>
-                    <h2 class="h4 fw-bold mb-1">Assistant Justin</h2>
+                <div class="flex-grow-1">
+                    <h4 class="fw-bold mb-1">Assistant Justin</h4>
                     <p class="text-muted mb-0">Comment puis-je vous aider aujourd'hui ? Demandez-moi !</p>
                 </div>
             </div>
             <div class="d-flex gap-3">
-                <input id="command-input" type="text" class="form-control form-control-lg"
-                    placeholder="Ex: Résume mes emails non lus...">
-                <button id="send-command" class="btn btn-primary px-5">
-                    <i class="bi bi-send-fill me-2"></i>Envoyer
-                </button>
+            <input id="command-input" type="text" class="form-control form-control-lg"
+                placeholder="Ex: Résume mes emails non lus...">
+                <button id="send-command" class="btn btn-primary">
+                <i class="bi bi-send-fill me-2"></i>Envoyer
+            </button>
+        </div>
+        <div id="command-output" class="mt-4 d-none">
+            <div class="mb-2 text-muted">
+                <i class="bi bi-person-circle me-2"></i>
+                <span class="user-question fw-medium"></span>
             </div>
-            <div id="command-output" class="mt-4 d-none">
-                <div class="mb-2 text-muted">
-                    <i class="bi bi-person-circle me-2"></i>
-                    <span class="user-question fw-medium"></span>
-                </div>
-                <div class="ai-response">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-robot fs-4"></i>
-                        <p class="mb-0 fw-medium"></p>
-                    </div>
+            <div class="ai-response">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-robot fs-4"></i>
+                    <p class="mb-0 fw-medium"></p>
                 </div>
             </div>
         </div>
         <!-- FIN ASSISTANT -->
 
         <!-- Carrousel - Positionné APRÈS l'assistant, réduit en hauteur -->
-        <div class="carousel-wrapper"> <!-- WRAPPER POUR LE CARROUSEL -->
-            <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"
                         aria-current="true" aria-label="Slide 1"></button>
@@ -135,65 +133,48 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Les flèches sont MAINTENANT à l'extérieur de #heroCarousel, dans .carousel-wrapper -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                <i class="bi bi-chevron-left" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche gauche -->
-                <span class="visually-hidden">Précédent</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                <i class="bi bi-chevron-right" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche droite -->
-                <span class="visually-hidden">Suivant</span>
-            </button>
+                <!-- Les flèches sont MAINTENANT à l'intérieur de #heroCarousel -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche gauche -->
+                    <span class="visually-hidden">Précédent</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche droite -->
+                    <span class="visually-hidden">Suivant</span>
+                </button>
         </div>
         <!-- FIN DU CARROUSEL -->
 
         <!-- Dashboard -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card p-4">
+        <div class="row g-4 mb-5 justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h5 fw-semibold mb-0">Mails</h2>
-                        <div class="icon-circle">
+                        <div class="icon-circle bg-primary-light">
                             <i class="bi bi-envelope fs-icon text-primary"></i>
                         </div>
                     </div>
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item border-0 px-0 bg-transparent">
+                    <div class="list-group list-group-flush flex-grow-1">
+                        <div class="list-group-item border-0 px-0 bg-transparent d-flex flex-column justify-content-center">
                             <h6 class="mb-1">3 nouveaux messages</h6>
                             <small class="text-muted">Il y a 5 minutes</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card p-4">
+            <div class="col-md-5 col-lg-4">
+                <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h5 fw-semibold mb-0">Agenda</h2>
-                        <div class="icon-circle">
+                        <div class="icon-circle bg-success-light">
                             <i class="bi bi-calendar3 fs-icon text-success"></i>
                         </div>
                     </div>
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item border-0 px-0 bg-transparent">
+                    <div class="list-group list-group-flush flex-grow-1">
+                        <div class="list-group-item border-0 px-0 bg-transparent d-flex flex-column justify-content-center">
                             <h6 class="mb-1">Réunion importante</h6>
                             <small class="text-muted">Aujourd'hui à 14h00</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 fw-semibold mb-0">Tâches</h2>
-                        <div class="icon-circle">
-                            <i class="bi bi-check2-all fs-icon text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item border-0 px-0 bg-transparent">
-                            <h6 class="mb-1">5 tâches en attente</h6>
-                            <small class="text-muted">2 urgent(es)</small>
                         </div>
                     </div>
                 </div>
@@ -202,7 +183,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="py-5 border-top bg-white">
+    <footer class="footer">
         <div class="container">
             <div class="row justify-content-between">
                 <div class="col-md-4 mb-4 mb-md-0">

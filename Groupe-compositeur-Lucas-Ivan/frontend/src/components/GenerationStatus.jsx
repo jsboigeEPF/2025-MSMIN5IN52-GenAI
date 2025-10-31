@@ -39,7 +39,7 @@ function GenerationStatus({ ambiance, generationTime }) {
       </div>
 
       <div className="status-tips">
-        <p className="tip">💡 Astuce : La génération prend généralement 30-60 secondes sur CPU</p>
+        <p className="tip">💡 Astuce : La génération prend généralement 60-100 secondes sur CPU</p>
         <p className="tip">🎵 Un fichier WAV de haute qualité sera créé</p>
       </div>
     </div>

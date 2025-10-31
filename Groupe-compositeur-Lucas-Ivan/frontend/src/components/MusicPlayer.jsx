@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './MusicPlayer.css';
 
-function MusicPlayer({ audioUrl, ambiance }) {
+function MusicPlayer({ audioUrl, ambiance, imageUrl }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isLooping, setIsLooping] = useState(true); // Boucle activée par défaut
+  const [imageLoaded, setImageLoaded] = useState(false);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -93,6 +94,23 @@ function MusicPlayer({ audioUrl, ambiance }) {
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={() => setIsPlaying(false)}
       />
+
+      {imageUrl && (
+        <div className="album-cover">
+          <img 
+            src={imageUrl} 
+            alt={ambiance?.name || 'Album cover'}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(false)}
+            className={imageLoaded ? 'loaded' : 'loading'}
+          />
+          {!imageLoaded && (
+            <div className="cover-placeholder">
+              <div className="placeholder-spinner"></div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="player-header">
         <div className="now-playing">

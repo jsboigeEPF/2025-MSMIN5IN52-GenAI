@@ -48,13 +48,19 @@ exports.generateMusic = async (req, res) => {
       });
     }
 
-    // Retourner immédiatement l'URL de l'audio (génération synchrone)
+    // Construire les URLs pour le frontend
+    const audioUrl = `http://localhost:5001/api/audio/${result.data.generation_id}`;
+    const imageUrl = result.data.image_generated 
+      ? `http://localhost:5001/api/image/${result.data.generation_id}`
+      : null;
+
     res.json({
       success: true,
       data: {
         generationId: result.data.generation_id,
         status: 'complete',
-        audioUrl: `http://localhost:5001/api/audio/${result.data.generation_id}`
+        audioUrl: audioUrl,
+        imageUrl: imageUrl
       },
       message: 'Musique générée avec succès'
     });
@@ -88,7 +94,8 @@ exports.getGenerationStatus = async (req, res) => {
       data: {
         status: 'complete',
         generationId: generationId,
-        audioUrl: `http://localhost:5001/api/audio/${generationId}`
+        audioUrl: `http://localhost:5001/api/audio/${generationId}`,
+        imageUrl: `http://localhost:5001/api/image/${generationId}`
       }
     });
 

@@ -13,6 +13,7 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [generationTime, setGenerationTime] = useState(0);
   const [currentAmbiance, setCurrentAmbiance] = useState(null);
 
@@ -37,6 +38,7 @@ function App() {
     setIsGenerating(true);
     setError(null);
     setAudioUrl(null);
+    setImageUrl(null);
     setSelectedAmbiance(ambianceId);
     setGenerationTime(0);
 
@@ -70,6 +72,7 @@ function App() {
 
       if (data.success) {
         setAudioUrl(data.data.audioUrl);
+        setImageUrl(data.data.imageUrl);
         setIsGenerating(false);
       } else {
         setError(data.error || 'Erreur lors de la génération');
@@ -136,6 +139,7 @@ function App() {
             {audioUrl && !isGenerating && (
               <MusicPlayer
                 audioUrl={audioUrl}
+                imageUrl={imageUrl}
                 ambiance={currentAmbiance}
               />
             )}

@@ -266,45 +266,9 @@ cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
-### Build de production
-
-```bash
-cd frontend
-npm run build
-```
-
-Les fichiers de production seront dans `frontend/dist/`
-
-## Améliorations Futures
-
-- [ ] Personnalisation fine (tempo, instruments, intensité)
-- [ ] Sauvegarde des compositions favorites
-- [ ] Export en différents formats (MP3, OGG)
-- [ ] Génération de playlists d'ambiances
-- [ ] Mode collaboratif
-- [ ] Intégration avec Spotify/YouTube
-- [ ] Support de durées personnalisées
-- [ ] Amélioration de la qualité audio avec upsampling
-
 ## Ressources
 
 - [Documentation MusicGen](https://huggingface.co/facebook/musicgen-small)
 - [Documentation Flask](https://flask.palletsprojects.com/)
 - [Documentation React](https://react.dev/)
 - [Documentation Vite](https://vitejs.dev/)
-
-## Licence
-
-MIT
-
-## Crédits
-
-Projet réalisé dans le cadre du module **2025-MSMIN5IN52-GenAI** - EPF 2025
-
-**Technologies IA :**
-- MusicGen par Meta AI
-- Pollinations.ai pour la génération d'images
-
----
-
-*Pour toute question ou problème, consultez les issues GitHub ou contactez l'équipe.*

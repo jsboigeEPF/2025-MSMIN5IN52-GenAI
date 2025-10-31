@@ -1,12 +1,12 @@
 {
   "meta": {
     "source_file": "cas_ecole.txt",
-    "generated_at": "2025-10-30T22:12:21.266654+00:00"
+    "generated_at": "2025-10-31T10:01:13.922798+00:00"
   },
   "analyses": [
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:03.888080+00:00",
+        "generated_at": "2025-10-31T10:00:55.088883+00:00",
         "input_length": 73,
         "original_text": "S'il pleut, alors le sol est mouillé. Il pleut. Donc, le sol est mouillé."
       },
@@ -45,13 +45,13 @@
         "sol_mouille"
       ],
       "sophisms_raw": {
-        "overall_assessment": "Aucun sophisme détecté.",
-        "fallacies": []
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:05.552373+00:00",
+        "generated_at": "2025-10-31T10:00:57.546611+00:00",
         "input_length": 80,
         "original_text": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié."
       },
@@ -59,8 +59,8 @@
       "sophisms": [
         {
           "type": "Affirmation du conséquent",
-          "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
-          "explanation": "Ce sophisme est une affirmation du conséquent, une forme invalide d'argumentation qui suppose que si la conséquence est vraie, alors la condition initiale l'est aussi, ce qui est incorrect."
+          "excerpt": "Donc, j'ai étudié.",
+          "explanation": "Ce sophisme consiste à affirmer que parce que la conclusion est vraie, la prémisse doit également être vraie, ce qui est une erreur de raisonnement."
         }
       ],
       "formal": {
@@ -73,8 +73,8 @@
         "informal_fallacies": [
           {
             "type": "Affirmation du conséquent",
-            "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
-            "explanation": "Ce sophisme est une affirmation du conséquent, une forme invalide d'argumentation qui suppose que si la conséquence est vraie, alors la condition initiale l'est aussi, ce qui est incorrect."
+            "excerpt": "Donc, j'ai étudié.",
+            "explanation": "Ce sophisme consiste à affirmer que parce que la conclusion est vraie, la prémisse doit également être vraie, ce qui est une erreur de raisonnement."
           }
         ],
         "formal_validity": {
@@ -105,8 +105,8 @@
         "fallacies": [
           {
             "type": "Affirmation du conséquent",
-            "excerpt": "Si j'étudie, je réussirai mon examen. J'ai réussi mon examen. Donc, j'ai étudié.",
-            "explanation": "Ce sophisme est une affirmation du conséquent, une forme invalide d'argumentation qui suppose que si la conséquence est vraie, alors la condition initiale l'est aussi, ce qui est incorrect."
+            "excerpt": "Donc, j'ai étudié.",
+            "explanation": "Ce sophisme consiste à affirmer que parce que la conclusion est vraie, la prémisse doit également être vraie, ce qui est une erreur de raisonnement."
           }
         ],
         "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme (Affirmation du conséquent)."
@@ -114,7 +114,7 @@
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:08.189507+00:00",
+        "generated_at": "2025-10-31T10:01:01.827540+00:00",
         "input_length": 91,
         "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
       },
@@ -123,7 +123,7 @@
         {
           "type": "Affirmation du conséquent",
           "excerpt": "Je ne me suis pas arrêté.",
-          "explanation": "Ce sophisme est une affirmation du conséquent, où l'absence d'arrêt est utilisée pour conclure que le feu n'était pas rouge, ce qui est une erreur de raisonnement."
+          "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
         }
       ],
       "formal": {
@@ -137,7 +137,7 @@
           {
             "type": "Affirmation du conséquent",
             "excerpt": "Je ne me suis pas arrêté.",
-            "explanation": "Ce sophisme est une affirmation du conséquent, où l'absence d'arrêt est utilisée pour conclure que le feu n'était pas rouge, ce qui est une erreur de raisonnement."
+            "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
           }
         ],
         "formal_validity": {
@@ -169,15 +169,15 @@
           {
             "type": "Affirmation du conséquent",
             "excerpt": "Je ne me suis pas arrêté.",
-            "explanation": "Ce sophisme est une affirmation du conséquent, où l'absence d'arrêt est utilisée pour conclure que le feu n'était pas rouge, ce qui est une erreur de raisonnement."
+            "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
           }
         ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme (Affirmation du conséquent)."
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:11.461174+00:00",
+        "generated_at": "2025-10-31T10:01:04.825419+00:00",
         "input_length": 79,
         "original_text": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets."
       },
@@ -186,7 +186,7 @@
         {
           "type": "Attaque personnelle",
           "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-          "explanation": "Ce sophisme est une attaque personnelle dirigée contre Paul plutôt que de discuter de ses arguments sur l'écologie."
+          "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant qu'il ne trie pas ses déchets."
         }
       ],
       "formal": {
@@ -200,7 +200,7 @@
           {
             "type": "Attaque personnelle",
             "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Ce sophisme est une attaque personnelle dirigée contre Paul plutôt que de discuter de ses arguments sur l'écologie."
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant qu'il ne trie pas ses déchets."
           }
         ],
         "formal_validity": {
@@ -230,7 +230,7 @@
           {
             "type": "Attaque personnelle",
             "excerpt": "On ne devrait pas écouter Paul sur l’écologie, il ne trie même pas ses déchets.",
-            "explanation": "Ce sophisme est une attaque personnelle dirigée contre Paul plutôt que de discuter de ses arguments sur l'écologie."
+            "explanation": "Ce sophisme consiste à attaquer la personne (Paul) plutôt que son argument sur l'écologie, en mentionnant qu'il ne trie pas ses déchets."
           }
         ],
         "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'une attaque personnelle."
@@ -238,18 +238,12 @@
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:13.924120+00:00",
+        "generated_at": "2025-10-31T10:01:07.803216+00:00",
         "input_length": 92,
         "original_text": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence."
       },
       "segments": [],
-      "sophisms": [
-        {
-          "type": "Pente glissante",
-          "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-          "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuve suffisante pour étayer cette affirmation."
-        }
-      ],
+      "sophisms": [],
       "formal": {
         "is_valid": 0,
         "inconsistencies": [],
@@ -257,19 +251,13 @@
       },
       "fusion": {
         "overall_validity": false,
-        "informal_fallacies": [
-          {
-            "type": "Pente glissante",
-            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuve suffisante pour étayer cette affirmation."
-          }
-        ],
+        "informal_fallacies": [],
         "formal_validity": {
           "is_valid": 0,
           "inconsistencies": [],
           "logical_implications": []
         },
-        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
       },
       "segments_raw": [
         "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence"
@@ -285,28 +273,22 @@
         "interdiction_voitures_essence"
       ],
       "sophisms_raw": {
-        "fallacies": [
-          {
-            "type": "Pente glissante",
-            "excerpt": "Si on autorise les voitures électriques, bientôt on interdira toutes les voitures à essence.",
-            "explanation": "Ce sophisme de pente glissante suppose de manière non justifiée qu'une action mènera inévitablement à une série d'autres actions, sans fournir de preuve suffisante pour étayer cette affirmation."
-          }
-        ],
-        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme de pente glissante."
+        "overall_assessment": "Aucun sophisme détecté.",
+        "fallacies": []
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:16.330340+00:00",
+        "generated_at": "2025-10-31T10:01:09.667111+00:00",
         "input_length": 45,
         "original_text": "Soit tu es avec nous, soit tu es contre nous."
       },
       "segments": [],
       "sophisms": [
         {
-          "type": "Dichotomie",
+          "type": "Dilemme faux",
           "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
-          "explanation": "Ce discours présente une fausse dichotomie en suggérant qu'il n'y a que deux options possibles, alors qu'en réalité, il pourrait exister d'autres positions intermédiaires ou alternatives."
+          "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix, alors qu'il pourrait exister d'autres possibilités intermédiaires ou alternatives."
         }
       ],
       "formal": {
@@ -318,9 +300,9 @@
         "overall_validity": false,
         "informal_fallacies": [
           {
-            "type": "Dichotomie",
+            "type": "Dilemme faux",
             "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
-            "explanation": "Ce discours présente une fausse dichotomie en suggérant qu'il n'y a que deux options possibles, alors qu'en réalité, il pourrait exister d'autres positions intermédiaires ou alternatives."
+            "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix, alors qu'il pourrait exister d'autres possibilités intermédiaires ou alternatives."
           }
         ],
         "formal_validity": {
@@ -346,17 +328,17 @@
       "sophisms_raw": {
         "fallacies": [
           {
-            "type": "Dichotomie",
+            "type": "Dilemme faux",
             "excerpt": "Soit tu es avec nous, soit tu es contre nous.",
-            "explanation": "Ce discours présente une fausse dichotomie en suggérant qu'il n'y a que deux options possibles, alors qu'en réalité, il pourrait exister d'autres positions intermédiaires ou alternatives."
+            "explanation": "Ce discours présente un faux dilemme en limitant les options à seulement deux choix, alors qu'il pourrait exister d'autres possibilités intermédiaires ou alternatives."
           }
         ],
-        "overall_assessment": "Le discours contient un sophisme de dichotomie."
+        "overall_assessment": "Mauvaise qualité argumentative en raison de l'utilisation d'un faux dilemme."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:19.558212+00:00",
+        "generated_at": "2025-10-31T10:01:12.396247+00:00",
         "input_length": 54,
         "original_text": "La Terre tourne autour du Soleil en environ 365 jours."
       },
@@ -382,10 +364,10 @@
       ],
       "extracted_logic": {
         "premises": [],
-        "conclusion": "terre_tourne_autour_soleil_en_365_jours"
+        "conclusion": "terre_autour_soleil_environ_365_jours"
       },
       "formules": [
-        "terre_tourne_autour_soleil_en_365_jours"
+        "terre_autour_soleil_environ_365_jours"
       ],
       "sophisms_raw": {
         "fallacies": [],

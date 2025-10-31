@@ -1,31 +1,43 @@
 {
   "meta": {
     "source_file": "exemple_argument.txt",
-    "generated_at": "2025-10-30T22:12:24.576328+00:00"
+    "generated_at": "2025-10-31T10:01:27.381546+00:00"
   },
   "analyses": [
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:21.269011+00:00",
+        "generated_at": "2025-10-31T10:01:13.994809+00:00",
         "input_length": 91,
         "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
       },
       "segments": [],
-      "sophisms": [],
+      "sophisms": [
+        {
+          "type": "Affirmation du conséquent",
+          "excerpt": "Je ne me suis pas arrêté.",
+          "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
+        }
+      ],
       "formal": {
         "is_valid": 1,
         "inconsistencies": [],
         "logical_implications": []
       },
       "fusion": {
-        "overall_validity": true,
-        "informal_fallacies": [],
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Je ne me suis pas arrêté.",
+            "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
+          }
+        ],
         "formal_validity": {
           "is_valid": 1,
           "inconsistencies": [],
           "logical_implications": []
         },
-        "final_verdict": "L'argument est logiquement valide et ne contient pas de sophismes apparents. C'est un argument solide."
+        "final_verdict": "L'argument est logiquement valide mais repose sur des sophismes. La conclusion pourrait être correcte, mais le raisonnement est fallacieux."
       },
       "segments_raw": [
         "Si le feu est rouge, je m'arrête",
@@ -45,13 +57,19 @@
         "!feu_rouge"
       ],
       "sophisms_raw": {
-        "fallacies": [],
-        "overall_assessment": "Aucun sophisme détecté."
+        "fallacies": [
+          {
+            "type": "Affirmation du conséquent",
+            "excerpt": "Je ne me suis pas arrêté.",
+            "explanation": "Ce sophisme consiste à conclure que le feu n'était pas rouge simplement parce que je ne me suis pas arrêté, ce qui ne permet pas d'affirmer la couleur du feu."
+          }
+        ],
+        "overall_assessment": "Mauvaise qualité argumentative en raison de la présence d'un sophisme."
       }
     },
     {
       "meta": {
-        "generated_at": "2025-10-30T22:12:22.974290+00:00",
+        "generated_at": "2025-10-31T10:01:17.107014+00:00",
         "input_length": 83,
         "original_text": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas."
       },
@@ -92,6 +110,148 @@
       "sophisms_raw": {
         "fallacies": [],
         "overall_assessment": "Aucun sophisme détecté."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-31T10:01:18.705651+00:00",
+        "input_length": 817,
+        "original_text": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale ; grâce à des efforts acharnés, produit des substituts aux nombreux matériaux dont nous manquions, encouragé les nouvelles inventions, développé le trafic, fait construire de grandes routes et creuser des canaux, fait sortir de terre de gigantesques usines, tout en m'efforçant de promouvoir l'éducation et la culture de notre peuple pour développer notre communauté sociale. Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre, [...] à réaliser un nouvel épanouissement du commerce allemand et à développer considérablement les transports."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Appel à la flatterie",
+          "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+          "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment positif sans fournir de preuves tangibles de ses réalisations."
+        },
+        {
+          "type": "Faux dilemme",
+          "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre",
+          "explanation": "Le locuteur présente une situation comme si seules deux options étaient possibles, alors qu'il existe probablement d'autres solutions aux problèmes évoqués."
+        }
+      ],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Appel à la flatterie",
+            "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+            "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment positif sans fournir de preuves tangibles de ses réalisations."
+          },
+          {
+            "type": "Faux dilemme",
+            "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre",
+            "explanation": "Le locuteur présente une situation comme si seules deux options étaient possibles, alors qu'il existe probablement d'autres solutions aux problèmes évoqués."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale ; grâce à des efforts acharnés, produit des substituts aux nombreux matériaux dont nous manquions, encouragé les nouvelles inventions, développé le trafic, fait construire de grandes routes et creuser des canaux, fait sortir de terre de gigantesques usines, tout en m'efforçant de promouvoir l'éducation et la culture de notre peuple pour développer notre communauté sociale",
+        "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre, [",
+        "] à réaliser un nouvel épanouissement du commerce allemand et à développer considérablement les transports"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "vaincu_chaos => ordre",
+          "augmente_production && produit_substituts && encourage_inventions && developpe_trafic && construit_routes && creuse_canaux && sort_usines && promeut_education"
+        ],
+        "conclusion": "travail_utile && maintient_paysan && realise_epanouissement_commerce && developpe_transports"
+      },
+      "formules": [
+        "vaincu_chaos => ordre",
+        "augmente_production && produit_substituts && encourage_inventions && developpe_trafic && construit_routes && creuse_canaux && sort_usines && promeut_education",
+        "travail_utile && maintient_paysan && realise_epanouissement_commerce && developpe_transports"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Appel à la flatterie",
+            "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+            "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment positif sans fournir de preuves tangibles de ses réalisations."
+          },
+          {
+            "type": "Faux dilemme",
+            "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre",
+            "explanation": "Le locuteur présente une situation comme si seules deux options étaient possibles, alors qu'il existe probablement d'autres solutions aux problèmes évoqués."
+          }
+        ],
+        "overall_assessment": "Le discours contient des sophismes, ce qui affaiblit la force de l'argumentation présentée."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-10-31T10:01:24.803791+00:00",
+        "input_length": 630,
+        "original_text": "Je n'ai pas seulement uni politiquement le peuple allemand, je l'ai aussi réarmé et j'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains. J'ai rendu au Reich le provinces qui nous avaient été volées en 1919. j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés. J'ai recréé l'unité historique millénaire de l'espace vital allemand, et je me suis efforcé de faire tout cela sans verser le sang et sans infliger à mon peuple ou à d'autres les souffrances de la guerre."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Appel à l'émotion",
+          "excerpt": "J'ai rendu au Reich le provinces qui nous avaient été volées en 1919. j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés.",
+          "explanation": "Le locuteur utilise des éléments émotionnels tels que la restitution de territoires et de personnes pour susciter la sympathie et l'approbation, sans nécessairement renforcer son argumentation de manière logique."
+        }
+      ],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Appel à l'émotion",
+            "excerpt": "J'ai rendu au Reich le provinces qui nous avaient été volées en 1919. j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés.",
+            "explanation": "Le locuteur utilise des éléments émotionnels tels que la restitution de territoires et de personnes pour susciter la sympathie et l'approbation, sans nécessairement renforcer son argumentation de manière logique."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Je n'ai pas seulement uni politiquement le peuple allemand, je l'ai aussi réarmé et j'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains",
+        "J'ai rendu au Reich le provinces qui nous avaient été volées en 1919",
+        "j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés",
+        "J'ai recréé l'unité historique millénaire de l'espace vital allemand, et je me suis efforcé de faire tout cela sans verser le sang et sans infliger à mon peuple ou à d'autres les souffrances de la guerre"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "unir_politiquement => rearmement",
+          "rearmement && dechirer_traité && rendre_provinces && ramener_allemands && recreer_unite && sans_verser_sang"
+        ],
+        "conclusion": "unir_politiquement => sans_souffrances_guerre"
+      },
+      "formules": [
+        "unir_politiquement => rearmement",
+        "rearmement && dechirer_traité && rendre_provinces && ramener_allemands && recreer_unite && sans_verser_sang",
+        "unir_politiquement => sans_souffrances_guerre"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Appel à l'émotion",
+            "excerpt": "J'ai rendu au Reich le provinces qui nous avaient été volées en 1919. j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés.",
+            "explanation": "Le locuteur utilise des éléments émotionnels tels que la restitution de territoires et de personnes pour susciter la sympathie et l'approbation, sans nécessairement renforcer son argumentation de manière logique."
+          }
+        ],
+        "overall_assessment": "Le discours contient un sophisme d'appel à l'émotion."
       }
     }
   ]

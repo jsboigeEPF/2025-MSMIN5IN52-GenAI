@@ -63,8 +63,8 @@ coverage/
 coverage-final.json
 
 # Generated files
-Group-compositeur-Lucas-Ivan/backend/generated_music/
-Group-compositeur-Lucas-Ivan/backend/generated_images/
+**/generated_music/
+**/generated_images/
 
 # Lockfiles (usually committed, keep commented out unless you want to ignore them)
 # package-lock.json

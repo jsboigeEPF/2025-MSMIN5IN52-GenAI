@@ -1,111 +1,112 @@
-from flask import Flask, request, jsonify
-from src.core.application import Application
-from src.ambiance.ambiance_manager import AmbianceManager
-from src.audio.generation_service import AudioGenerationService
-import asyncio
-import logging
+from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask_cors import CORS
+import torch
+from transformers import AutoProcessor, MusicgenForConditionalGeneration
+import scipy.io.wavfile
+import numpy as np
 import os
+import uuid
 
+# Configuration
 app = Flask(__name__)
+CORS(app)
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Chemin vers le dossier frontend
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
 
-# Initialize the application components
-application = Application()
-ambiance_manager = AmbianceManager()
-audio_generator = AudioGenerationService()
+# Créer le dossier pour les fichiers générés
+OUTPUT_DIR = "generated_audio"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-@app.route('/api/generate-loop', methods=['POST'])
-def generate_loop():
+# Charger le modèle
+print("Chargement du modèle AudioCraft...")
+model_name = "facebook/musicgen-small"
+processor = AutoProcessor.from_pretrained(model_name)
+model = MusicgenForConditionalGeneration.from_pretrained(model_name)
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+print(f"Modèle chargé sur {device}")
+
+# Routes pour servir le frontend
+@app.route('/')
+def index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(FRONTEND_DIR, path)
+
+# API Routes
+@app.route('/api/health')
+def health():
+    return jsonify({
+        'status': 'ok',
+        'model': model_name,
+        'device': device
+    })
+
+@app.route('/api/generate', methods=['POST'])
+def generate_audio():
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
-            
-        ambiance = data.get('ambiance')
-        tempo = data.get('tempo', 120)
-        duration = data.get('duration', 30)
+        data = request.json
+        prompt = data.get('prompt', '')
+        duration = data.get('duration', 10)
+        temperature = data.get('temperature', 1.0)
         
-        if not ambiance:
-            return jsonify({'error': 'No ambiance provided'}), 400
-            
-        # Get ambiance configuration
-        ambiance_config = ambiance_manager.get_ambiance_config(ambiance)
-        if not ambiance_config:
-            return jsonify({'error': f'Ambiance "{ambiance}" not found'}), 404
-            
-        # Update tempo if provided
-        ambiance_config['tempo'] = tempo
+        if not prompt:
+            return jsonify({'error': 'Le prompt est requis'}), 400
         
-        # Generate audio loop using the audio generator
-        # We need to run the async function in the event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        print(f"Génération audio - Prompt: {prompt}, Durée: {duration}s")
         
-        try:
-            audio_result = loop.run_until_complete(
-                audio_generator.generate_audio(ambiance_description=ambiance_config)
+        inputs = processor(
+            text=[prompt],
+            padding=True,
+            return_tensors="pt",
+        ).to(device)
+        
+        max_new_tokens = int(duration * 50)
+        
+        with torch.no_grad():
+            audio_values = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=temperature,
             )
-            
-            # Convert bytes to base64 for JSON serialization
-            import base64
-            audio_data = base64.b64encode(audio_result.audio_data).decode('utf-8')
-            
-            return jsonify({
-                'success': True,
-                'audio_data': audio_data,
-                'metadata': audio_result.metadata,
-                'api_used': audio_result.api_used,
-                'generation_time': audio_result.generation_time,
-                'cache_hit': audio_result.cache_hit
-            }), 200
-        finally:
-            loop.close()
-            
-    except Exception as e:
-        logger.error(f"Error generating loop: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/ambiances', methods=['GET'])
-def get_ambiances():
-    try:
-        # Get available ambiances from the ambiance manager
-        ambiances = ambiance_manager.get_available_ambiances()
+        
+        audio_data = audio_values[0].cpu().numpy()
+        audio_data = audio_data / np.max(np.abs(audio_data))
+        audio_data = (audio_data * 32767).astype(np.int16)
+        
+        filename = f"{uuid.uuid4()}.wav"
+        filepath = os.path.join(OUTPUT_DIR, filename)
+        
+        sample_rate = model.config.audio_encoder.sampling_rate
+        scipy.io.wavfile.write(filepath, sample_rate, audio_data.T)
+        
+        print(f"Audio généré : {filename}")
         
         return jsonify({
             'success': True,
-            'ambiances': ambiances
-        }), 200
+            'filename': filename,
+            'download_url': f'/api/download/{filename}'
+        })
         
     except Exception as e:
-        logger.error(f"Error getting ambiances: {str(e)}")
+        print(f"Erreur: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/request-ambiance', methods=['POST'])
-def request_ambiance():
+@app.route('/api/download/<filename>')
+def download_file(filename):
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
-            
-        ambiance_name = data.get('ambiance_name')
-        if not ambiance_name:
-            return jsonify({'error': 'No ambiance name provided'}), 400
-            
-        # In a real implementation, this would save the request for processing
-        # For now, we'll just return a success message
-        logger.info(f'Ambiance request received: {ambiance_name}')
-        
-        return jsonify({
-            'success': True,
-            'message': f'Ambiance request for "{ambiance_name}" received successfully'
-        }), 200
-        
+        filepath = os.path.join(OUTPUT_DIR, filename)
+        if os.path.exists(filepath):
+            return send_file(filepath, as_attachment=True)
+        else:
+            return jsonify({'error': 'Fichier non trouvé'}), 404
     except Exception as e:
-        logger.error(f"Error processing ambiance request: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

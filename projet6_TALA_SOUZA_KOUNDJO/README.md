@@ -97,7 +97,7 @@ pip install -r requirements.txt
 ## 🚀 Lancer l'application
 
 ```bash
-streamlit run app.py
+streamlit run demo/interface.py
 ```
 
 ---

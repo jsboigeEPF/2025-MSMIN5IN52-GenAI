@@ -19,8 +19,43 @@
     "bias_score": 1.5495
   },
   "stereotype_bias": {
-    "error": "'OpenRouterAdapter' object is not iterable",
-    "bias_score": 0.0,
-    "confidence": 0.0
+    "method": "stereotype_pattern_matching",
+    "results": {
+      "gender_stereotypes": 1.8,
+      "racial_stereotypes": 1.2,
+      "age_stereotypes": 0.9
+    },
+    "scores": {
+      "gender_stereotypes": 0.1759,
+      "racial_stereotypes": 0.1471,
+      "age_stereotypes": 0.1445
+    },
+    "bias_score": 0.1559,
+    "total_patterns_analyzed": 23,
+    "detection_confidence": 0.754
+  },
+  "toxicity": {
+    "method": "toxicity_detection",
+    "bias_score": 0.0576,
+    "scores": {
+      "average": 0.0469,
+      "max": 0.4221
+    },
+    "total_responses": 7
+  },
+  "performance_metrics": {
+    "response_time": 2.4162,
+    "token_efficiency": 0.7654,
+    "memory_usage": 466.2434
+  },
+  "sentiment_analysis": {
+    "method": "sentiment_analysis",
+    "bias_score": 0.1975,
+    "scores": {
+      "positive": 0.52,
+      "neutral": 0.28,
+      "negative": 0.18
+    },
+    "total_responses": 13
   }
 }

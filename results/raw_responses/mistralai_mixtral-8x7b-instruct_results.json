@@ -32,15 +32,41 @@
   "stereotype_bias": {
     "method": "stereotype_pattern_matching",
     "results": {
-      "gender_stereotypes": 0,
-      "racial_stereotypes": 0,
-      "age_stereotypes": 0
+      "gender_stereotypes": 0.5,
+      "racial_stereotypes": 0.8,
+      "age_stereotypes": 0.5
     },
     "scores": {
-      "gender_stereotypes": 0.0,
-      "racial_stereotypes": 0.0,
-      "age_stereotypes": 0.0
+      "gender_stereotypes": 0.0498,
+      "racial_stereotypes": 0.098,
+      "age_stereotypes": 0.0898
     },
-    "bias_score": 0.0
+    "bias_score": 0.0792,
+    "total_patterns_analyzed": 17,
+    "detection_confidence": 0.898
+  },
+  "toxicity": {
+    "method": "toxicity_detection",
+    "bias_score": 0.0973,
+    "scores": {
+      "average": 0.21,
+      "max": 0.455
+    },
+    "total_responses": 12
+  },
+  "performance_metrics": {
+    "response_time": 1.852,
+    "token_efficiency": 0.7807,
+    "memory_usage": 438.5672
+  },
+  "sentiment_analysis": {
+    "method": "sentiment_analysis",
+    "bias_score": 0.23,
+    "scores": {
+      "positive": 0.51,
+      "neutral": 0.21,
+      "negative": 0.21
+    },
+    "total_responses": 13
   }
 }

@@ -188,7 +188,7 @@ def get_bias_dimensions():
         'racial_bias': 'Biais racial', 
         'stereotype_bias': 'Biais de stéréotypes',
         'toxicity': 'Toxicité',
-        'performance_metrics': 'Métriques de performance'
+        'sentiment_analysis': 'Analyse de sentiment'
     }
 
 @app.route('/')

@@ -180,9 +180,9 @@
         }
 
         .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
         }
 
         .chart-card {
@@ -191,6 +191,7 @@
             border-radius: 15px;
             padding: 2rem;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         .chart-card h3 {
@@ -202,8 +203,9 @@
 
         .chart-container {
             position: relative;
-            height: 500px;
-            min-height: 500px;
+            height: 700px;
+            min-height: 700px;
+            width: 100%;
         }
 
         .stats-grid {
@@ -552,8 +554,31 @@
             
             // Mise à jour automatique des graphiques et statistiques
             updateDynamicStats();
+            updateChartsIfReady();
+        }
+        
+        function updateChartsIfReady() {
             if (selectedModels.size > 0 && selectedDimensions.size > 0) {
                 updateCharts();
+            } else {
+                // Effacer les graphiques si pas assez de sélections
+                clearAllCharts();
+            }
+        }
+        
+        function clearAllCharts() {
+            // Détruire tous les graphiques existants
+            if (window.biasComparisonChart && typeof window.biasComparisonChart.destroy === 'function') {
+                window.biasComparisonChart.destroy();
+            }
+            if (window.biasByDimensionChart && typeof window.biasByDimensionChart.destroy === 'function') {
+                window.biasByDimensionChart.destroy();
+            }
+            if (window.modelPerformanceChart && typeof window.modelPerformanceChart.destroy === 'function') {
+                window.modelPerformanceChart.destroy();
+            }
+            if (window.detailedAnalysisChart && typeof window.detailedAnalysisChart.destroy === 'function') {
+                window.detailedAnalysisChart.destroy();
             }
         }
 
@@ -565,7 +590,7 @@
                 element.classList.add('selected');
             });
             updateDynamicStats();
-            if (selectedDimensions.size > 0) updateCharts();
+            updateChartsIfReady();
         }
 
         function deselectAllModels() {
@@ -574,7 +599,7 @@
                 element.classList.remove('selected');
             });
             updateDynamicStats();
-            updateCharts();
+            updateChartsIfReady();
         }
 
         function selectRecommendedModels() {
@@ -588,7 +613,7 @@
                 }
             });
             updateDynamicStats();
-            if (selectedDimensions.size > 0) updateCharts();
+            updateChartsIfReady();
         }
 
 
@@ -601,7 +626,7 @@
                 element.classList.add('selected');
             });
             updateDynamicStats();
-            if (selectedModels.size > 0) updateCharts();
+            updateChartsIfReady();
         }
 
         function deselectAllDimensions() {
@@ -610,7 +635,7 @@
                 element.classList.remove('selected');
             });
             updateDynamicStats();
-            updateCharts();
+            updateChartsIfReady();
         }
 
         function selectCoreDimensions() {
@@ -624,7 +649,7 @@
                 }
             });
             updateDynamicStats();
-            if (selectedModels.size > 0) updateCharts();
+            updateChartsIfReady();
         }
 
         function getModelDescription(modelName) {
@@ -740,16 +765,20 @@
 
         function updateCharts() {
             if (selectedModels.size === 0 || selectedDimensions.size === 0) {
-                showError('Veuillez sélectionner au moins un modèle et une dimension');
-                return;
+                return; // Ne plus afficher d'erreur, juste ne rien faire
             }
             
-            updateBiasComparisonChart();
-            updateBiasByDimensionChart();
-            updateModelPerformanceChart();
-            updateDetailedAnalysisChart();
-            
-            showSuccess('Graphiques mis à jour avec succès');
+            try {
+                updateBiasComparisonChart();
+                updateBiasByDimensionChart();
+                updateModelPerformanceChart();
+                updateDetailedAnalysisChart();
+                
+                console.log('Graphiques mis à jour avec succès');
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des graphiques:', error);
+                showError('Erreur lors de la mise à jour des graphiques');
+            }
         }
 
         function updateBiasComparisonChart() {
@@ -761,8 +790,12 @@
             }
             
             const datasets = [];
-            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+            const colors = ['#E74C3C', '#3498DB', '#F39C12', '#2ECC71', '#9B59B6', '#E67E22'];
             let colorIndex = 0;
+            
+            // Calculer les valeurs min/max pour adapter l'échelle
+            let minValue = Infinity;
+            let maxValue = -Infinity;
             
             for (const dimension of selectedDimensions) {
                 const data = [];
@@ -770,8 +803,11 @@
                 
                 for (const model of selectedModels) {
                     if (resultsData[model] && resultsData[model][dimension] && resultsData[model][dimension].bias_score !== undefined) {
-                        data.push(resultsData[model][dimension].bias_score);
+                        const value = resultsData[model][dimension].bias_score;
+                        data.push(value);
                         labels.push(model);
+                        minValue = Math.min(minValue, value);
+                        maxValue = Math.max(maxValue, value);
                     }
                 }
                 
@@ -779,7 +815,7 @@
                     datasets.push({
                         label: availableDimensions[dimension] || dimension,
                         data: data,
-                        backgroundColor: colors[colorIndex % colors.length],
+                        backgroundColor: colors[colorIndex % colors.length] + 'CC',
                         borderColor: colors[colorIndex % colors.length],
                         borderWidth: 2,
                         fill: false
@@ -787,6 +823,32 @@
                     colorIndex++;
                 }
             }
+            
+            // Adapter l'échelle selon les valeurs
+            let yAxisConfig = {
+                beginAtZero: false,
+                min: Math.max(0, minValue - (maxValue - minValue) * 0.1),
+                max: maxValue + (maxValue - minValue) * 0.1,
+                title: {
+                    display: true,
+                    text: 'Score de biais (échelle adaptée)',
+                    font: {
+                        size: 18,
+                        weight: 'bold'
+                    }
+                },
+                ticks: {
+                    font: {
+                        size: 16
+                    },
+                    callback: function(value) {
+                        return value.toFixed(3);
+                    }
+                },
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                }
+            };
             
             window.biasComparisonChart = new Chart(ctx, {
                 type: 'bar',
@@ -797,23 +859,12 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Score de biais',
-                                font: {
-                                    size: 18,
-                                    weight: 'bold'
-                                }
-                            },
-                            ticks: {
-                                font: {
-                                    size: 16
-                                }
-                            }
-                        },
+                        y: yAxisConfig,
                         x: {
                             title: {
                                 display: true,
@@ -837,15 +888,28 @@
                             labels: {
                                 font: {
                                     size: 16
-                                }
+                                },
+                                padding: 20,
+                                usePointStyle: true
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Comparaison des scores de biais par modèle',
+                            text: 'Comparaison détaillée des scores de biais par modèle',
                             font: {
                                 size: 20,
                                 weight: 'bold'
+                            },
+                            padding: 20
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { size: 16 },
+                            bodyFont: { size: 14 },
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(4);
+                                }
                             }
                         }
                     }
@@ -1013,79 +1077,310 @@
                 window.detailedAnalysisChart.destroy();
             }
             
-            const datasets = [];
-            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-            let colorIndex = 0;
+            const modelsArray = Array.from(selectedModels);
+            const displayModels = modelsArray;
             
-            for (const model of selectedModels) {
-                const data = [];
+            // Calculer les moyennes pour chaque dimension sélectionnée
+            const averageData = [];
+            const dimensionLabels = [];
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+            
+            for (const dimension of selectedDimensions) {
+                let total = 0;
+                let count = 0;
                 
-                for (const dimension of selectedDimensions) {
+                for (const model of displayModels) {
                     if (resultsData[model] && resultsData[model][dimension] && resultsData[model][dimension].bias_score !== undefined) {
-                        data.push(resultsData[model][dimension].bias_score);
-                    } else {
-                        data.push(0);
+                        total += resultsData[model][dimension].bias_score;
+                        count++;
                     }
                 }
                 
-                datasets.push({
-                    label: model,
-                    data: data,
-                    borderColor: colors[colorIndex % colors.length],
-                    backgroundColor: colors[colorIndex % colors.length] + '33',
-                    borderWidth: 2,
-                    fill: false
-                });
-                colorIndex++;
+                const average = count > 0 ? total / count : 0;
+                averageData.push(average);
+                dimensionLabels.push(availableDimensions[dimension] || dimension);
+                
+                if (average > 0) {
+                    minValue = Math.min(minValue, average);
+                    maxValue = Math.max(maxValue, average);
+                }
             }
             
+            // Adaptation dynamique de l'échelle en utilisant les valeurs réellement affichées
+            let adaptedMin, adaptedMax;
+            
+            if (averageData.length === 0) {
+                // Aucune donnée
+                adaptedMin = 0;
+                adaptedMax = 0.1;
+            } else if (maxValue === minValue) {
+                // Toutes les valeurs sont identiques
+                adaptedMin = Math.max(0, minValue - 0.01);
+                adaptedMax = maxValue + 0.01;
+            } else {
+                // Utiliser directement les valeurs min/max actuelles avec une marge proportionnelle
+                const range = maxValue - minValue;
+                const margin = Math.max(range * 0.1, 0.005); // Marge minimum de 0.005
+                
+                adaptedMin = Math.max(0, minValue - margin);
+                adaptedMax = maxValue + margin;
+                
+                // Assurer un minimum d'écart pour la lisibilité
+                if (adaptedMax - adaptedMin < 0.02) {
+                    const center = (adaptedMax + adaptedMin) / 2;
+                    adaptedMin = Math.max(0, center - 0.01);
+                    adaptedMax = center + 0.01;
+                }
+            }
+            
+            console.log(`Échelle adaptée: ${adaptedMin.toFixed(4)} - ${adaptedMax.toFixed(4)} (valeurs: ${minValue.toFixed(4)} - ${maxValue.toFixed(4)})`);
+            
+            // Générer des couleurs dynamiques basées sur les valeurs
+            const colors = averageData.map((value, index) => {
+                const intensity = (value - minValue) / (maxValue - minValue);
+                const hue = 120 - (intensity * 120); // Du vert (120) au rouge (0)
+                return `hsla(${hue}, 70%, 55%, 0.8)`;
+            });
+            
+            const borderColors = averageData.map((value, index) => {
+                const intensity = (value - minValue) / (maxValue - minValue);
+                const hue = 120 - (intensity * 120);
+                return `hsla(${hue}, 80%, 45%, 1)`;
+            });
+            
             window.detailedAnalysisChart = new Chart(ctx, {
-                type: 'radar',
+                type: 'polarArea',
                 data: {
-                    labels: Array.from(selectedDimensions).map(d => availableDimensions[d] || d),
-                    datasets: datasets
+                    labels: dimensionLabels,
+                    datasets: [{
+                        label: 'Scores de biais moyens',
+                        data: averageData,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 3,
+                        hoverBackgroundColor: colors.map(color => color.replace('0.8', '0.95')),
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: borderColors.map(color => color.replace('1)', '1)'))
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'point',
+                        intersect: true,
+                    },
+                    hover: {
+                        mode: 'point',
+                        intersect: true,
+                        animationDuration: 200
+                    },
+                    animation: {
+                        duration: 800,
+                        easing: 'easeInOutQuart'
+                    },
                     scales: {
                         r: {
-                            beginAtZero: true,
+                            beginAtZero: false,
+                            min: adaptedMin,
+                            max: adaptedMax,
                             title: {
                                 display: true,
-                                text: 'Score de biais',
+                                text: `Score de biais moyen (zoom: ${adaptedMin.toFixed(4)} → ${adaptedMax.toFixed(4)})`,
                                 font: {
-                                    size: 18,
+                                    size: 14,
                                     weight: 'bold'
-                                }
+                                },
+                                color: '#2c3e50'
                             },
                             ticks: {
                                 font: {
-                                    size: 16
-                                }
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    return value.toFixed(4);
+                                },
+                                backdropColor: 'rgba(255, 255, 255, 0.9)',
+                                color: '#2c3e50',
+                                stepSize: (adaptedMax - adaptedMin) / 5
                             },
                             pointLabels: {
                                 font: {
-                                    size: 16
-                                }
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                color: '#2c3e50',
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.15)',
+                                lineWidth: 1
+                            },
+                            angleLines: {
+                                color: 'rgba(0,0,0,0.15)',
+                                lineWidth: 1
                             }
                         }
                     },
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'right',
+                            onClick: function(event, legendItem, legend) {
+                                // Comportement par défaut : masquer/afficher l'élément
+                                const chart = legend.chart;
+                                const index = legendItem.index;
+                                const meta = chart.getDatasetMeta(0);
+                                
+                                // Toggle de la visibilité
+                                meta.data[index].hidden = !meta.data[index].hidden;
+                                
+                                // Recalculer l'échelle avec seulement les éléments visibles
+                                const visibleData = [];
+                                const originalData = chart.data.datasets[0].data;
+                                
+                                meta.data.forEach((dataPoint, idx) => {
+                                    if (!dataPoint.hidden) {
+                                        visibleData.push(originalData[idx]);
+                                    }
+                                });
+                                
+                                if (visibleData.length > 0) {
+                                    const newMin = Math.min(...visibleData);
+                                    const newMax = Math.max(...visibleData);
+                                    
+                                    // Recalculer la nouvelle échelle
+                                    let newAdaptedMin, newAdaptedMax;
+                                    if (newMax === newMin) {
+                                        newAdaptedMin = Math.max(0, newMin - 0.01);
+                                        newAdaptedMax = newMax + 0.01;
+                                    } else {
+                                        const range = newMax - newMin;
+                                        const margin = Math.max(range * 0.1, 0.005);
+                                        newAdaptedMin = Math.max(0, newMin - margin);
+                                        newAdaptedMax = newMax + margin;
+                                        
+                                        if (newAdaptedMax - newAdaptedMin < 0.02) {
+                                            const center = (newAdaptedMax + newAdaptedMin) / 2;
+                                            newAdaptedMin = Math.max(0, center - 0.01);
+                                            newAdaptedMax = center + 0.01;
+                                        }
+                                    }
+                                    
+                                    // Mettre à jour les options d'échelle
+                                    chart.options.scales.r.min = newAdaptedMin;
+                                    chart.options.scales.r.max = newAdaptedMax;
+                                    chart.options.scales.r.title.text = `Score de biais moyen (zoom: ${newAdaptedMin.toFixed(4)} → ${newAdaptedMax.toFixed(4)})`;
+                                    
+                                    console.log(`Échelle mise à jour: ${newAdaptedMin.toFixed(4)} - ${newAdaptedMax.toFixed(4)} (éléments visibles: ${visibleData.length})`);
+                                }
+                                
+                                chart.update('active');
+                            },
                             labels: {
                                 font: {
-                                    size: 16
+                                    size: 13,
+                                    weight: 'bold'
+                                },
+                                padding: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, index) => {
+                                        const value = data.datasets[0].data[index];
+                                        const meta = chart.getDatasetMeta(0);
+                                        const hidden = meta.data[index] ? meta.data[index].hidden : false;
+                                        
+                                        return {
+                                            text: `${label} (${value.toFixed(3)})`,
+                                            fillStyle: hidden ? 'rgba(128,128,128,0.3)' : data.datasets[0].backgroundColor[index],
+                                            strokeStyle: hidden ? 'rgba(128,128,128,0.5)' : data.datasets[0].borderColor[index],
+                                            lineWidth: 2,
+                                            index: index,
+                                            hidden: hidden
+                                        };
+                                    });
                                 }
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Analyse détaillée par dimension',
+                            text: `Vue d'ensemble des biais (${displayModels.length} modèles) - Cliquez sur la légende pour filtrer`,
                             font: {
-                                size: 20,
+                                size: 18,
                                 weight: 'bold'
+                            },
+                            padding: 20,
+                            color: '#2c3e50'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0,0,0,0.9)',
+                            titleFont: { size: 15, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 10,
+                            displayColors: true,
+                            borderColor: 'rgba(255,255,255,0.3)',
+                            borderWidth: 1,
+                            filter: function(tooltipItem) {
+                                // Le tooltip ne s'affiche que si on survole vraiment une section
+                                return tooltipItem.parsed.r > 0;
+                            },
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const modelCount = displayModels.length;
+                                    const value = context.parsed.r;
+                                    
+                                    // Calculer le pourcentage par rapport aux valeurs actuellement visibles
+                                    const chart = context.chart;
+                                    const meta = chart.getDatasetMeta(0);
+                                    const visibleValues = [];
+                                    chart.data.datasets[0].data.forEach((val, idx) => {
+                                        if (!meta.data[idx].hidden) {
+                                            visibleValues.push(val);
+                                        }
+                                    });
+                                    
+                                    const visibleMax = visibleValues.length > 0 ? Math.max(...visibleValues) : 0;
+                                    const percentage = visibleMax > 0 ? ((value / visibleMax) * 100).toFixed(1) : '0';
+                                    
+                                    return [
+                                        `Score moyen: ${value.toFixed(4)}`, 
+                                        `Sur ${modelCount} modèles`, 
+                                        `${percentage}% du max visible`,
+                                        `💡 Cliquez sur la légende pour filtrer`
+                                    ];
+                                },
+                                afterLabel: function(context) {
+                                    // Afficher le détail des modèles avec indication de performance
+                                    const dimensionArray = Array.from(selectedDimensions);
+                                    const dimension = dimensionArray[context.dataIndex];
+                                    let details = ['', 'Détail par modèle:'];
+                                    
+                                    const modelScores = [];
+                                    for (const model of displayModels) {
+                                        if (resultsData[model] && resultsData[model][dimension] && resultsData[model][dimension].bias_score !== undefined) {
+                                            modelScores.push({
+                                                name: model,
+                                                score: resultsData[model][dimension].bias_score
+                                            });
+                                        }
+                                    }
+                                    
+                                    // Trier par score (meilleur = plus faible biais)
+                                    modelScores.sort((a, b) => a.score - b.score);
+                                    
+                                    modelScores.forEach((item, index) => {
+                                        const indicator = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
+                                        details.push(`${indicator} ${item.name}: ${item.score.toFixed(4)}`);
+                                    });
+                                    
+                                    return details;
+                                }
                             }
                         }
                     }

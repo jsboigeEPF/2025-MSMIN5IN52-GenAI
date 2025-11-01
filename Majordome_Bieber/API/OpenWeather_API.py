@@ -30,7 +30,6 @@ def get_weather_data(city="Cachan", country="FR"):
         "q": f"{city},{country}",
         "appid": api_key,
         "units": "metric",  # Pour obtenir la température en Celsius
-        "lang": "fr"        # Pour obtenir la description en français
     }
 
     try:
@@ -45,16 +44,12 @@ def get_weather_data(city="Cachan", country="FR"):
         weather_info = {
             "city": data["name"],
             "country": data["sys"]["country"],
-            "temperature": data["main"]["temp"],
-            "feels_like": data["main"]["feels_like"],
-            "temp_min": data["main"]["temp_min"],
-            "temp_max": data["main"]["temp_max"],
-            "humidity": data["main"]["humidity"],
-            "pressure": data["main"]["pressure"],
             "description": data["weather"][0]["description"],
-            "icon": data["weather"][0]["icon"],
-            "wind_speed": data["wind"]["speed"],
-            "wind_deg": data["wind"]["deg"]
+            "temperature": data["main"]["temp"],
+            "temp_max": data["main"]["temp_max"],
+            "temp_min": data["main"]["temp_min"],
+            "humidity": data["main"]["humidity"],
+            "feels_like": data["main"]["feels_like"]
         }
 
         return weather_info

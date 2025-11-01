@@ -6,6 +6,7 @@ from Calendar_API import list_events
 from Gmail_API import readMail
 from googleapiclient.discovery import build
 from login import get_credentials
+from OpenWeather_API import get_weather_data
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ def get_chatbot_response(query: str) -> str:
     # Fetch data from Google APIs
     calendar_events = list_events(calendar_service)
     emails = readMail(10)
+    weather_data = get_weather_data()
 
     # Format the data as context
     context = "Here is some information about the user:\n\n"
@@ -35,8 +37,19 @@ def get_chatbot_response(query: str) -> str:
     context += "Last emails:\n"
     for email in emails:
         context += f"- From: {email['from']}, Subject: {email['subject']}\n"
+
+    # Add weather information to context if available
+    if "error" not in weather_data:
+        context += f"\nInformations météo pour {weather_data['city']}, {weather_data['country']}:\n"
+        context += f"- Température: {weather_data['temperature']}°C (ressentie: {weather_data['feels_like']}°C)\n"
+        context += f"- Température max/min: {weather_data['temp_max']}°C / {weather_data['temp_min']}°C\n"
+        context += f"- Humidité: {weather_data['humidity']}%\n"
+        context += f"- Conditions: {weather_data['description']}\n"
+
     context += "Fais ta réponse en français.\n"
-    context += "La réponse doit impérativement être de 2 phrases maximum, fais au plus succint"
+    context += "La réponse doit impérativement être de 4 phrases maximum, fais au plus succint"
+    print(context)
+
     # Send the query and context to OpenRouter
     response = client.chat.completions.create(
         model="openrouter/auto",

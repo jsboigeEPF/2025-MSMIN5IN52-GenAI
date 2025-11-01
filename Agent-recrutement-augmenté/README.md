@@ -562,8 +562,8 @@ Les contributions sont les bienvenues! Voici comment contribuer:
 ## 👥 Équipe
 
 **Développé par:**
-- Abdallah SOFI - Lead Developer
-- Projet MSMIN5IN52 - GenAI 2025
+- Abdellah SOFI 
+- Ali Fassy Fehry 
 
 ## 📄 Licence
 
@@ -589,4 +589,3 @@ Ce projet est sous licence **MIT** - voir le fichier [LICENSE](LICENSE) pour plu
 
 Made with ❤️ using Python & AI
 
-</div>

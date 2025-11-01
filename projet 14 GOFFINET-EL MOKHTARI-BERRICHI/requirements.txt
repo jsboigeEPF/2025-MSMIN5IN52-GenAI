@@ -9,3 +9,7 @@ uvicorn>=0.15.0
 pdfkit>=0.6.4
 openai>=1.0.0
 semantic-kernel>=0.9.0
+pydantic
+python-multipart
+weasyprint
+jinja2

@@ -1,44 +1,56 @@
-À propos de l’offre d’emploi
-Vous souhaitez achever votre cursus par un stage de fin d’études dans une société dynamique et en forte croissance ?
 
-Vous souhaitez acquérir un savoir-faire sur les solutions SAP avec un focus sur la solution innovante SAP Field Service Management (FSM) ?
 
-Ce stage est fait pour vous !
+En France, l’équipe dédiée ServiceNow regroupe plus de 275 experts techniques répartis entre Paris, Lyon, Nantes, et un centre d’excellence basé à Toulouse.
 
-[SAP FSM est une solution logicielle avancée conçue pour gérer efficacement les opérations de service sur le terrain, telles que la planification des interventions, la gestion des ressources, la maintenance préventive, la réparation et la maintenance des équipements, ainsi que la gestion des contrats de service.]
+Cette équipe unifiée accompagne les organisations dans leur transformation digitale avec une approche holistique de la plateforme ServiceNow.
 
-Ce que nous allons faire ensemble ?
+Devoteam est partenaire Elite ServiceNow depuis 2019 et a été reconnu Partenaire Elite de l’année 2025 pour la région EMEA, pour la troisième année consécutive.
 
-Intégré·e à un projet chez l'un de nos clients, vous serez rattaché·e à l’équipe SAP Field Service Management et vous serez en lien direct avec un consultant sénior VISEO qui vous supervisera.
+Description Du Poste
 
-Vous serez formé·e à SAP et aurez accès à notre académie interne.
+💪Vos missions
 
-Vos missions consisteront à intervenir sur l'ensemble des aspects d'un projet d’intégration SAP FSM :
+Les missions de l’équipe technique ServiceNow sont réalisées en complète interaction avec les autres équipes ServiceNow de Devoteam pour une approche à 360° des enjeux de nos clients.
 
-Accompagner les équipes dans l’animation du domaine (organisation des réunions, prise de notes, suivis des actions) ;
-Préparer les scénarios de démo en équipe avec des cas d’usage pertinents pour le client selon le domaine ;
-Mettre en place et exécuter les tests fonctionnels, et accompagner le changement auprès des utilisateurs ;
-Assister les équipes dans la mise en œuvre et suivi opérationnel de la solution (réalisation des tests, accompagnement des équipes métier et formations, support et rédaction de mode opératoire).
+Lors de cette expérience, vous aurez comme attributions les activités suivantes :
 
-Qui êtes-vous ?
+Participer aux ateliers de conception de la solution ServiceNow. 
+Participer à la configuration et au paramétrage de la solution. 
+Réaliser les développements nécessaires. 
+Assister à la recette et participer à la mise en production. 
+Travailler sur des projets variés, de la conception à la mise en production de solutions ServiceNow sur mesure pour nos clients. 
 
-Étudiant·e en dernière année, BAC+5/6 (école d'ingénieurs, école de commerce, université) avec une spécialisation sur la production ou l’industrie ;
-Vous avez une première expérience sur un projet de mise en œuvre fonctionnelle d’un ERP (SAP ou autre) ou vous souhaitez intégrer le monde des ESN et du conseil ;
-Vous avez un intérêt certain pour l’univers du digital et des nouvelles technologies ;
-Vous aimez travailler en équipe et vous avez un sens développé du service, tout en faisant preuve d'autonomie et de rigueur ;
-Une parfaite maitrise de la langue française (oral et écrit) est impérative ;
-En raison de nos clients orientés à l’international, la maitrise d’un anglais courant est obligatoire.
 
-Ce qui nous différencie ?
+Qualifications
 
-Rejoindre VISEO c’est aussi profiter d’un état d’esprit qui met en avant l’innovation, le partage, l’expertise, le dynamisme et la bonne humeur ;
-Rattaché à une équipe d’experts, vous ferez partie de la communauté SAP : la proximité et la taille humaine de notre organisation vous permettront de rendre visible vos initiatives ;
-Grâce à notre relation Gold Partner SAP, vous aurez accès à des environnements internes sur les dernières versions des solutions SAP et aux certifications SAP.
+🎯Vos atouts pour nous rejoindre
 
-En tant qu'employeur, VISEO s'engage en faveur de la diversité et de l'inclusion.
+Vous êtes étudiant(e) en école d'ingénieur, de commerce ou à l'université. 
+Vous recherchez un stage de fin d’études à partir de janvier ou février 2026. 
+Vous êtes dynamique, autonome et faites preuve d’une curiosité naturelle, notamment pour les technologies web : javascript, HTML, CSS…
+Vous avez une bonne communication orale, des bonnes capacités d’analyse et une appétence pour l'innovation. 
 
-À propos de VISEO
 
-Avec 3000 collaborateurs intervenant sur 5 continents, VISEO concilie agilité et complémentarité de ses savoir-faire pour faire du numérique un réel levier de compétitivité et de performance.
+Nous proposons un stage enrichissant incluant une formation complète (ServiceNow, ITIL, méthode Agile), une expérience client concrète, une participation active à la vie interne (blog, recrutement, événements), la possibilité d’un CDI à la clé, le tout dans des locaux à Levallois-Perret accessibles en métro (ligne 3).
 
-GDPR MESSAGE: Our privacy policy has been updated to comply with the new regulations. We invite you to consult it by clicking here: https://www.viseo.com/fr/politique-de-confidentialite. The VISEO Group uses the data collected as part of your application to assess your suitability for the job in question. We use the Jazz HR tool to help us in our recruitment process. This tool complies with current regulations on the protection of personal data. The tool is hosted in the United States and is PrivacyShield certified for HR data. In all cases, we may keep your file for 5 years so that we can contact you again if another position matches your profile. You may, of course, object to this. To find out more about how your data is used and how you can exercise your rights, please consult our privacy policy https://www.viseo.com/fr/politique-de-confidentialite.
+🙋‍♂️ Pourquoi nous rejoindre ? 
+
+Nous sommes une IA-Driven Company : Né lors des prémices de la révolution tech, Devoteam est le partenaire de confiance qui a accompagné ses clients vers l'évolution d'Internet, du Cloud, et désormais, de la révolution de l'IA. Pour cela, 100% de nos collaborateurs sont certifiés GenAI. 
+Rejoindre Devoteam, c’est apprendre en continu. Avec 75% de collaborateurs certifiés, Devoteam est une Learning Company où l’apprentissage est au cœur de notre modèle. 
+Avec 50 tribus d’expertise composées de leaders technologiques, nous collaborons avec les plus grands partenaires technologiques : Google, AWS, Microsoft, ServiceNow, Snowflake, et bien d’autres. Ce collectif d’experts contribuent à animer nos communautés métiers et à présenter chaque année son point de vue sur les technologies via le Tech Radar. 
+
+
+Rejoignez Devoteam et devenez acteur de votre carrière dans un environnement d’excellence, d’apprentissage et d’innovation !
+
+Informations supplémentaires
+
+📢 Comment se déroule le processus de recrutement chez Devoteam ?
+
+Talent Acquisition Interview : l'objectif est de faire le point sur vos compétences, votre niveau d'anglais et de valider vos éléments de motivation
+Tech & Business Interview : cet entretien vise à approfondir vos compétences techniques et à vérifier leur adéquation avec nos besoins lors d'un échange avec un expert métier
+
+
+Le Groupe Devoteam oeuvre pour l'égalité des chances, pour la promotion de ses collaboratrices et de ses collaborateurs au mérite et lutte activement contre toute forme de discrimination. Nous sommes convaincus que la diversité contribue à la créativité, au dynamisme et à l'excellence de notre organisation. Chaque candidature est donc considérée indépendamment de tout critère discriminatoire.
+
+Tu veux en savoir plus ? Viens échanger directement avec nos ambassadeurs. En rejoignant Devoteam, tu auras la possibilité de te connecter avec tes pairs, de partager leur expérience et de développer tes compétences !
+

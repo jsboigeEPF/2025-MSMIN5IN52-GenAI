@@ -444,7 +444,7 @@ def show_home_page():
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("Commencer →", type="primary"):
             st.session_state.page = "📤 Téléchargement"
-            st.rerun()
+            st.experimental_rerun()
     
     with col2:
         st.markdown('<h3 style="color: #fafafa;">Caractéristiques</h3>', unsafe_allow_html=True)
@@ -521,7 +521,7 @@ def show_upload_page():
         
         if st.button("Continuer →", type="primary"):
             st.session_state.page = "⚙️ Configuration"
-            st.rerun()
+            st.experimental_rerun()
     
     # List
     if cv_count > 0:
@@ -546,7 +546,7 @@ def show_upload_page():
                 except:
                     pass
             st.success("CVs supprimés")
-            st.rerun()
+            st.experimental_rerun()
 
 def show_config_page():
     """Affiche la page de configuration avec un design corporate."""
@@ -668,7 +668,7 @@ def show_config_page():
                     # Proposer de voir les résultats
                     if st.button("📊 Voir les résultats", use_container_width=True):
                         st.session_state.page = "📊 Résultats"
-                        st.rerun()
+                        st.experimental_rerun()
 
                 except Exception as e:
                     st.error(f"Une erreur est survenue durant l'analyse : {e}")
@@ -678,80 +678,76 @@ def show_results_page():
     """Affiche la page des résultats avec un design moderne."""
     if not st.session_state.ranking_done:
         st.markdown("""
-        <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); 
-                    border-radius: 15px; margin: 2rem 0;">
+        <div style="text-align: center; padding: 3rem; background: #111111; 
+                    border-radius: 12px; margin: 2rem 0; border: 1px solid #262626;">
             <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
-            <h2 style="color: #667eea; margin-bottom: 1rem;">Aucune analyse disponible</h2>
-            <p style="color: #6c757d; font-size: 1.1rem;">Allez dans 'Configuration' pour lancer une analyse</p>
+            <h2 style="color: #3b82f6; margin-bottom: 1rem;">Aucune analyse disponible</h2>
+            <p style="color: #a3a3a3; font-size: 1.1rem;">Allez dans 'Configuration' pour lancer une analyse</p>
         </div>
         """, unsafe_allow_html=True)
         return
     
-    # Header with gradient
+    # Header
     st.markdown("""
     <div style="text-align: center; padding: 1rem 0;">
-        <h1 style="color: #1f77b4;">📊 Résultats du classement</h1>
-        <p style="color: #6c757d; font-size: 1.1rem;">Analyse détaillée des candidats</p>
+        <h1 style="color: #fafafa;">📊 Résultats du classement</h1>
+        <p style="color: #a3a3a3; font-size: 1.1rem;">Analyse détaillée des candidats</p>
     </div>
     """, unsafe_allow_html=True)
     
     ranked = st.session_state.ranked_candidates
     
-    # Premium metrics cards
+    # Dark theme metrics cards
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown("""
-        <div style="background: white; padding: 1.5rem; border-radius: 16px; text-align: center;
-                    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); border: 1px solid #e2e8f0;
-                    border-top: 5px solid #667eea; transition: all 0.3s;">
+        <div style="background: #111111; padding: 1.5rem; border-radius: 12px; text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); border: 1px solid #262626;
+                    border-top: 3px solid #3b82f6; transition: all 0.3s;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
-            <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            <div style="font-size: 2.5rem; font-weight: 800; color: #3b82f6;
                         margin-bottom: 0.25rem;">{}</div>
-            <div style="color: #718096; font-weight: 600; font-size: 0.95rem;">Candidats</div>
+            <div style="color: #a3a3a3; font-weight: 600; font-size: 0.95rem;">Candidats</div>
         </div>
         """.format(len(ranked)), unsafe_allow_html=True)
     
     with col2:
         avg_score = sum(c['score'] for c in ranked) / len(ranked) if ranked else 0
         st.markdown("""
-        <div style="background: white; padding: 1.5rem; border-radius: 16px; text-align: center;
-                    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); border: 1px solid #e2e8f0;
-                    border-top: 5px solid #764ba2; transition: all 0.3s;">
+        <div style="background: #111111; padding: 1.5rem; border-radius: 12px; text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); border: 1px solid #262626;
+                    border-top: 3px solid #60a5fa; transition: all 0.3s;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📈</div>
-            <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            <div style="font-size: 2.5rem; font-weight: 800; color: #60a5fa;
                         margin-bottom: 0.25rem;">{:.0%}</div>
-            <div style="color: #718096; font-weight: 600; font-size: 0.95rem;">Score Moyen</div>
+            <div style="color: #a3a3a3; font-weight: 600; font-size: 0.95rem;">Score Moyen</div>
         </div>
         """.format(avg_score), unsafe_allow_html=True)
     
     with col3:
         top_score = max(c['score'] for c in ranked) if ranked else 0
         st.markdown("""
-        <div style="background: white; padding: 1.5rem; border-radius: 16px; text-align: center;
-                    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); border: 1px solid #e2e8f0;
-                    border-top: 5px solid #667eea; transition: all 0.3s;">
+        <div style="background: #111111; padding: 1.5rem; border-radius: 12px; text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); border: 1px solid #262626;
+                    border-top: 3px solid #3b82f6; transition: all 0.3s;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
-            <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            <div style="font-size: 2.5rem; font-weight: 800; color: #3b82f6;
                         margin-bottom: 0.25rem;">{:.0%}</div>
-            <div style="color: #718096; font-weight: 600; font-size: 0.95rem;">Meilleur Score</div>
+            <div style="color: #a3a3a3; font-weight: 600; font-size: 0.95rem;">Meilleur Score</div>
         </div>
         """.format(top_score), unsafe_allow_html=True)
     
     with col4:
         industry = st.session_state.get('industry', 'N/A')
         st.markdown("""
-        <div style="background: white; padding: 1.5rem; border-radius: 16px; text-align: center;
-                    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); border: 1px solid #e2e8f0;
-                    border-top: 5px solid #764ba2; transition: all 0.3s;">
+        <div style="background: #111111; padding: 1.5rem; border-radius: 12px; text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); border: 1px solid #262626;
+                    border-top: 3px solid #60a5fa; transition: all 0.3s;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏢</div>
-            <div style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            <div style="font-size: 1.5rem; font-weight: 800; color: #60a5fa;
                         margin-bottom: 0.25rem;">{}</div>
-            <div style="color: #718096; font-weight: 600; font-size: 0.95rem;">Industrie</div>
+            <div style="color: #a3a3a3; font-weight: 600; font-size: 0.95rem;">Industrie</div>
         </div>
         """.format(industry.upper()), unsafe_allow_html=True)
     
@@ -789,8 +785,9 @@ def show_results_page():
             showlegend=True,
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(size=12),
-            xaxis=dict(tickangle=-45)
+            font=dict(size=12, color='#fafafa'),
+            xaxis=dict(tickangle=-45, gridcolor='#262626'),
+            yaxis=dict(gridcolor='#262626')
         )
         st.plotly_chart(fig, use_container_width=True)
         
@@ -828,8 +825,11 @@ def show_results_page():
                     showlegend=True,
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#fafafa'),
                     yaxis_title="Score (%)",
-                    xaxis_title="Candidat"
+                    xaxis_title="Candidat",
+                    xaxis=dict(gridcolor='#262626'),
+                    yaxis=dict(gridcolor='#262626')
                 )
                 st.plotly_chart(fig2, use_container_width=True)
     
@@ -880,34 +880,25 @@ def show_results_page():
         st.markdown("### 🏆 Top 3 Candidats")
         
         medals = ["🥇", "🥈", "🥉"]
-        gradient_colors = [
-            "linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.15) 100%)",
-            "linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(158, 158, 158, 0.15) 100%)",
-            "linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.15) 100%)"
-        ]
-        border_colors = ["#667eea", "#764ba2", "#667eea"]
+        border_colors = ["#3b82f6", "#60a5fa", "#3b82f6"]
         
         for i, candidate in enumerate(ranked[:3]):
             st.markdown(f"""
-            <div style="background: white; padding: 2rem; border-radius: 20px; margin: 1.5rem 0; 
-                        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
-                        border: 2px solid #e2e8f0; border-top: 6px solid {border_colors[i]};
+            <div style="background: #111111; padding: 2rem; border-radius: 12px; margin: 1.5rem 0; 
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+                        border: 1px solid #262626; border-top: 4px solid {border_colors[i]};
                         transition: all 0.3s;">
                 <div style="display: flex; align-items: center;">
-                    <div style="font-size: 4rem; margin-right: 1.5rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
+                    <div style="font-size: 4rem; margin-right: 1.5rem;">
                         {medals[i]}
                     </div>
                     <div style="flex-grow: 1;">
-                        <h3 style="margin: 0; color: #2d3748; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.75rem;">
+                        <h3 style="margin: 0; color: #fafafa; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.75rem;">
                             {candidate['filename']}
                         </h3>
-                        <p style="margin: 0; color: #718096; font-weight: 600; font-size: 1.1rem;">
-                            Score: <strong style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                                                  background-clip: text; font-size: 1.2rem;">{candidate['score']:.1%}</strong> | 
-                            Confiance: <strong style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                                      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                                                      background-clip: text; font-size: 1.2rem;">{candidate['confidence']:.1%}</strong>
+                        <p style="margin: 0; color: #a3a3a3; font-weight: 600; font-size: 1.1rem;">
+                            Score: <strong style="color: #3b82f6; font-size: 1.2rem;">{candidate['score']:.1%}</strong> | 
+                            Confiance: <strong style="color: #60a5fa; font-size: 1.2rem;">{candidate['confidence']:.1%}</strong>
                         </p>
                     </div>
                 </div>
@@ -1111,27 +1102,32 @@ def show_comparison_page():
                 name='TF-IDF',
                 x=[c['filename'] for c in ranked[:10]],
                 y=[c.get('detailed_scores', {}).get('tfidf', 0) for c in ranked[:10]],
-                marker_color='lightblue'
+                marker_color='#3b82f6'
             ))
             fig.add_trace(go.Bar(
                 name='Mots-clés',
                 x=[c['filename'] for c in ranked[:10]],
                 y=[c.get('detailed_scores', {}).get('keyword', 0) for c in ranked[:10]],
-                marker_color='lightgreen'
+                marker_color='#60a5fa'
             ))
             fig.add_trace(go.Bar(
                 name='LLM',
                 x=[c['filename'] for c in ranked[:10]],
                 y=[c.get('detailed_scores', {}).get('llm', 0) for c in ranked[:10]],
-                marker_color='lightcoral'
+                marker_color='#93c5fd'
             ))
             
             fig.update_layout(
                 title='Comparaison des Scores par Méthode (Top 10)',
                 barmode='group',
                 height=400,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#fafafa'),
                 xaxis_title='Candidats',
                 yaxis_title='Score',
+                xaxis=dict(gridcolor='#262626'),
+                yaxis=dict(gridcolor='#262626'),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             
@@ -1194,7 +1190,14 @@ def show_comparison_page():
             aspect="auto",
             text_auto='.2f'
         )
-        fig.update_layout(height=400)
+        fig.update_layout(
+            height=400,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='#fafafa'),
+            xaxis=dict(gridcolor='#262626'),
+            yaxis=dict(gridcolor='#262626')
+        )
         st.plotly_chart(fig, use_container_width=True)
         
         # Download matrix
@@ -1223,10 +1226,11 @@ def show_comparison_page():
                 for insight in type_insights:
                     importance_bar = "🔥" * int(insight.importance * 5)
                     st.markdown(f"""
-                    <div style="background-color: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid {color};">
-                        <strong>{insight.candidate}</strong><br>
-                        {insight.description}<br>
-                        <small>Importance: {importance_bar} ({insight.importance:.0%})</small>
+                    <div style="background: #111111; padding: 15px; border-radius: 8px; margin: 10px 0; 
+                                border-left: 4px solid {color}; border: 1px solid #262626;">
+                        <strong style="color: #fafafa;">{insight.candidate}</strong><br>
+                        <span style="color: #a3a3a3;">{insight.description}</span><br>
+                        <small style="color: #737373;">Importance: {importance_bar} ({insight.importance:.0%})</small>
                     </div>
                     """, unsafe_allow_html=True)
         

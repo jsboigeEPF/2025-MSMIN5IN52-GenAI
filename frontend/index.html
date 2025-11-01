@@ -1,0 +1,104 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'Ambiances Sonores - GenAI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Générateur d'Ambiances Sonores</h1>
+            <p class="subtitle">Créez des ambiances audio uniques avec l'IA générative</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="form-group">
+                    <label for="prompt">Description de l'ambiance sonore :</label>
+                    <textarea 
+                        id="prompt" 
+                        rows="3" 
+                        placeholder="Ex: calming ocean waves with seagulls, upbeat electronic music, rain in a forest..."
+                    ></textarea>
+                    <small>Décrivez l'ambiance que vous souhaitez créer en anglais</small>
+                </div>
+
+                <div class="parameters">
+                    <div class="form-group">
+                        <label for="duration">Durée (secondes) : <span id="durationValue">10</span>s</label>
+                        <input 
+                            type="range" 
+                            id="duration" 
+                            min="5" 
+                            max="30" 
+                            value="10" 
+                            step="1"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature">Créativité : <span id="temperatureValue">1.0</span></label>
+                        <input 
+                            type="range" 
+                            id="temperature" 
+                            min="0.5" 
+                            max="1.5" 
+                            value="1.0" 
+                            step="0.1"
+                        >
+                        <small>Plus la valeur est élevée, plus le résultat sera créatif/varié</small>
+                    </div>
+                </div>
+
+                <button id="generateBtn" class="btn-primary">
+                    <span class="btn-text">Générer l'ambiance sonore</span>
+                    <span class="loader" style="display: none;"></span>
+                </button>
+            </div>
+
+            <div id="resultCard" class="card result-card" style="display: none;">
+                <h2>✅ Audio généré avec succès !</h2>
+                
+                <div class="audio-player">
+                    <audio id="audioPlayer" controls></audio>
+                </div>
+
+                <div class="result-actions">
+                    <button id="downloadBtn" class="btn-secondary">
+                        📥 Télécharger
+                    </button>
+                    <button id="newGenerationBtn" class="btn-outline">
+                        🔄 Nouvelle génération
+                    </button>
+                </div>
+            </div>
+
+            <div id="errorCard" class="card error-card" style="display: none;">
+                <h3>❌ Erreur</h3>
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="examples">
+                <h3>💡 Exemples de prompts :</h3>
+                <div class="example-tags">
+                    <span class="tag">peaceful piano melody</span>
+                    <span class="tag">energetic rock guitar solo</span>
+                    <span class="tag">ambient space sounds</span>
+                    <span class="tag">jazz cafe atmosphere</span>
+                    <span class="tag">thunderstorm with rain</span>
+                    <span class="tag">tropical birds chirping</span>
+                </div>
+            </div>
+            <p class="tech-info">Powered by Meta AudioCraft (MusicGen) 🚀</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+```

@@ -33,3 +33,7 @@
 2025-10-08 11:53:45,643 - recruitment_agent - INFO - {"timestamp": "2025-10-08T11:53:45.643437", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
 2025-10-08 11:53:46,320 - recruitment_agent - INFO - {"timestamp": "2025-10-08T11:53:46.320842", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
 2025-10-08 11:53:47,032 - recruitment_agent - INFO - {"timestamp": "2025-10-08T11:53:47.032762", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
+2025-10-08 12:09:38,134 - recruitment_agent - INFO - {"timestamp": "2025-10-08T12:09:38.134605", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
+2025-10-08 12:09:39,187 - recruitment_agent - INFO - {"timestamp": "2025-10-08T12:09:39.187779", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
+2025-10-08 12:09:40,594 - recruitment_agent - INFO - {"timestamp": "2025-10-08T12:09:40.594271", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}
+2025-10-08 12:09:41,418 - recruitment_agent - INFO - {"timestamp": "2025-10-08T12:09:41.418322", "level": "INFO", "message": "Application démarrée", "module": "app", "function": "main", "line": 0}

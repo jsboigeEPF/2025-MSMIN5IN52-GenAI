@@ -1,90 +1,51 @@
+Personnes que vous pouvez contacter
+
+
+
+Tinhinane et d’autres membres de votre réseau
+
+Tout afficher
 À propos de l’offre d’emploi
-NTT DATA Business Solutions est une entreprise de service du numérique, Platinum Partner de SAP, qui bénéficie aujourd’hui d’un rayonnement international avec une présence dans plus de 26 pays.
+Vous souhaitez achever votre cursus par un stage de fin d’études dans une société dynamique et en forte croissance ?
 
-Spécialistes du conseil en systèmes d’information et logiciels SAP, nous participons au quotidien à la transformation numérique de nos clients dans un contexte global et local.
+Vous souhaitez acquérir un savoir-faire sur les solutions SAP avec un focus sur la solution innovante SAP Field Service Management (FSM) ?
 
+Ce stage est fait pour vous !
 
-Le groupe NTT DATA compte plus de 190 000 experts dédiés et plus de 6 000 clients satisfaits dans une soixantaine de pays, figurant ainsi dans le TOP 8 mondial des prestataires de services IT.
-D’origine allemande, le siège monde de notre entreprise est situé à Bielefeld et nos bureaux français à Paris et Toulouse.
+[SAP FSM est une solution logicielle avancée conçue pour gérer efficacement les opérations de service sur le terrain, telles que la planification des interventions, la gestion des ressources, la maintenance préventive, la réparation et la maintenance des équipements, ainsi que la gestion des contrats de service.]
 
+Ce que nous allons faire ensemble ?
 
-Avec 150 collaborateurs en France (experts de la supply chain, de la finance et du contrôle de gestion), nous avons su garder une culture d’entreprise à la fois conviviale et professionnelle, le tout soutenu par une structure managériale abordable et disponible.
+Intégré·e à un projet chez l'un de nos clients, vous serez rattaché·e à l’équipe SAP Field Service Management et vous serez en lien direct avec un consultant sénior VISEO qui vous supervisera.
 
+Vous serez formé·e à SAP et aurez accès à notre académie interne.
 
+Vos missions consisteront à intervenir sur l'ensemble des aspects d'un projet d’intégration SAP FSM :
 
-Nos clients évoluent dans tous les secteurs d’activité et plus particulièrement dans l’industrie manufacturière, l’automobile, l’aéronautique, le luxe et retail, et les services aux entreprises.
+Accompagner les équipes dans l’animation du domaine (organisation des réunions, prise de notes, suivis des actions) ;
+Préparer les scénarios de démo en équipe avec des cas d’usage pertinents pour le client selon le domaine ;
+Mettre en place et exécuter les tests fonctionnels, et accompagner le changement auprès des utilisateurs ;
+Assister les équipes dans la mise en œuvre et suivi opérationnel de la solution (réalisation des tests, accompagnement des équipes métier et formations, support et rédaction de mode opératoire).
 
+Qui êtes-vous ?
 
-Ton quotidien dans cette nouvelle aventure :
+Étudiant·e en dernière année, BAC+5/6 (école d'ingénieurs, école de commerce, université) avec une spécialisation sur la production ou l’industrie ;
+Vous avez une première expérience sur un projet de mise en œuvre fonctionnelle d’un ERP (SAP ou autre) ou vous souhaitez intégrer le monde des ESN et du conseil ;
+Vous avez un intérêt certain pour l’univers du digital et des nouvelles technologies ;
+Vous aimez travailler en équipe et vous avez un sens développé du service, tout en faisant preuve d'autonomie et de rigueur ;
+Une parfaite maitrise de la langue française (oral et écrit) est impérative ;
+En raison de nos clients orientés à l’international, la maitrise d’un anglais courant est obligatoire.
 
+Ce qui nous différencie ?
 
+Rejoindre VISEO c’est aussi profiter d’un état d’esprit qui met en avant l’innovation, le partage, l’expertise, le dynamisme et la bonne humeur ;
+Rattaché à une équipe d’experts, vous ferez partie de la communauté SAP : la proximité et la taille humaine de notre organisation vous permettront de rendre visible vos initiatives ;
+Grâce à notre relation Gold Partner SAP, vous aurez accès à des environnements internes sur les dernières versions des solutions SAP et aux certifications SAP.
 
-Rattaché.e à l’un de nos managers SAP solutions, et après une période de formation, tu intègres progressivement l’équipe technique et prends part aux différentes missions de mise en œuvre de la solution SAP.
+En tant qu'employeur, VISEO s'engage en faveur de la diversité et de l'inclusion.
 
+À propos de VISEO
 
-Tes principales missions seront :
+Avec 3000 collaborateurs intervenant sur 5 continents, VISEO concilie agilité et complémentarité de ses savoir-faire pour faire du numérique un réel levier de compétitivité et de performance.
 
-
-Recueil de besoins clients et traduction en spécifications techniques détaillées
-Réalisation des travaux de développements front-end, back-end, web service et tests.
-Rédaction des documentations techniques
-
-
-
-
-Révélez votre potentiel !
-
-
-
-Tu prépares un BAC+5 spécialisé en Technologie de l’information et tu recherches une alternance dans le domaine de SAP
-
-
-Tu fais preuve de capacité d’adaptation, d’autonomie et de rigueur. 
-
-
-Tu maîtrises les langages de programmation (Java/C/C++/HTML5/JavaScript…) 
-
-
-Ton niveau d’anglais est professionnel.
-
-
-Tu possèdes une bonne compréhension de la dimension technique d’un projet et une bonne connaissance des Bases de Données (requête SQL ….).
-
-
-Des déplacements ponctuels nationaux ou internationaux sont à prévoir.
-
-
-
-
-Les points forts de cette alternance :
-
-
-
-Alternance à évolution vers un poste de Consultant SAP en CDI dans les équipes NTT
-
-
-Découverte du métier de consultant(e) SAP en bénéficiant du savoir-faire de consultants expérimentés et reconnus dans l’univers SAP.
-
-
-Première expérience riche en termes de projets d’implémentation SAP chez nos clients car nous intervenons pour des clients de tailles différentes et de secteurs d’activités variés.
-
-
-Pourquoi nous rejoindre ?
-
-
-
-Mise en œuvre des dernières nouveautés SAP (S/4HANA, Big Data, industry 4.0…)
-Intervention dans un contexte international : nos projets nous amènent à interagir régulièrement avec d’autres pays (Europe, Etats-Unis, Amérique du Sud et Asie)
-Ambiance de partage et disponibilité des équipes, du junior à l'expert
-Les avantages d'une entreprise multinationale avec un esprit PME au niveau local
-Mise à disposition de nombreuses formations certifiantes pour tous nos collaborateurs
-Locaux agréables et modernes (conciergerie, quartier dynamique)
-
-
-Tous nos postes sont ouverts au recrutement de travailleurs handicapés.
-
-
-Poste basé à Paris – 17éme arrondissement
-
-
-Si tu souhaites faire de cette opportunité un tremplin vers une carrière dans les services du numérique sur des sujets innovants tel que l’IOT, SAP Cloud Plateforme…, alors n’hésite pas, ce poste est fait pour t
+GDPR MESSAGE: Our privacy policy has been updated to comply with the new regulations. We invite you to consult it by clicking here: https://www.viseo.com/fr/politique-de-confidentialite. The VISEO Group uses the data collected as part of your application to assess your suitability for the job in question. We use the Jazz HR tool to help us in our recruitment process. This tool complies with current regulations on the protection of personal data. The tool is hosted in the United States and is PrivacyShield certified for HR data. In all cases, we may keep your file for 5 years so that we can contact you again if another position matches your profile. You may, of course, object to this. To find out more about how your data is used and how you can exercise your rights, please consult our privacy policy https://www.viseo.com/fr/politique-de-confidentialite.

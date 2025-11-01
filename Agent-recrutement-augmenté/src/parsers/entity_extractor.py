@@ -31,7 +31,7 @@ class EntityExtractor:
     Utilise spaCy pour l'analyse NLP avec fallback sur les expressions régulières.
     """
     
-    def __init__(self, config_path: str = "Agent-recrutement-augmenté/config/settings.py"):
+    def __init__(self, config_path: str = "config/settings.py"):
         """
         Initialise l'extracteur d'entités.
         
@@ -39,12 +39,9 @@ class EntityExtractor:
             config_path (str): Chemin vers le fichier de configuration
         """
         try:
-            # Import dynamique de la configuration
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("settings", config_path)
-            settings = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(settings)
-            self.config = settings.config.extraction
+            # Import direct de la configuration
+            from config.settings import Config
+            self.config = Config().extraction
             
             # Charger le modèle spaCy
             self._load_spacy_model()
@@ -147,60 +144,104 @@ class EntityExtractor:
                 if ent.label_ in ['SKILL', 'TECHNOLOGY', 'PRODUCT']:
                     skills.append(ent.text.title())
         
-        # Fallback sur les expressions régulières
+        # Fallback sur les expressions régulières - Liste exhaustive
         if self.config.fallback_regex:
-            # Mots-clés de compétences techniques
-            tech_keywords = [
-                'python', 'java', 'javascript', 'c++', 'c#', 'ruby', 'php', 'go', 'rust',
-                'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch',
-                'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'linux', 'git',
-                'machine learning', 'deep learning', 'nlp', 'computer vision',
-                'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'pandas', 'numpy',
-                'react', 'angular', 'vue', 'node.js', 'django', 'flask', 'spring',
-                'hadoop', 'spark', 'kafka', 'airflow', 'jenkins', 'ansible'
-            ]
+            # Langages de programmation
+            languages = ['python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'c', 'ruby', 'php', 'go', 'rust', 'swift', 'kotlin', 'scala', 'r', 'matlab', 'perl', 'shell', 'bash', 'powershell', 'vba', 'cobol', 'fortran', 'assembly', 'lua', 'dart', 'elixir', 'haskell', 'clojure', 'groovy', 'objective-c']
             
-            for keyword in tech_keywords:
-                if keyword in text and keyword.title() not in skills:
-                    skills.append(keyword.title())
+            # Frameworks & librairies
+            frameworks = ['react', 'angular', 'vue', 'vue.js', 'node.js', 'express', 'django', 'flask', 'fastapi', 'spring', 'spring boot', 'hibernate', 'asp.net', '.net', 'laravel', 'symfony', 'rails', 'ruby on rails', 'nextjs', 'next.js', 'nuxt', 'gatsby', 'svelte', 'ember', 'backbone', 'jquery', 'bootstrap', 'tailwind', 'material-ui', 'ant design']
+            
+            # Data science & ML
+            ml_tools = ['machine learning', 'deep learning', 'nlp', 'computer vision', 'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'pandas', 'numpy', 'scipy', 'matplotlib', 'seaborn', 'plotly', 'jupyter', 'anaconda', 'opencv', 'nltk', 'spacy', 'hugging face', 'transformers', 'bert', 'gpt', 'llm', 'neural networks', 'cnn', 'rnn', 'lstm', 'gan', 'reinforcement learning', 'xgboost', 'lightgbm', 'catboost']
+            
+            # Cloud & DevOps
+            cloud_tools = ['aws', 'azure', 'gcp', 'google cloud', 'docker', 'kubernetes', 'k8s', 'jenkins', 'gitlab', 'github', 'bitbucket', 'terraform', 'ansible', 'puppet', 'chef', 'vagrant', 'ci/cd', 'circleci', 'travis', 'github actions', 'argocd', 'helm', 'prometheus', 'grafana', 'elk', 'datadog', 'new relic', 'splunk', 'nagios', 'cloudformation', 'serverless', 'lambda', 'ec2', 's3', 'rds', 'dynamodb', 'cloudwatch']
+            
+            # Databases
+            databases = ['sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'mariadb', 'oracle', 'sql server', 'sqlite', 'redis', 'elasticsearch', 'cassandra', 'couchbase', 'neo4j', 'influxdb', 'timescaledb', 'firebase', 'supabase', 'snowflake', 'bigquery', 'redshift', 'athena', 'hive', 'presto', 'clickhouse']
+            
+            # Outils & méthodologies
+            tools = ['git', 'svn', 'mercurial', 'jira', 'confluence', 'trello', 'asana', 'slack', 'teams', 'agile', 'scrum', 'kanban', 'devops', 'tdd', 'bdd', 'rest', 'api', 'graphql', 'soap', 'microservices', 'soa', 'etl', 'data pipeline', 'apache spark', 'hadoop', 'kafka', 'rabbitmq', 'celery', 'airflow', 'luigi', 'prefect', 'dbt', 'tableau', 'power bi', 'looker', 'metabase', 'superset']
+            
+            # Technologies web
+            web_tech = ['html', 'html5', 'css', 'css3', 'sass', 'scss', 'less', 'webpack', 'vite', 'babel', 'eslint', 'prettier', 'jest', 'mocha', 'chai', 'cypress', 'selenium', 'playwright', 'puppeteer', 'webdriver', 'postman', 'insomnia', 'swagger', 'openapi', 'oauth', 'jwt', 'saml', 'ldap', 'sso', 'websocket', 'grpc', 'protobuf']
+            
+            # Systèmes & réseaux
+            systems = ['linux', 'unix', 'ubuntu', 'debian', 'centos', 'rhel', 'fedora', 'windows', 'macos', 'windows server', 'active directory', 'nginx', 'apache', 'tomcat', 'iis', 'load balancer', 'cdn', 'dns', 'tcp/ip', 'http', 'https', 'ssl', 'tls', 'vpn', 'firewall', 'proxy', 'ssh', 'ftp', 'sftp']
+            
+            # Business & ERP
+            business = ['sap', 'erp', 'crm', 'salesforce', 'dynamics', 'oracle erp', 'workday', 'servicenow', 'sharepoint', 'excel', 'vba', 'power apps', 'power automate', 'zapier', 'n8n']
+            
+            # Combiner toutes les catégories
+            all_keywords = languages + frameworks + ml_tools + cloud_tools + databases + tools + web_tech + systems + business
+            
+            for keyword in all_keywords:
+                if keyword in text:
+                    # Ajouter avec capitalisation appropriée
+                    if keyword.title() not in skills and keyword.upper() not in skills:
+                        # Garder certains acronymes en majuscules
+                        if keyword.upper() in ['API', 'REST', 'SQL', 'HTML', 'CSS', 'HTTP', 'HTTPS', 'SSL', 'TLS', 'VPN', 'SSH', 'FTP', 'DNS', 'CDN', 'SSO', 'JWT', 'ETL', 'TDD', 'BDD', 'CI', 'CD', 'ERP', 'CRM', 'SAP', 'AWS', 'GCP', 'NLP', 'CNN', 'RNN', 'LSTM', 'GAN', 'LLM', 'ML', 'AI']:
+                            skills.append(keyword.upper())
+                        else:
+                            skills.append(keyword.title())
         
         # Supprimer les doublons et trier
         return sorted(list(set(skills)))
     
     def _extract_education(self, text: str) -> List[Dict[str, str]]:
-        """Extrait les informations d'éducation du texte."""
+        """Extrait les informations d'éducation du texte avec patterns améliorés."""
         education_entries = []
+        
+        # Patterns améliorés pour l'éducation
+        education_patterns = [
+            # Diplômes français
+            r'(bac\+?[1-5]|licence|master[12]?|doctorat|ph\.?d|ingénieur|mba|dut|bts|deug|deust)',
+            # Diplômes anglais
+            r'(bachelor\'?s?|master\'?s?|doctorate|associate degree)',
+            # Spécialisations
+            r'(diplôme (?:d\')?ingénieur|grande école|école (?:de )?commerce)',
+            # Établissements
+            r'(université [^\n,;]{3,40}|école [^\n,;]{3,40}|institut [^\n,;]{3,40})',
+            # Années avec contexte
+            r'(\d{4}[\s-]+\d{4})\s*[:\-]?\s*([^\n]{10,80})',
+        ]
+        
+        seen_degrees = set()
         
         # Utiliser spaCy si disponible
         if self.nlp:
             doc = self.nlp(text)
             for ent in doc.ents:
-                if ent.label_ in ['DEGREE', 'EDUCATION']:
-                    education_entries.append({
-                        'degree': ent.text.title(),
-                        'institution': self._extract_institution(text, ent.text),
-                        'year': self._extract_year(text)
-                    })
-        
-        # Fallback sur les expressions régulières
-        if self.config.fallback_regex and not education_entries:
-            education_patterns = [
-                r'(?:bac\+?\d|bachelor|licence|master|phd|doctorat|ingénieur|diplôme|certificat|formation)[\s:]*([^\n,;]+)',
-                r'(?:université|école|institut|faculté)[\s:]*([^\n,;]+)'
-            ]
-            
-            for pattern in education_patterns:
-                matches = re.findall(pattern, text, re.IGNORECASE)
-                for match in matches:
-                    clean_text = re.sub(r'\s+', ' ', match.strip())
-                    if len(clean_text) > 5:
+                if ent.label_ in ['ORG'] and any(keyword in ent.text.lower() for keyword in ['université', 'école', 'institut', 'college', 'university']):
+                    degree_text = ent.text.title()
+                    if degree_text not in seen_degrees:
                         education_entries.append({
-                            'degree': clean_text.title(),
-                            'institution': self._extract_institution(text, clean_text),
-                            'year': self._extract_year(text)
+                            'degree': degree_text,
+                            'institution': ent.text.title(),
+                            'year': self._extract_year(self._get_context(ent.text, text, 100))
                         })
+                        seen_degrees.add(degree_text)
         
-        return education_entries
+        # Fallback amélioré sur expressions régulières
+        for pattern in education_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            for match in matches:
+                if isinstance(match, tuple):
+                    match = ' '.join(m for m in match if m)
+                
+                clean_text = re.sub(r'\s+', ' ', str(match).strip())
+                if 5 < len(clean_text) < 100 and clean_text not in seen_degrees:
+                    context = self._get_context(clean_text, text, 150)
+                    education_entries.append({
+                        'degree': clean_text.title(),
+                        'institution': self._extract_institution(context, clean_text),
+                        'year': self._extract_year(context),
+                        'field': self._extract_field_of_study(context)
+                    })
+                    seen_degrees.add(clean_text)
+        
+        return education_entries[:10]  # Limiter à 10 entrées max
     
     def _extract_experience(self, text: str) -> List[Dict[str, str]]:
         """Extrait les expériences professionnelles du texte."""
@@ -378,22 +419,63 @@ class EntityExtractor:
         end = min(len(text), pos + len(target) + window)
         return text[start:end]
     
+    def _extract_field_of_study(self, text: str) -> Optional[str]:
+        """Extrait le domaine d'études."""
+        fields = [
+            'informatique', 'computer science', 'génie logiciel', 'software engineering',
+            'data science', 'intelligence artificielle', 'machine learning', 'cybersécurité',
+            'réseaux', 'networks', 'télécommunications', 'électronique', 'mécanique',
+            'gestion', 'management', 'commerce', 'business', 'marketing', 'finance',
+            'mathématiques', 'mathematics', 'statistiques', 'physics', 'chimie'
+        ]
+        
+        text_lower = text.lower()
+        for field in fields:
+            if field in text_lower:
+                return field.title()
+        return None
+    
     def _calculate_confidence(self, entities: Dict[str, List], original_text: str) -> float:
-        """Calcule la confiance globale de l'extraction."""
+        """Calcule la confiance globale de l'extraction avec scoring amélioré."""
         if not original_text.strip():
             return 0.0
         
-        # Facteurs de confiance
-        total_entities = sum(len(entities[key]) for key in entities)
+        # Facteurs de confiance pondérés
+        weights = {
+            'skills': 0.30,
+            'experience': 0.25,
+            'education': 0.20,
+            'personal_info': 0.15,
+            'languages': 0.05,
+            'certifications': 0.05
+        }
+        
+        confidence_score = 0.0
         text_length = len(original_text)
         
         # Base de confiance selon la longueur du texte
-        base_confidence = min(0.3 + (text_length / 1000) * 0.4, 0.7)
+        if text_length < 100:
+            base_confidence = 0.2
+        elif text_length < 500:
+            base_confidence = 0.4
+        elif text_length < 1500:
+            base_confidence = 0.6
+        else:
+            base_confidence = 0.7
         
-        # Bonus pour les entités trouvées
-        if total_entities > 0:
-            entity_confidence = min(total_entities * 0.1, 0.3)
-            base_confidence += entity_confidence
+        # Ajouter confiance par catégorie d'entités
+        for category, weight in weights.items():
+            if category in entities and entities[category]:
+                count = len(entities[category])
+                # Plus d'entités = meilleure confiance, avec saturation
+                category_confidence = min(count / 10.0, 1.0) * weight
+                confidence_score += category_confidence
         
-        # Appliquer le seuil de confiance de la configuration
-        return min(base_confidence, self.config.confidence_threshold)
+        # Bonus si email ou téléphone trouvé
+        if entities.get('personal_info', {}).get('email') or entities.get('personal_info', {}).get('phone'):
+            confidence_score += 0.1
+        
+        # Score final combiné
+        final_confidence = (base_confidence * 0.4) + (confidence_score * 0.6)
+        
+        return min(final_confidence, 1.0)

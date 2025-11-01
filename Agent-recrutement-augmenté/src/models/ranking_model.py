@@ -28,7 +28,7 @@ class HybridRankingModel:
     Moteur de scoring hybride combinant TF-IDF, LLM et correspondance de mots-clés.
     """
     
-    def __init__(self, config_path: str = "Agent-recrutement-augmenté/config/settings.py"):
+    def __init__(self, config_path: str = "config/settings.py"):
         """
         Initialise le modèle de ranking.
         
@@ -36,12 +36,9 @@ class HybridRankingModel:
             config_path (str): Chemin vers le fichier de configuration
         """
         try:
-            # Import dynamique de la configuration
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("settings", config_path)
-            settings = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(settings)
-            self.config = settings.config.ranking
+            # Import direct de la configuration
+            from config.settings import Config
+            self.config = Config().ranking
             
             # Initialiser le vectorizer TF-IDF
             self.tfidf_vectorizer = TfidfVectorizer(
@@ -205,63 +202,250 @@ class HybridRankingModel:
             return 0.0
     
     def _compute_keyword_score(self, cv_text: str, job_description: str) -> float:
-        """Calcule le score basé sur la correspondance de mots-clés."""
+        """Calcule le score basé sur la correspondance de mots-clés avec pondération intelligente."""
         # Extraire les mots-clés de la description de poste
         job_keywords = self._extract_keywords(job_description)
         
         if not job_keywords:
-            return 0.0
+            return 0.5  # Score neutre si pas de keywords
         
-        # Trouver les mots-clés présents dans le CV
         cv_lower = cv_text.lower()
-        matched_keywords = [kw for kw in job_keywords if kw.lower() in cv_lower]
         
-        # Score de couverture
-        coverage_score = len(matched_keywords) / len(job_keywords)
+        # Catégoriser les keywords par importance
+        critical_keywords = []
+        important_keywords = []
+        nice_to_have = []
         
-        # Score de densité
-        keyword_density = sum(cv_lower.count(kw.lower()) for kw in matched_keywords) / len(cv_text.split())
+        # Mots critiques souvent mentionnés dans les descriptions
+        critical_terms = ['required', 'must', 'obligatoire', 'essentiel', 'impératif']
+        important_terms = ['preferred', 'préféré', 'souhaité', 'important']
         
-        # Score combiné
-        keyword_score = (coverage_score * 0.6) + (keyword_density * 0.4)
+        job_lower = job_description.lower()
+        for kw in job_keywords:
+            kw_context = self._get_keyword_context(kw, job_lower, 50)
+            if any(term in kw_context for term in critical_terms):
+                critical_keywords.append(kw)
+            elif any(term in kw_context for term in important_terms):
+                important_keywords.append(kw)
+            else:
+                nice_to_have.append(kw)
         
-        return min(keyword_score, 1.0)
+        # Si pas de catégorisation, distribuer intelligemment
+        if not critical_keywords and not important_keywords:
+            # Top 30% = critical, next 40% = important, rest = nice
+            total = len(job_keywords)
+            critical_keywords = job_keywords[:int(total * 0.3)]
+            important_keywords = job_keywords[int(total * 0.3):int(total * 0.7)]
+            nice_to_have = job_keywords[int(total * 0.7):]
+        
+        # Calculer scores pondérés
+        critical_matched = sum(1 for kw in critical_keywords if kw.lower() in cv_lower)
+        important_matched = sum(1 for kw in important_keywords if kw.lower() in cv_lower)
+        nice_matched = sum(1 for kw in nice_to_have if kw.lower() in cv_lower)
+        
+        # Pondération: 50% critical, 30% important, 20% nice-to-have
+        critical_score = (critical_matched / len(critical_keywords) * 0.5) if critical_keywords else 0
+        important_score = (important_matched / len(important_keywords) * 0.3) if important_keywords else 0
+        nice_score = (nice_matched / len(nice_to_have) * 0.2) if nice_to_have else 0
+        
+        coverage_score = critical_score + important_score + nice_score
+        
+        # Bonus pour répétition de keywords (expertise)
+        all_matched = [kw for kw in job_keywords if kw.lower() in cv_lower]
+        repetition_bonus = 0
+        if all_matched:
+            avg_frequency = sum(cv_lower.count(kw.lower()) for kw in all_matched) / len(all_matched)
+            repetition_bonus = min(avg_frequency / 10, 0.15)  # Max 15% bonus
+        
+        final_score = coverage_score + repetition_bonus
+        
+        return min(final_score, 1.0)
+    
+    def _get_keyword_context(self, keyword: str, text: str, window: int = 50) -> str:
+        """Récupère le contexte autour d'un keyword."""
+        pos = text.find(keyword.lower())
+        if pos == -1:
+            return ""
+        start = max(0, pos - window)
+        end = min(len(text), pos + len(keyword) + window)
+        return text[start:end]
     
     def _extract_keywords(self, text: str) -> List[str]:
-        """Extrait les mots-clés pertinents du texte."""
-        # Mots-clés techniques
-        technical_keywords = [
-            'python', 'java', 'javascript', 'c++', 'c#', 'go', 'rust', 'sql', 'nosql',
-            'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'linux', 'git', 'machine learning',
-            'deep learning', 'nlp', 'computer vision', 'tensorflow', 'pytorch', 'keras',
-            'scikit-learn', 'pandas', 'numpy', 'react', 'angular', 'vue', 'node.js',
-            'django', 'flask', 'spring', 'hadoop', 'spark', 'kafka', 'airflow', 'jenkins',
-            'ansible', 'postgresql', 'mongodb', 'mysql', 'redis', 'elasticsearch',
-            'sap', 'erp', 'devops', 'agile', 'scrum', 'microservices', 'api', 'rest',
-            'graphql', 'ci/cd', 'gitlab', 'github', 'jenkins', 'terraform', 'ansible',
-            'prometheus', 'grafana'
-        ]
+        """Extrait les mots-clés pertinents du texte - Liste exhaustive."""
+        # Langages de programmation
+        languages = ['python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'c', 'ruby', 'php', 'go', 'rust', 'swift', 'kotlin', 'scala', 'r', 'matlab', 'perl', 'shell', 'bash', 'powershell', 'vba', 'cobol', 'fortran']
+        
+        # Frameworks & librairies
+        frameworks = ['react', 'angular', 'vue', 'vue.js', 'node.js', 'express', 'django', 'flask', 'fastapi', 'spring', 'spring boot', 'hibernate', 'asp.net', '.net', 'laravel', 'symfony', 'rails', 'nextjs', 'next.js', 'nuxt', 'gatsby', 'svelte', 'jquery', 'bootstrap', 'tailwind']
+        
+        # Data science & ML
+        ml_tools = ['machine learning', 'deep learning', 'nlp', 'computer vision', 'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'pandas', 'numpy', 'scipy', 'matplotlib', 'jupyter', 'opencv', 'nltk', 'spacy', 'transformers', 'bert', 'gpt', 'llm', 'neural networks', 'xgboost', 'lightgbm']
+        
+        # Cloud & DevOps
+        cloud_tools = ['aws', 'azure', 'gcp', 'google cloud', 'docker', 'kubernetes', 'k8s', 'jenkins', 'gitlab', 'github', 'terraform', 'ansible', 'ci/cd', 'helm', 'prometheus', 'grafana', 'elk', 'datadog', 'cloudformation', 'serverless', 'lambda', 'ec2', 's3']
+        
+        # Databases
+        databases = ['sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'oracle', 'sql server', 'redis', 'elasticsearch', 'cassandra', 'neo4j', 'firebase', 'snowflake', 'bigquery', 'redshift']
+        
+        # Outils & méthodologies
+        tools = ['git', 'jira', 'confluence', 'agile', 'scrum', 'kanban', 'devops', 'tdd', 'rest', 'api', 'graphql', 'microservices', 'etl', 'spark', 'hadoop', 'kafka', 'airflow', 'tableau', 'power bi', 'looker']
+        
+        # Technologies web & mobile
+        web_tech = ['html', 'html5', 'css', 'css3', 'sass', 'webpack', 'jest', 'cypress', 'selenium', 'postman', 'swagger', 'oauth', 'jwt', 'websocket', 'grpc']
+        
+        # Systèmes
+        systems = ['linux', 'unix', 'ubuntu', 'windows', 'macos', 'nginx', 'apache', 'tomcat', 'load balancer', 'cdn', 'vpn', 'ssh']
+        
+        # Business
+        business = ['sap', 'erp', 'crm', 'salesforce', 'dynamics', 'servicenow', 'sharepoint', 'excel', 'power apps']
+        
+        # Soft skills & concepts
+        soft_skills = ['leadership', 'communication', 'teamwork', 'problem solving', 'analytical', 'project management', 'mentoring', 'collaboration', 'innovation', 'autonomy', 'adaptability']
+        
+        # Certifications courantes
+        certifications = ['aws certified', 'azure certified', 'pmp', 'itil', 'cissp', 'ceh', 'ccna', 'comptia', 'scrum master', 'safe', 'togaf']
+        
+        # Combiner toutes les catégories
+        all_keywords = languages + frameworks + ml_tools + cloud_tools + databases + tools + web_tech + systems + business + soft_skills + certifications
         
         # Extraire les mots-clés présents
         found_keywords = []
         text_lower = text.lower()
-        for keyword in technical_keywords:
+        for keyword in all_keywords:
             if keyword in text_lower and keyword not in found_keywords:
                 found_keywords.append(keyword)
         
         return found_keywords
     
     def _compute_llm_score(self, cv_text: str, job_description: str, cv_entities: Optional[Dict]) -> Tuple[float, str]:
-        """Calcule le score LLM (placeholder - à implémenter avec API réelle)."""
-        # Placeholder pour l'intégration LLM
-        # Dans une version complète, cela appellerait une API LLM
-        logger.info("Scoring LLM - fonctionnalité de démonstration")
-        
-        # Simuler un score LLM basé sur l'analyse du texte
-        llm_score = 0.5
-        reasoning = "Analyse LLM simulée: correspondance partielle détectée"
-        
-        return llm_score, reasoning
+        """Calcule le score LLM en utilisant Groq ou OpenAI pour une analyse contextuelle."""
+        try:
+            # Import OpenAI-compatible client
+            try:
+                from openai import OpenAI
+            except ImportError:
+                logger.warning("OpenAI package not installed. Using fallback scoring.")
+                return 0.5, "Analyse LLM non disponible: package OpenAI manquant"
+            
+            # Get API configuration
+            api_key = None
+            provider = "groq"
+            model = "llama-3.1-70b-versatile"
+            base_url = None
+            
+            try:
+                from config.settings import config
+                provider = config.model.llm_provider
+                model = config.model.llm_model
+                
+                if provider == "groq":
+                    api_key = config.model.api_keys.get('groq', '')
+                    base_url = "https://api.groq.com/openai/v1"
+                else:
+                    api_key = config.model.api_keys.get('openai', '')
+            except:
+                pass
+            
+            if not api_key:
+                logger.warning(f"{provider.upper()} API key not configured. Using fallback scoring.")
+                return 0.5, "Analyse LLM non disponible: clé API manquante"
+            
+            # Initialize client (Groq or OpenAI)
+            if base_url:
+                client = OpenAI(api_key=api_key, base_url=base_url)
+            else:
+                client = OpenAI(api_key=api_key)
+            
+            # Prepare entities summary
+            entities_summary = ""
+            if cv_entities:
+                if cv_entities.get('skills'):
+                    entities_summary += f"\nCompétences: {', '.join(cv_entities['skills'][:10])}"
+                if cv_entities.get('experience'):
+                    exp_count = len(cv_entities['experience'])
+                    entities_summary += f"\nExpériences: {exp_count} postes"
+                if cv_entities.get('education'):
+                    edu_count = len(cv_entities['education'])
+                    entities_summary += f"\nFormation: {edu_count} diplômes"
+            
+            # Create prompt for LLM
+            prompt = f"""Tu es un expert en recrutement. Analyse ce CV par rapport à la description de poste et fournis un score de correspondance entre 0 et 1.
+
+DESCRIPTION DU POSTE:
+{job_description[:1500]}
+
+CV DU CANDIDAT (extrait):
+{cv_text[:2000]}
+{entities_summary}
+
+Analyse la correspondance entre le CV et la description de poste en considérant:
+1. Les compétences techniques requises
+2. L'expérience pertinente
+3. La formation et les qualifications
+4. Les soft skills et la culture d'entreprise
+5. Le potentiel d'évolution
+
+Réponds UNIQUEMENT au format JSON suivant:
+{{
+    "score": 0.0-1.0,
+    "reasoning": "Explication détaillée en 2-3 phrases",
+    "strengths": ["point fort 1", "point fort 2"],
+    "weaknesses": ["point faible 1", "point faible 2"],
+    "recommendation": "EXCELLENT/BON/MOYEN/FAIBLE"
+}}"""
+            
+            # Call LLM API (Groq or OpenAI)
+            logger.info(f"Calling {provider.upper()} with model {model}")
+            
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "Tu es un expert en recrutement et en analyse de CVs. Tu fournis des évaluations précises et objectives au format JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=800,
+                response_format={"type": "json_object"} if provider == "openai" else None
+            )
+            
+            # Parse response
+            import json
+            response_text = response.choices[0].message.content
+            
+            # Try to extract JSON if embedded in text
+            try:
+                # Try direct parse first
+                result = json.loads(response_text)
+            except:
+                # Try to find JSON block in text
+                import re
+                json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
+                if json_match:
+                    result = json.loads(json_match.group(0))
+                else:
+                    logger.warning(f"Could not parse LLM response as JSON: {response_text[:200]}")
+                    return 0.5, "Réponse LLM invalide"
+            
+            score = float(result.get('score', 0.5))
+            reasoning = result.get('reasoning', 'Analyse LLM effectuée')
+            strengths = result.get('strengths', [])
+            weaknesses = result.get('weaknesses', [])
+            recommendation = result.get('recommendation', 'MOYEN')
+            
+            # Build detailed reasoning
+            detailed_reasoning = f"{reasoning}\n\n"
+            detailed_reasoning += f"🎯 Recommandation: {recommendation}\n"
+            if strengths:
+                detailed_reasoning += f"✅ Points forts: {', '.join(strengths)}\n"
+            if weaknesses:
+                detailed_reasoning += f"⚠️ Points à améliorer: {', '.join(weaknesses)}"
+            
+            logger.info(f"LLM scoring completed with score: {score:.2f}")
+            return min(max(score, 0.0), 1.0), detailed_reasoning
+            
+        except Exception as e:
+            logger.error(f"Erreur lors du scoring LLM: {e}")
+            return 0.5, f"Analyse LLM partielle: {str(e)[:100]}"
     
     def _calculate_confidence(self, detailed_scores: Dict[str, float], cv_text: str, job_description: str) -> float:
         """Calcule la confiance globale du score."""

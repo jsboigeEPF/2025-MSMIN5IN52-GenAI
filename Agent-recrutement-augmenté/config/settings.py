@@ -6,22 +6,23 @@ import json
 @dataclass
 class ModelConfig:
     """Configuration for AI models"""
-    llm_provider: str = "openai"  # or "anthropic", "cohere"
-    llm_model: str = "gpt-3.5-turbo"
+    llm_provider: str = "groq"  # "openai", "anthropic", "cohere", or "groq"
+    llm_model: str = "llama-3.3-70b-versatile"  # Groq's latest Llama model
     embedding_model: str = "text-embedding-ada-002"
-    temperature: float = 0.7
+    temperature: float = 0.3
     max_tokens: int = 1000
     
-    # API keys - will be loaded from environment variables
+    # API keys - will be loaded from environment variables or hardcoded
     api_keys: Dict[str, str] = field(default_factory=dict)
     
     def __post_init__(self):
-        # Load API keys from environment variables
+        # Load API keys from environment variables with fallback
         self.api_keys = {
             'openai': os.getenv('OPENAI_API_KEY', ''),
             'anthropic': os.getenv('ANTHROPIC_API_KEY', ''),
             'cohere': os.getenv('COHERE_API_KEY', ''),
-            'huggingface': os.getenv('HUGGINGFACE_API_KEY', '')
+            'huggingface': os.getenv('HUGGINGFACE_API_KEY', ''),
+            'groq': os.getenv('GROQ_API_KEY', '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')
         }
 
 @dataclass
@@ -66,6 +67,15 @@ class RankingConfig:
     required_keywords: List[str] = field(default_factory=list)
     preferred_keywords: List[str] = field(default_factory=list)
     keyword_boost: float = 1.5
+
+@dataclass
+class OCRSettings:
+    """Configuration for OCR processing"""
+    enable_ocr: bool = True
+    min_text_threshold: int = 100  # Minimum chars before triggering OCR
+    max_pages_per_pdf: int = 10
+    languages: tuple = ('fra', 'eng')  # Tesseract language codes
+    dpi: int = 300  # Image resolution for PDF conversion
 
 @dataclass
 class LoggingConfig:

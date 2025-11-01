@@ -1,6 +1,6 @@
 ﻿Rang,Candidat,Score Global,Confiance,Score TF-IDF,Score Mots-clés,Score LLM,Compétences Manquantes,Temps de Traitement (s)
-1,A1.pdf,56.07%,69.56%,5.08%,72.74%,80.00%,Innovation,1.33
-2,Stratégie IT Ali_Fassy Fehry.pdf,44.91%,62.30%,6.11%,65.39%,60.00%,"Sap, Innovation",0.80
-3,Stratégie IT Ali_Fassy Fehry - copie.pdf,44.91%,62.30%,6.11%,65.39%,60.00%,"Sap, Innovation",0.83
-4,cv_2.docx,19.21%,31.54%,1.49%,43.81%,20.00%,"Go, Git, Sap, Erp, Innovation",0.70
-5,cv_3.docx,17.52%,31.82%,0.66%,61.59%,10.00%,"Go, Git, Sap, Erp, Innovation",0.89
+1,A1.pdf,56.51%,72.01%,5.03%,100.00%,70.00%,Innovation,1.22
+2,Stratégie IT Ali_Fassy Fehry.pdf,51.80%,69.20%,6.01%,100.00%,60.00%,"Sap, Innovation",0.89
+3,Stratégie IT Ali_Fassy Fehry - copie.pdf,51.80%,69.20%,6.01%,100.00%,60.00%,"Sap, Innovation",0.75
+4,cv_2.docx,21.45%,33.11%,1.51%,55.00%,20.00%,"Go, Git, Sap, Erp, Innovation",0.72
+5,cv_3.docx,16.20%,30.89%,0.67%,55.00%,10.00%,"Go, Git, Sap, Erp, Innovation",0.65

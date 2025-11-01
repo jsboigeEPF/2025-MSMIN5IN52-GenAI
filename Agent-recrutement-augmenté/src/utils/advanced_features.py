@@ -200,10 +200,11 @@ class RecommendationEngine:
         # Technical questions based on skills
         skills = cv_analysis.get('skills', [])[:5]
         if skills:
+            skill2 = skills[1] if len(skills) > 1 else 'vos compétences'
             questions.append({
                 'category': 'Technique',
-                'question': f"Pouvez-vous décrire un projet où vous avez utilisé {skills[0]} et {skills[1] if len(skills) > 1 else 'vos compétences'} ?",
-                'focus': 'Évaluer l'expertise technique'
+                'question': f"Pouvez-vous décrire un projet où vous avez utilisé {skills[0]} et {skill2} ?",
+                'focus': 'Évaluer l\'expertise technique'
             })
         
         # Experience questions
@@ -211,14 +212,14 @@ class RecommendationEngine:
         if experience:
             questions.append({
                 'category': 'Expérience',
-                'question': 'Décrivez votre plus grand défi professionnel et comment vous l\'avez surmonté.',
+                'question': "Décrivez votre plus grand défi professionnel et comment vous l'avez surmonté.",
                 'focus': 'Problem-solving et résilience'
             })
         
         # Cultural fit
         questions.append({
-            'category': 'Culture d\'entreprise',
-            'question': 'Qu\'est-ce qui vous motive dans votre travail au quotidien ?',
+            'category': "Culture d'entreprise",
+            'question': "Qu'est-ce qui vous motive dans votre travail au quotidien ?",
             'focus': 'Motivation et alignement avec les valeurs'
         })
         
@@ -226,7 +227,7 @@ class RecommendationEngine:
         if 'lead' in job_role.lower() or 'senior' in job_role.lower():
             questions.append({
                 'category': 'Leadership',
-                'question': 'Comment gérez-vous les conflits au sein d\'une équipe ?',
+                'question': "Comment gérez-vous les conflits au sein d'une équipe ?",
                 'focus': 'Compétences en leadership'
             })
         

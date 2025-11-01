@@ -14,9 +14,12 @@ CORS(app)
 # Chemin vers le dossier frontend
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
 
-# Créer le dossier pour les fichiers générés
-OUTPUT_DIR = "generated_audio"
+# Créer le dossier pour les fichiers générés (CHEMIN ABSOLU)
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'generated_audio')
+OUTPUT_DIR = os.path.abspath(OUTPUT_DIR)  # Convertir en chemin absolu
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+print(f"Dossier de sortie audio: {OUTPUT_DIR}")
 
 # Charger le modèle
 print("Chargement du modèle AudioCraft...")

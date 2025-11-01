@@ -27,9 +27,31 @@ model_name = "facebook/musicgen-small"
 processor = AutoProcessor.from_pretrained(model_name)
 model = MusicgenForConditionalGeneration.from_pretrained(model_name)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+def get_best_device():
+    """Détecte le meilleur device disponible"""
+    try:
+        if torch.cuda.is_available():
+            print("🚀 GPU CUDA détecté (Nvidia)")
+            return "cuda"
+    except:
+        pass
+    
+    try:
+        if torch.backends.mps.is_available():
+            # Test rapide
+            torch.tensor([1.0], device="mps")
+            print("🚀 GPU MPS détecté (Apple Silicon)")
+            return "mps"
+    except:
+        pass
+    
+    print("⚠️  Aucun GPU détecté - utilisation du CPU")
+    return "cpu"
+
+
+device = get_best_device()
 model = model.to(device)
-print(f"Modèle chargé sur {device}")
+print(f"Modèle chargé sur: {device}\n")
 
 # Routes pour servir le frontend
 @app.route('/')

@@ -378,6 +378,21 @@ a:hover {
     transform: translateY(-2px);
 }
 
+/* Style pour le bouton de déconnexion */
+.btn-logout {
+    color: var(--text-main);
+    border-color: transparent;
+    background-color: rgba(var(--primary-rgb-value), 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.btn-logout:hover {
+    background-color: rgba(var(--primary-rgb-value), 0.2);
+    color: var(--text-main);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
 /* Bouton secondaire pour les en-têtes de page (Retour) */
 .btn-secondary-glass {
     background-color: rgba(var(--primary-rgb-value), 0.15); /* Fond semi-transparent */

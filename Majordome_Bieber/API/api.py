@@ -5,6 +5,7 @@ from Calendar_API import get_credentials, list_events, create_event
 from login import get_credentials as auth_credentials
 from googleapiclient.discovery import build
 import datetime
+import os
 from chatbot import get_chatbot_response
 
 app = Flask(__name__)
@@ -63,6 +64,26 @@ def login():
         return jsonify({"success": False, "message": "Échec de l'authentification"}), 401
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/auth/logout', methods=['POST'])
+def logout():
+    """
+    Déconnecte l'utilisateur en supprimant le fichier token.json.
+    Cette route est appelée par le bouton "Déconnexion" du front-end.
+    """
+    try:
+        # Le chemin est relatif à l'endroit où le script est exécuté.
+        # Si vous lancez `python API/api.py` depuis la racine, le chemin est correct.
+        token_path = 'token.json'
+        if os.path.exists(token_path):
+            os.remove(token_path)
+            return jsonify({'success': True, 'message': 'Déconnexion réussie, token supprimé.'})
+        else:
+            return jsonify({'success': True, 'message': 'Aucun token à supprimer, session déjà inexistante.'})
+    except Exception as e:
+        print(f"Erreur lors de la suppression de token.json: {e}")
+        return jsonify({'success': False, 'message': 'Erreur serveur lors de la déconnexion.'}), 500
 
 
 @app.route('/api/chatbot', methods=['POST'])

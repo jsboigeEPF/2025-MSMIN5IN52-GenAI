@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 import datetime
 import os
 from chatbot import get_chatbot_response
+from OpenWeather_API import get_weather_data
 
 app = Flask(__name__)
 CORS(app)
@@ -93,6 +94,18 @@ def chatbot():
         query = data.get("query")
         response = get_chatbot_response(query)
         return jsonify({"response": response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/weather')
+def get_weather():
+    """
+    Route API pour récupérer les informations météorologiques de Cachan, FR.
+    """
+    try:
+        weather_data = get_weather_data()
+        return jsonify(weather_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

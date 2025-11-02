@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from core.ai_service import AIService
-from typing import List
+from typing import List, Optional
 
 # Pydantic models for data validation
 class Message(BaseModel):
@@ -13,12 +13,15 @@ class ChatRequest(BaseModel):
     history: List[Message]
     session_id: str
     model_name: str
+    language: Optional[str] = 'en-US' # Add language field
 
 class ChatResponse(BaseModel):
     reply: str
     data: dict
 
 app = FastAPI()
+
+ai_service = AIService()
 
 # Set up CORS
 origins = [
@@ -34,8 +37,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ai_service = AIService()
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the AI Trip Planner API"}
@@ -46,7 +47,12 @@ async def list_gemini_models():
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    ai_reply = await ai_service.get_ai_response(request.model_name, request.history, request.session_id)
+    ai_reply = await ai_service.get_ai_response(
+        model_name=request.model_name, 
+        history=request.history, 
+        session_id=request.session_id,
+        language=request.language
+    )
     return ChatResponse(
         reply=ai_reply,
         data={}

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 const ChatWindow = ({ messages }) => {
   return (
@@ -6,7 +7,7 @@ const ChatWindow = ({ messages }) => {
       {messages.map((msg, index) => (
         <div key={index} className={`mb-4 ${msg.isUser ? 'text-right' : 'text-left'}`}>
           <div className={`inline-block p-2 rounded-lg ${msg.isUser ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}>
-            {msg.text}
+            <ReactMarkdown>{msg.text}</ReactMarkdown>
           </div>
         </div>
       ))}

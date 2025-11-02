@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ChatWindow from './components/ChatWindow';
 import MessageInput from './components/MessageInput';
 import ModelSelector from './components/ModelSelector';
+import LanguageSelector from './components/LanguageSelector';
+
+const initialMessages = {
+  'en-US': "Hello! I'm your travel planning assistant. Where would you like to go?",
+  'fr-FR': "Bonjour ! Je suis votre assistant de planification de voyage. Où souhaitez-vous aller ?",
+};
 
 const App = () => {
-  const [messages, setMessages] = useState([
-    { text: "Hello! I'm your travel planning assistant. Where would you like to go?", isUser: false },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [selectedModel, setSelectedModel] = useState('openai');
+  const [selectedLanguage, setSelectedLanguage] = useState('en-US');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setMessages([{ text: initialMessages[selectedLanguage], isUser: false }]);
+  }, [selectedLanguage]);
 
   // Configure axios instance
   const api = axios.create({
@@ -24,9 +33,10 @@ const App = () => {
 
     try {
       const response = await api.post('/api/chat', {
-        history: newMessages, // Send the entire history
-        session_id: 'some-unique-session-id', // You can generate a real unique ID here
+        history: newMessages,
+        session_id: 'some-unique-session-id',
         model_name: selectedModel,
+        language: selectedLanguage,
       });
 
       const aiMessage = { text: response.data.reply, isUser: false };
@@ -43,7 +53,10 @@ const App = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <h1 className="text-2xl font-bold text-center p-4 bg-white border-b">AI Trip Planner</h1>
-      <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
+      <div className="flex justify-between p-2 border-b">
+        <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
+        <LanguageSelector selectedLanguage={selectedLanguage} onLanguageChange={setSelectedLanguage} />
+      </div>
       <ChatWindow messages={messages} />
       {isLoading && <div className="p-4 text-center">AI is thinking...</div>}
       <MessageInput onSendMessage={handleSendMessage} />

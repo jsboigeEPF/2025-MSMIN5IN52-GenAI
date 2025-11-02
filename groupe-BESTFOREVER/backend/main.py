@@ -27,7 +27,7 @@ ai_service = AIService()
 origins = [
     "http://localhost:5173", # Default Vite dev server
     "http://localhost:3000", # Common React dev server
-    "https://two025-msmin5in52-genai.onrender.com/",
+    "https://ai-trip-planner-self-seven.vercel.app/",
 ]
 
 app.add_middleware(

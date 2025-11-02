@@ -83,3 +83,98 @@ Recherche Web
 Aggregation & Planning
       ⬇️
 Travel Itinerary
+
+## 🚀 Installation Guide
+
+Follow these steps to set up and run the AI Trip Planner application.
+
+### Prerequisites
+
+*   **Python 3.8+**: For the backend.
+*   **Node.js (LTS recommended)**: For the frontend.
+*   **npm** (comes with Node.js) or **Yarn**.
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository_url>
+cd <repository_name>/groupe-BESTFOREVER
+```
+
+### 2. Backend Setup
+
+Navigate to the `backend` directory:
+
+```bash
+cd backend
+```
+
+#### Create a Python Virtual Environment
+
+It's highly recommended to use a virtual environment to manage dependencies.
+
+```bash
+python -m venv venv
+# On Windows
+.\venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
+```
+
+#### Install Python Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Configure Environment Variables (`.env`)
+
+Create a `.env` file in the `groupe-BESTFOREVER/backend/` directory (if it doesn't exist) and add your API keys:
+
+```
+OPENAI_KEY=your_openai_api_key_here
+GEMINI_KEY=your_gemini_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
+```
+
+*   **OpenAI API Key:** Obtain from [OpenAI Platform](https://platform.openai.com/).
+*   **Google Gemini API Key:** Obtain from [Google AI Studio](https://aistudio.google.com/app/apikey).
+*   **Tavily API Key:** Obtain from [Tavily](https://tavily.com/).
+
+#### Run the Backend Server
+
+```bash
+uvicorn main:app --reload
+```
+
+The backend API will be running at `http://127.0.0.1:8000`. You can access the interactive API documentation at `http://127.0.0.1:8000/docs`.
+
+### 3. Frontend Setup
+
+Open a **new terminal** and navigate to the `frontend` directory:
+
+```bash
+cd ../frontend
+```
+
+#### Install Node.js Dependencies
+
+```bash
+npm install
+# or yarn install
+```
+
+#### Run the Frontend Development Server
+
+```bash
+npm run dev
+# or yarn dev
+```
+
+The frontend application will be running at `http://localhost:5173` (or another port if 5173 is in use).
+
+### 4. Usage
+
+Open your browser to the frontend URL (e.g., `http://localhost:5173`). You can now interact with the AI Trip Planner, select your preferred AI model, and choose your language.
+
+---

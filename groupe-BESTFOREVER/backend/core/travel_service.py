@@ -1,19 +1,26 @@
+import os
 import json
+from tavily import TavilyClient
 
-def search_travel_options(destination: str, budget: int = None, dates: str = None):
-    """Simulates searching for travel options and returns a JSON string with dummy data."""
-    print(f"Searching for travel options to {destination} with budget {budget} and dates {dates}")
+async def search_travel_options(destination: str, budget: int = None, dates: str = None):
+    """Searches the web for travel options using the Tavily API."""
+    api_key = os.getenv("TAVILY_API_KEY")
+    if not api_key:
+        return json.dumps({"error": "TAVILY_API_KEY not found in .env"})
+
+    tavily = TavilyClient(api_key=api_key)
     
-    # In a real application, this would call a travel API (e.g., Skyscanner, Expedia)
-    dummy_data = {
-        "flights": [
-            {"airline": "Air France", "price": 500, "departure": "2024-12-25 08:00"},
-            {"airline": "Lufthansa", "price": 450, "departure": "2024-12-25 10:00"},
-        ],
-        "hotels": [
-            {"name": "Hotel de Paris", "price_per_night": 150, "rating": 4.5},
-            {"name": "Grand Hotel", "price_per_night": 200, "rating": 4.8},
-        ]
-    }
+    query = f"flights and hotels in {destination}"
+    if dates:
+        query += f" around {dates}"
+    if budget:
+        query += f" with a budget of {budget}"
+
+    print(f"Performing Tavily search with query: {query}")
     
-    return json.dumps(dummy_data)
+    try:
+        response = tavily.search(query=query, search_depth="advanced")
+        return json.dumps(response['results'])
+    except Exception as e:
+        print(f"Error during Tavily search: {e}")
+        return json.dumps({"error": str(e)})

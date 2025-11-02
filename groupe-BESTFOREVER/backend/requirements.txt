@@ -6,3 +6,4 @@ python-dotenv
 openai
 google-generativeai
 fastapi-cors
+tavily-python

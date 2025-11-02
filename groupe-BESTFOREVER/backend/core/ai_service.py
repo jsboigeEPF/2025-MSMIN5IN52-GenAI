@@ -11,7 +11,8 @@ load_dotenv()
 
 SYSTEM_MESSAGE = "You are a helpful travel planning assistant. Your goal is to gather information from the user to help them plan a trip. Start by asking clarifying questions to understand their needs, such as destination, budget, travel dates, and interests. Once you have enough information, use the available tools to search for travel options."
 
-TOOLS = [
+# OpenAI Tools Definition
+OPENAI_TOOLS = [
     {
         "type": "function",
         "function": {
@@ -38,6 +39,25 @@ TOOLS = [
         }
     }
 ]
+
+# Gemini Tools Definition
+GEMINI_TOOLS = {
+    "function_declarations": [
+        {
+            "name": "search_travel_options",
+            "description": "Search for travel options like flights and hotels based on user criteria.",
+            "parameters": {
+                "type": "OBJECT",
+                "properties": {
+                    "destination": {"type": "STRING", "description": "The destination city, e.g., Paris"},
+                    "budget": {"type": "NUMBER", "description": "The budget for the trip"},
+                    "dates": {"type": "STRING", "description": "The desired travel dates, e.g., 2024-12-25 to 2025-01-02"}
+                },
+                "required": ["destination"]
+            }
+        }
+    ]
+}
 
 class AIService:
     def __init__(self):
@@ -73,7 +93,7 @@ class AIService:
             response = self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                tools=TOOLS,
+                tools=OPENAI_TOOLS,
                 tool_choice="auto"
             )
 
@@ -87,7 +107,7 @@ class AIService:
                     function_args = json.loads(tool_call.function.arguments)
                     
                     if function_name == "search_travel_options":
-                        function_response = travel_service.search_travel_options(
+                        function_response = await travel_service.search_travel_options(
                             destination=function_args.get("destination"),
                             budget=function_args.get("budget"),
                             dates=function_args.get("dates")
@@ -101,7 +121,7 @@ class AIService:
                             }
                         )
                 
-                second_response = self.openai_client.chat.completations.create(
+                second_response = self.openai_client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=messages,
                 )
@@ -113,8 +133,58 @@ class AIService:
             return f"Error from OpenAI: {e}"
 
     async def get_gemini_response(self, history: List[dict], session_id: str) -> str:
-        # ... (Gemini implementation will be updated later)
-        return "Gemini tool calling is not yet implemented."
+        if not self.gemini_api_key:
+            return "Gemini service is not configured. Please provide GEMINI_KEY in .env."
+        try:
+            model = genai.GenerativeModel(
+                'gemini-flash-latest',
+                system_instruction=SYSTEM_MESSAGE,
+                tools=GEMINI_TOOLS
+            )
+            
+            gemini_history = [
+                {"role": "user" if msg.isUser else "model", "parts": [msg.text]}
+                for msg in history
+            ]
+            
+            response = await model.generate_content_async(gemini_history)
+
+            if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+                part = response.candidates[0].content.parts[0]
+                if hasattr(part, 'function_call') and part.function_call:
+                    function_call = part.function_call
+                    function_name = function_call.name
+                    function_args = function_call.args
+                    
+                    if function_name == "search_travel_options":
+                        function_response = await travel_service.search_travel_options(
+                            destination=function_args["destination"],
+                            budget=function_args.get("budget"),
+                            dates=function_args.get("dates")
+                        )
+                        
+                        # Append the tool response to the history
+                        gemini_history.append({"role": "model", "parts": [part]})
+                        gemini_history.append({
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "function_response": {
+                                        "name": "search_travel_options",
+                                        "response": {"content": function_response}
+                                    }
+                                }
+                            ]
+                        })
+
+                        # Send the updated history back to the model
+                        second_response = await model.generate_content_async(gemini_history)
+                        return second_response.text
+
+            return response.text
+        except Exception as e:
+            print(f"Error calling Gemini API: {e}")
+            return f"Error from Gemini: {e}"
 
     async def get_ai_response(self, model_name: str, history: List[dict], session_id: str) -> str:
         print(f"AI Service received history for session: {session_id} using model: {model_name}")

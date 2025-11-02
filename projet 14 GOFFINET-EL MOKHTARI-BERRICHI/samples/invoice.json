@@ -1,10 +1,6 @@
 {
-  "invoice_details": {
-    "invoice_number": "INV-0001",
-    "date": "2025-10-29",
-    "due_date": "2025-11-12"
-  },
-  "client_information": {
+  "invoice_number": "INV-0001",
+  "client": {
     "name": "Acme Corporation",
     "address": "123 Business Ave, Suite 500, New York, NY 10001",
     "email": "accounts@acmecorp.com"
@@ -26,10 +22,6 @@
       "unit_price": 300.00
     }
   ],
-  "total": {
-    "subtotal": 2815.00,
-    "tax": 15.00,
-    "tax_amount": 422.25,
-    "total_due": 3237.25
-  }
+  "total": 2815.00,
+  "due_date": "2025-11-12"
 }

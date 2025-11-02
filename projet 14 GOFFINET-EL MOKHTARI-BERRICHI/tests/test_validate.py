@@ -3,6 +3,8 @@ from unittest.mock import patch, mock_open
 import json
 import sys
 import os
+from jsonschema import ValidationError
+from pathlib import Path
 
 # Add src directory to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -13,20 +15,23 @@ class TestValidationFunctions(unittest.TestCase):
     def test_load_schema(self, mock_file):
         result = load_schema('cv')
         self.assertEqual(result, {"schema": "content"})
-        mock_file.assert_called_once_with(os.path.join(os.path.dirname(__file__), '..', 'schemas', 'cv.schema.json'), 'r')
-    
+
+        # Convert to Path pour matcher l'appel réel
+        expected_path = Path(__file__).parent.parent / 'src' / 'schemas' / 'cv.schema.json'
+        mock_file.assert_called_once_with(expected_path, 'r')
+
     @patch('src.utils.validate.validate')
     def test_validate_data_success(self, mock_validate):
         mock_validate.return_value = None  # No exception means success
         result = validate_data({"key": "value"}, "cv")
         self.assertTrue(result)
-    
+
     @patch('src.utils.validate.validate', side_effect=ValidationError("Invalid"))
     def test_validate_data_failure(self, mock_validate):
         result = validate_data({"key": "value"}, "cv")
         self.assertFalse(result)
-    
-    @patch('src.utils.validate.load_schema', side_effect=FileNotFoundError)
+
+    @patch('src.utils.validate.load_schema', side_effect=FileNotFoundError("Schema not found"))
     def test_validate_data_schema_not_found(self, mock_load_schema):
         result = validate_data({"key": "value"}, "nonexistent")
         self.assertFalse(result)

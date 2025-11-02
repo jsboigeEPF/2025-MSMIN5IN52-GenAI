@@ -1,7 +1,102 @@
-html {
-  scroll-behavior: smooth;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  font-family: 'Poppins', sans-serif;
+/* 🌈 Design System — variables Tailwind (HSL) */
+@layer base {
+  :root {
+    /* 🎨 Palette claire */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 25%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    --primary: 255 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 265 70% 55%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 220 15% 93%;
+    --muted-foreground: 220 10% 35%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --radius: 0.75rem;
+  }
+
+  /* 🌙 Mode sombre */
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 220 10% 95%;
+
+    --card: 220 18% 12%;
+    --card-foreground: 220 10% 95%;
+
+    --primary: 255 70% 70%;
+    --accent: 265 70% 70%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+  }
+
+  /* 🧩 Éléments généraux */
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-[Poppins] antialiased;
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* ✨ Animation fade-in globale */
+  .fade-in {
+    animation: fadeIn 0.8s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 🖱️ Transitions globales douces */
+  a,
+  button,
+  .cursor-pointer {
+    transition: all 0.25s ease-in-out;
+  }
+
+  a:hover,
+  button:hover {
+    transform: translateY(-1px);
+  }
+
+  /* 💎 Effet glassmorphism pour les cartes */
+  .glass {
+    @apply bg-white/10 dark:bg-black/20 backdrop-blur-lg border border-white/10;
+  }
+
+  /* 🌈 Scrollbar personnalisée (moderne) */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent) / 0.6);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+  }
 }

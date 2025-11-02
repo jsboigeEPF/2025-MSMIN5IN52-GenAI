@@ -13,15 +13,28 @@ def load_schema(schema_name: str) -> dict:
     with open(schema_path, "r") as f:
         return json.load(f)
 
+from jsonschema import validate, ValidationError
+from src.utils.validate import load_schema
+
 def validate_data(data: dict, schema_name: str) -> bool:
     """Validate data against the specified schema"""
     try:
         schema = load_schema(schema_name)
         validate(instance=data, schema=schema)
         return True
+
     except ValidationError as e:
         print(f"Validation error: {e.message}")
         return False
+
+    except FileNotFoundError as e:
+        print(f"Schema not found: {e}")
+        return False
+
+    except Exception as e:
+        print(f"Unexpected error during validation: {e}")
+        return False
+
 
 if __name__ == "__main__":
     import argparse

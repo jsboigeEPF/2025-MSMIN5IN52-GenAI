@@ -43,9 +43,14 @@ L’objectif :
     │ └── report.json               # Exemple de structure JSON d’un rapport
     |
     ├── frontend/                   # Interface React (prompt + choix du type de document)
-    │ ├── src/
-    │ ├── package.json
-    │ └── vite.config.js
+    │   ├── node_modules/           # Dépendances Node.js (auto-générées)
+    │   ├── src/                    # Code source React (App.jsx, components, styles)
+    │   ├── index.html              # Point d’entrée HTML du projet React
+    │   ├── package.json            # Dépendances et scripts npm
+    │   ├── package-lock.json       # Verrouillage des dépendances npm
+    │   ├── postcss.config.js       # Configuration PostCSS pour Tailwind
+    │   ├── tailwind.config.js      # Configuration TailwindCSS (thèmes, couleurs, etc.)
+    │   └── vite.config.js          # Configuration Vite (serveur et build)
     ├
     |── tests/                      # Tests unitaires et d’intégration (Pytest)
     │ ├── pycache/                  # Cache compilé Python

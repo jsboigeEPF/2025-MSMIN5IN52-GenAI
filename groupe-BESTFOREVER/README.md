@@ -12,7 +12,6 @@ Ce projet met en place un **agent IA autonome** capable de planifier un **itiné
 ## 🛠️ Technologies Clés  
 - **IA Agentique** : un agent autonome qui réfléchit, planifie et agit.  
 - **Function Calling** : permet à l’IA d’appeler des fonctions définies pour interagir avec le monde réel.  
-- **API Externes** : intégration avec des services de voyage (vols, hôtels, météo, cartes).  
 - **Langage** : Python / Node.js (selon implémentation choisie).  
 - **Orchestration** : utilisation d’un framework agentique (LangChain, OpenAI Agents, etc.).  
 
@@ -52,27 +51,9 @@ Jour 3 : Excursion au Mont Fuji (météo favorable)
 Jour 4 : Shopping à Shibuya et Harajuku
 Jour 5 : Retour
 
-
 ---
 
-## 📦 Installation  
-
-```bash
-# Cloner le projet
-git clone https://github.com/username/travel-agent.git
-cd travel-agent
-
-# Installer les dépendances
-npm install   # ou pip install -r requirements.txt
-
-# Configurer les clés API (Google Maps, Skyscanner, OpenWeather…)
-cp .env.example .env
-
-# Lancer l’agent
-npm run start   # ou python main.py
-
 Planifie un voyage à Lisbonne pour 5 jours avec un budget moyen.
-
 
 📖 Exemple de scénario
 
@@ -95,10 +76,10 @@ Jour 5 : plage + retour
 Architecture
 User Request
       ⬇️
-  Agent (LLM + Reasoning)
+Agent (LLM + Reasoning)
       ⬇️
- Function Calling (APIs)
+Recherche Web
       ⬇️
-  Aggregation & Planning
+Aggregation & Planning
       ⬇️
-    Travel Itinerary
+Travel Itinerary

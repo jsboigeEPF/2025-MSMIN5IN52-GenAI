@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 from core.ai_service import AIService
 
 # Pydantic models for data validation
@@ -13,6 +14,22 @@ class ChatResponse(BaseModel):
     data: dict
 
 app = FastAPI()
+
+# Set up CORS
+origins = [
+    "http://localhost:5173", # Default Vite dev server
+    "http://localhost:3000", # Common React dev server
+    # In production, you would restrict this to your frontend's domain
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 ai_service = AIService() # Initialize the AI service
 
 @app.get("/")

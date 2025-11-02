@@ -34,3 +34,5 @@ pytest-cov>=4.0.0
 # Pour le formatage de code (développement)
 black>=23.0.0
 flake8>=6.0.0
+
+openai>=1.0.0

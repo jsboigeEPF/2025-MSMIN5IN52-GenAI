@@ -92,7 +92,7 @@ Il permet d’identifier automatiquement les candidats les plus pertinents en fo
 
 1️⃣ Entrez votre clé API OpenAI 🔑  
 2️⃣ Tapez une description de poste 💬  
-3️⃣ (Optionnel) Téléchargez un fichier CSV de CV 📄  
+3️⃣ Téléchargez un fichier CSV de CV 📄  
 
 Vous pouvez maintenant échanger avec l'assistant et demander des recommandations de candidats !
 """

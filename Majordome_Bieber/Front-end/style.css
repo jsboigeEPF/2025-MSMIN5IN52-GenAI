@@ -1,6 +1,6 @@
 /* Définition des variables de couleurs et ombres pour une DA douce, épurée, "Apple-like" */
 :root {
-    --primary: #8EADD5; /* Un bleu-mauve doux, plus affirmé mais toujours élégant */
+    --primary: #8eadd5; /* Un bleu-mauve doux, plus affirmé mais toujours élégant */
     --primary-hover: #7C98C3; /* Teinte légèrement plus foncée et saturée pour les survols */
     --primary-rgb-value: 142, 173, 213; /* Valeur RGB pour rgba() */
 
@@ -202,8 +202,7 @@ a:hover {
     /* Bordure lumineuse pour un effet "glow" subtil */
     border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
-    width: 100%;
-    max-width: 700px; /* Légèrement plus large pour plus d'aisance */
+    width: auto;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .main-assistant-card:hover {

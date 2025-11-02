@@ -5,7 +5,9 @@ import MessageInput from './components/MessageInput';
 import ModelSelector from './components/ModelSelector';
 
 const App = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { text: "Hello! I'm your travel planning assistant. Where would you like to go?", isUser: false },
+  ]);
   const [selectedModel, setSelectedModel] = useState('openai');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -15,19 +17,18 @@ const App = () => {
   });
 
   const handleSendMessage = async (message) => {
-    // Add user message to the chat
     const userMessage = { text: message, isUser: true };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setIsLoading(true);
 
     try {
       const response = await api.post('/api/chat', {
-        message: message,
+        history: newMessages, // Send the entire history
         session_id: 'some-unique-session-id', // You can generate a real unique ID here
         model_name: selectedModel,
       });
 
-      // Add AI response to the chat
       const aiMessage = { text: response.data.reply, isUser: false };
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
     } catch (error) {

@@ -2,12 +2,17 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from core.ai_service import AIService
+from typing import List
 
 # Pydantic models for data validation
+class Message(BaseModel):
+    text: str
+    isUser: bool
+
 class ChatRequest(BaseModel):
-    message: str
+    history: List[Message]
     session_id: str
-    model_name: str # Added field for AI model selection
+    model_name: str
 
 class ChatResponse(BaseModel):
     reply: str
@@ -19,7 +24,6 @@ app = FastAPI()
 origins = [
     "http://localhost:5173", # Default Vite dev server
     "http://localhost:3000", # Common React dev server
-    # In production, you would restrict this to your frontend's domain
 ]
 
 app.add_middleware(
@@ -30,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ai_service = AIService() # Initialize the AI service
+ai_service = AIService()
 
 @app.get("/")
 def read_root():
@@ -42,7 +46,7 @@ async def list_gemini_models():
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    ai_reply = await ai_service.get_ai_response(request.model_name, request.message, request.session_id)
+    ai_reply = await ai_service.get_ai_response(request.model_name, request.history, request.session_id)
     return ChatResponse(
         reply=ai_reply,
         data={}

@@ -108,17 +108,17 @@ Texte à transformer :
 Tu es un assistant structuré. Transforme le texte suivant en JSON VALIDE correspondant au modèle suivant :
 
 {{
-  "title": "Titre du rapport",
+  "title": "Titre du rapport (ex: Rapport de stage – Digital D3A)",
+  "subtitle": "Sous-titre décrivant le contexte ou le sujet (ex: Développement d’un site vitrine pour la plateforme Digital D3A)",
   "author": {{
-    "name": "Nom complet",
-    "email": "Adresse email",
-    "organization": "Organisation"
+    "name": "Nom complet de l’auteur (ex: Thomas Dupont)",
+    "organization": "Nom de l’établissement ou entreprise (ex: Université Grenoble Alpes ou Digital D3A)"
   }},
-  "date": "AAAA-MM-JJ",
-  "summary": "Résumé du rapport",
+  "date": "Date de fin ou de rédaction (AAAA-MM-JJ)",
+  "summary": "Résumé synthétique du rapport",
   "content": [
     {{
-      "section_title": "Titre de la section",
+      "section_title": "Titre de la section (ex: Contexte du stage)",
       "section_content": "Contenu textuel de la section"
     }}
   ]
@@ -134,42 +134,70 @@ Texte à transformer :
 
         elif doc_type.lower() in ["invoice", "facture"]:
             full_prompt = f"""
-        Tu es un assistant structuré. Transforme le texte suivant en JSON VALIDE correspondant au modèle suivant :
+Tu es un assistant structuré. Analyse attentivement le texte suivant et transforme-le en JSON VALIDE correspondant au modèle ci-dessous.
 
-        {{
-          "invoice_number": "INV-0001",
-          "date": "AAAA-MM-JJ",
-          "company": {{
-            "name": "Nom de l’entreprise émettrice",
-            "address": "Adresse du vendeur",
-            "vat_number": "Numéro de TVA ou SIRET"
-          }},
-          "client": {{
-            "name": "Nom du client",
-            "address": "Adresse du client"
-          }},
-          "items": [
-            {{
-              "description": "Nom du produit ou service",
-              "quantity": 1,
-              "unit_price": 100.0,
-              "total": 100.0
-            }}
-          ],
-          "subtotal": 100.0,
-          "tax_rate": 20,
-          "tax_amount": 20.0,
-          "total": 120.0,
-          "payment_terms": "Conditions de paiement (ex: virement sous 30 jours)"
-        }}
+Le JSON doit **contenir toutes les informations présentes** : numéro de facture, dates, entreprises, TVA, articles, montants HT/TTC, coordonnées bancaires, pénalités, etc.
 
-        Texte à transformer :
-        ---
-        {prompt}
-        ---
+Modèle attendu :
+{{
+  "invoice_number": "Numéro de la facture (ex: WS-2025-112)",
+  "issue_date": "Date d’émission (AAAA-MM-JJ)",
+  "due_date": "Date limite de paiement (AAAA-MM-JJ)",
+  "seller": {{
+    "name": "Nom complet de l’entreprise émettrice",
+    "address": "Adresse complète du vendeur",
+    "siret": "Numéro SIRET si présent",
+    "vat_number": "Numéro de TVA intracommunautaire si présent",
+    "email": "Adresse email de contact",
+    "phone": "Numéro de téléphone",
+    "bank": {{
+      "bank_name": "Nom de la banque",
+      "account_holder": "Titulaire du compte",
+      "iban": "IBAN complet",
+      "bic": "BIC"
+    }}
+  }},
+  "client": {{
+    "name": "Nom de l’entreprise cliente",
+    "contact_person": "Nom du contact principal",
+    "email": "Email du contact principal",
+    "address": "Adresse complète du client",
+    "siret": "Numéro SIRET si présent",
+    "vat_number": "Numéro de TVA intracommunautaire si présent"
+  }},
+  "items": [
+    {{
+      "description": "Description de la prestation ou du produit",
+      "quantity": 1,
+      "unit_price_ht": 0.0,
+      "total_ht": 0.0
+    }}
+  ],
+  "subtotal_ht": 0.0,
+  "tax_rate": 0.0,
+  "tax_amount": 0.0,
+  "total_ttc": 0.0,
+  "currency": "EUR",
+  "payment_terms": "Conditions de paiement (ex: virement sous 30 jours)",
+  "late_penalties": {{
+    "rate": "Taux de pénalité (ex: 10% par mois de retard)",
+    "fixed_fee": "Montant forfaitaire (ex: 40 euros)",
+    "legal_reference": "Référence légale (ex: article L441-10 du Code de commerce)"
+  }},
+  "notes": "Informations complémentaires ou remarques de la facture"
+}}
 
-        ⚠️ Réponds uniquement avec du JSON bien formaté (aucun texte avant ou après).
-        """
+Texte à transformer :
+---
+{prompt}
+---
+
+⚠️ Règles importantes :
+- N’invente rien : extrais uniquement les données réellement présentes.
+- Utilise des formats numériques pour les montants (ex: 1940.0, 388.0, 2328.0).
+- Convertis les dates en format ISO (AAAA-MM-JJ).
+- Réponds uniquement avec du JSON valide, sans texte avant ni après.
+"""
 
 
         else:

@@ -91,12 +91,20 @@ L’objectif :
     ==> Le nôtre correspond au dossier : projet 14 GOFFINET-EL MOKHTARI-BERRICHI
 
 # Créer et activer un environnement virtuel
-    .venv\Scripts\Activate.ps1   # sous Windows PowerShell
+    python -m venv .venv         # 
+    .venv\Scripts\Activate.ps1   # pour l'activer sous Windows PowerShell
     # ou
     source .venv/bin/activate    # sous Linux / macOS
 
 # Installer les dépendances
 	pip install -r requirements.txt
+
+# Configuration de l’environnement
+
+==> Avant de lancer le serveur, il faut copier le fichier .env.example et ajouter ta clé API OpenAI :
+    cp .env.example .env
+    ==> Ouvre ensuite le fichier .env et remplace :
+    OPENAI_API_KEY=your_api_key_here par la clé API donne par le prof
 
 # Lancer le serveur FastAPI
     uvicorn src.main:app --reload  

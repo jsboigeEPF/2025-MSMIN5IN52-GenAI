@@ -85,8 +85,9 @@ def render_pdf_report(data: Dict[str, Any]) -> str:
         width, height = A4
 
         _add_title_page(c, data, width, height)
-        _add_executive_summary(c, data.get("executive_summary", ""), data)
-        _add_table_of_contents(c, data.get("sections", []), data)
+        _add_resume_executif(c, data.get("executive_summary", ""), data)
+        _add_table_des_matieres(c, data.get("sections", []), data)
+
 
         for idx, section in enumerate(data.get("sections", []), 1):
             _add_section(c, section, data, idx)
@@ -109,11 +110,20 @@ def _add_title_page(c, data, width, height):
     c.setFillColor(colors.white)
     c.rect(25 * mm, 0, width - 25 * mm, height, stroke=0, fill=1)
 
-    # === Données principales ===
+    # === Données principales dynamiques ===
     title = data.get("title", "Rapport Technique")
-    subtitle = data.get("subtitle", "Projet IMSA Forever Shop – EPF 2025")
-    author = data.get("author", "Safae Berrichi (IMSA – EPF)")
-    date = data.get("date", "Octobre 2025")
+
+    # Si auteur est un dict (nom + organisation)
+    if isinstance(data.get("author"), dict):
+        author_name = data["author"].get("name", "")
+        organization = data["author"].get("organization", "")
+        author = f"{author_name} – {organization}" if organization else author_name
+    else:
+        author = data.get("author", "Auteur inconnu")
+
+    subtitle = data.get("subtitle", "")
+    date = data.get("date", "")
+
 
     # === Logo EPF dans la bande lavande (haut gauche) ===
     logo_path = Path("assets/epf_logo.png")
@@ -142,9 +152,10 @@ def _add_title_page(c, data, width, height):
         c.drawCentredString(width / 2 + 10 * mm, y_center - (i * 30), l.strip())
 
     # === Sous-titre (violet) ===
-    c.setFont("Helvetica-Bold", 15)
-    c.setFillColor(colors.HexColor("#4B0082"))
-    c.drawCentredString(width / 2 + 10 * mm, y_center - (len(lines) * 35), subtitle)
+    if subtitle:
+        c.setFont("Helvetica-Bold", 15)
+        c.setFillColor(colors.HexColor("#4B0082"))
+        c.drawCentredString(width / 2 + 10 * mm, y_center - (len(lines) * 35), subtitle)
 
     # === Ligne décorative avec dégradé bleu-violet ===
     c.setLineWidth(1.8)
@@ -157,8 +168,13 @@ def _add_title_page(c, data, width, height):
                width / 2 - 100 + i + 3, y_center - (len(lines) * 45) - 10)
 
     # === Informations en bas ===
-    c.setStrokeColor(colors.lightgrey)
-    c.line(LEFT_MARGIN, 100, width - LEFT_MARGIN, 100)
+        c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
+        if author:
+            c.drawCentredString(width / 2 + 10 * mm, 80, f"Auteur : {author}")
+        if date:
+            c.drawCentredString(width / 2 + 10 * mm, 60, f"Date : {date}")
+
 
     c.setFont("Helvetica", 12)
     c.setFillColor(colors.black)
@@ -175,9 +191,10 @@ def _add_title_page(c, data, width, height):
 
 
 # --------------------------------------------------------------------
-#                   EXECUTIVE SUMMARY
+#                   RÉSUMÉ EXÉCUTIF
 # --------------------------------------------------------------------
-def _add_executive_summary(c, summary, data):
+def _add_resume_executif(c, summary, data):
+    """Ajoute le résumé exécutif (équivalent de 'Executive Summary')."""
     if not summary:
         return
 
@@ -186,7 +203,7 @@ def _add_executive_summary(c, summary, data):
 
     c.setFont("Helvetica-Bold", 18)
     c.setFillColor(colors.HexColor("#001F7F"))
-    c.drawString(LEFT_MARGIN, TOP_MARGIN, "Executive Summary")
+    c.drawString(LEFT_MARGIN, TOP_MARGIN, "Résumé exécutif")
 
     c.setStrokeColor(colors.HexColor("#4B0082"))
     c.line(LEFT_MARGIN, TOP_MARGIN - 5, RIGHT_MARGIN, TOP_MARGIN - 5)
@@ -196,34 +213,31 @@ def _add_executive_summary(c, summary, data):
 
 
 # --------------------------------------------------------------------
-#                   TABLE DES MATIÈRES (TOC)
+#                   TABLE DES MATIÈRES
 # --------------------------------------------------------------------
-def _add_table_of_contents(c, sections, data):
+def _add_table_des_matieres(c, sections, data):
+    """Ajoute la table des matières."""
     if not sections:
         return
 
     _draw_left_band(c)
     _add_header_footer(c, data.get("title", ""), data.get("author", ""))
 
-    # Titre bleu foncé comme les autres sections
     c.setFont("Helvetica-Bold", 18)
     c.setFillColor(colors.HexColor("#001F7F"))
-    c.drawString(LEFT_MARGIN, TOP_MARGIN, "Table of Contents")
+    c.drawString(LEFT_MARGIN, TOP_MARGIN, "Table des matières")
 
-    # Ligne violette
     c.setStrokeColor(colors.HexColor("#4B0082"))
     c.line(LEFT_MARGIN, TOP_MARGIN - 5, RIGHT_MARGIN, TOP_MARGIN - 5)
 
-    # Corps du sommaire
     c.setFont("Helvetica", 12)
     c.setFillColor(colors.black)
     y = TOP_MARGIN - 30
 
     for i, sec in enumerate(sections, 1):
         title = sec.get("title", f"Section {i}")
-        page_number = i + 3  # estimation : après résumé + TOC
+        page_number = i + 3
 
-        # Crée les points et le texte aligné
         dot_line = _create_leader_dots(title, LEFT_MARGIN + 5, RIGHT_MARGIN - 25, page_number, c)
 
         c.drawString(LEFT_MARGIN + 5, y, dot_line["text"])
@@ -237,6 +251,7 @@ def _add_table_of_contents(c, sections, data):
             y = TOP_MARGIN - 20
 
     c.showPage()
+
 
 
 # --------------------------------------------------------------------

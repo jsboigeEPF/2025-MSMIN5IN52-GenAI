@@ -27,7 +27,7 @@ interface FilterState {
 }
 
 @Component({
-  selector: 'app-intelligent-excel-tracker',
+  
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,8 +61,8 @@ interface FilterState {
           <button class="btn btn-outline" (click)="refreshData()">
             🔄 Actualiser
           </button>
-        </div>
       </div>
+    </div>
 
       @if (errorMessage()) {
         <div class="error-banner">
@@ -162,24 +162,6 @@ interface FilterState {
               <option value="MEDIUM">🟡 Moyenne</option>
               <option value="LOW">🟢 Faible</option>
             </select>
-          </div>
-
-          <div class="filter-group">
-            <label>📅 Date candidature (début)</label>
-            <input
-              type="date"
-              [(ngModel)]="filters.dateFrom"
-              (change)="applyFilters()"
-              class="filter-input">
-          </div>
-
-          <div class="filter-group">
-            <label>📅 Date candidature (fin)</label>
-            <input
-              type="date"
-              [(ngModel)]="filters.dateTo"
-              (change)="applyFilters()"
-              class="filter-input">
           </div>
           
           <div class="filter-group">
@@ -306,7 +288,7 @@ interface FilterState {
                           }
                           @case ('email_count') {
                             <span class="email-count">
-                              📧 {{ getEmailCount(app) }}
+                              📧 {{ getEmailCount(app.id) }}
                             </span>
                           }
                           @case ('location') {
@@ -1084,6 +1066,115 @@ export class IntelligentExcelTrackerComponent implements OnInit {
 
   // Méthodes utilitaires
   
+  private compareForSort(a: JobApplication, b: JobApplication): number {
+    const field = this.sortField();
+    const direction = this.sortDirection() === 'asc' ? 1 : -1;
+
+    const aValue = this.getSortComparableValue(a, field);
+    const bValue = this.getSortComparableValue(b, field);
+
+    if (aValue === bValue) {
+      return 0;
+    }
+
+    if (aValue === null || aValue === undefined) {
+      return 1;
+    }
+
+    if (bValue === null || bValue === undefined) {
+      return -1;
+    }
+
+    if (aValue instanceof Date && bValue instanceof Date) {
+      return (aValue.getTime() - bValue.getTime()) * direction;
+    }
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return (aValue - bValue) * direction;
+    }
+
+    const aString = String(aValue).trim();
+    const bString = String(bValue).trim();
+
+    return aString.localeCompare(bString, 'fr', { sensitivity: 'base' }) * direction;
+  }
+
+  private getSortComparableValue(app: JobApplication, field: string): string | number | Date | null {
+    if (field === 'last_interaction') {
+      return this.parseDate(app.last_update_date ?? app.updated_at, false, true);
+    }
+
+    const value = this.getFieldValue(app, field);
+
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (this.sortableDateFields.has(field)) {
+      return this.parseDate(value, false, true);
+    }
+
+    if (value instanceof Date || typeof value === 'number' || typeof value === 'string') {
+      return value as any;
+    }
+
+    return null;
+  }
+
+  private matchesSearch(app: JobApplication, term: string): boolean {
+    const haystacks = [
+      app.company_name,
+      app.job_title,
+      app.contact_person,
+      app.notes,
+      app.status,
+      app.location,
+      app.job_reference,
+      app.source
+    ];
+
+    return haystacks.some(value => this.normalize(value).includes(term));
+  }
+
+  private normalize(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value).trim().toLowerCase();
+  }
+
+  private parseDate(value: unknown, setToEndOfDay = false, preserveTime = false): Date | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    let date: Date;
+
+    if (value instanceof Date) {
+      date = new Date(value.getTime());
+    } else if (typeof value === 'string' || typeof value === 'number') {
+      date = new Date(value);
+    } else {
+      return null;
+    }
+
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    if (preserveTime) {
+      return date;
+    }
+
+    if (setToEndOfDay) {
+      date.setHours(23, 59, 59, 999);
+    } else {
+      date.setHours(0, 0, 0, 0);
+    }
+
+    return date;
+  }
+  
   getAutomationRate(): number {
     const summary = this.summary();
     if (!summary) return 0;
@@ -1151,140 +1242,20 @@ export class IntelligentExcelTrackerComponent implements OnInit {
     console.log('Éditer application:', app);
   }
 
-  getEmailCount(application: JobApplication): number {
-    return application.emails?.length ?? 0;
-  }
-
-  private compareForSort(a: JobApplication, b: JobApplication): number {
-    const field = this.sortField();
-    const direction = this.sortDirection() === 'asc' ? 1 : -1;
-
-    const aValue = this.getSortComparableValue(a, field);
-    const bValue = this.getSortComparableValue(b, field);
-
-    if (aValue === bValue) {
-      return 0;
-    }
-
-    if (aValue === null || aValue === undefined) {
-      return 1;
-    }
-
-    if (bValue === null || bValue === undefined) {
-      return -1;
-    }
-
-    if (aValue instanceof Date && bValue instanceof Date) {
-      return (aValue.getTime() - bValue.getTime()) * direction;
-    }
-
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return (aValue - bValue) * direction;
-    }
-
-    const aString = String(aValue).trim();
-    const bString = String(bValue).trim();
-
-    return aString.localeCompare(bString, 'fr', { sensitivity: 'base' }) * direction;
-  }
-
-  private getSortComparableValue(app: JobApplication, field: string): string | number | Date | null {
-    if (field === 'last_interaction') {
-      return this.parseDate(app.last_update_date ?? app.updated_at, false, true);
-    }
-
-    const value = this.getFieldValue(app, field);
-
-    if (value === null || value === undefined) {
-      return null;
-    }
-
-    if (this.sortableDateFields.has(field)) {
-      return this.parseDate(value, false, true);
-    }
-
-    if (typeof value === 'number' || typeof value === 'string' || value instanceof Date) {
-      return value as any;
-    }
-
-    return null;
-  }
-
-  private matchesSearch(app: JobApplication, term: string): boolean {
-    const haystacks = [
-      app.company_name,
-      app.job_title,
-      app.contact_person,
-      app.notes,
-      app.status,
-      app.location,
-      app.job_reference,
-      app.source
-    ];
-
-    return haystacks.some(value => this.normalize(value).includes(term));
-  }
-
-  private normalize(value: unknown): string {
-    if (value === null || value === undefined) {
-      return '';
-    }
-
-    return String(value).trim().toLowerCase();
-  }
-
-  private parseDate(value: unknown, setToEndOfDay = false, preserveTime = false): Date | null {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-
-    let date: Date;
-
-    if (value instanceof Date) {
-      date = new Date(value.getTime());
-    } else if (typeof value === 'string' || typeof value === 'number') {
-      date = new Date(value);
-    } else {
-      return null;
-    }
-
-    if (Number.isNaN(date.getTime())) {
-      return null;
-    }
-
-    if (preserveTime) {
-      return date;
-    }
-
-    if (setToEndOfDay) {
-      date.setHours(23, 59, 59, 999);
-    } else {
-      date.setHours(0, 0, 0, 0);
-    }
-
-    return date;
+  getEmailCount(applicationId: string): number {
+    const application = this.applications().find(app => app.id === applicationId);
+    return application?.emails?.length ?? 0;
   }
 
   // Méthodes de formatage
   
-  formatDate(dateInput: string | Date | null | undefined): string {
-    const date = this.parseDate(dateInput, false, true);
-    if (!date) {
-      return '-';
-    }
+  formatDate(dateString: string | Date): string {
+    const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR');
   }
 
-  formatTimestamp(value: Date | string | undefined): string {
-    if (!value) {
-      return '-';
-    }
-
-    const date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return '-';
-    }
-
+  formatTimestamp(date: Date | undefined): string {
+    if (!date) return '-';
     return date.toLocaleString('fr-FR');
   }
 
@@ -1297,8 +1268,7 @@ export class IntelligentExcelTrackerComponent implements OnInit {
       'TECHNICAL_TEST': 'Test',
       'OFFER': 'Offre',
       'ACCEPTED': 'Acceptée',
-      'REJECTED': 'Refusée',
-      'WITHDRAWN': 'Retirée'
+      'REJECTED': 'Refusée'
     };
     return labels[status] || status;
   }

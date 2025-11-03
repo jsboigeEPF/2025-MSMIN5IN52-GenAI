@@ -1,3 +1,4 @@
+Configuration UTF-8 chargee automatiquement
 # Projet de Fin de Cours - IA Générative 2025
 
 Bienvenue sur le dépôt officiel pour la soumission du projet de fin de cours sur l'IA Générative.

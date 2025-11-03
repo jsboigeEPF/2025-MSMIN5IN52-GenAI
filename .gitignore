@@ -76,3 +76,6 @@ coverage-final.json
 
 # Allow exceptions (uncomment to keep a specific file tracked)
 # !/important-file.txt
+
+# Dossier de suivi d'analyse Git
+git-analysis/

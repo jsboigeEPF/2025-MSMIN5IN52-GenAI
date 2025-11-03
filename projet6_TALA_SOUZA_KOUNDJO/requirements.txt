@@ -1,16 +1,21 @@
-httpx==0.27.0
-huggingface-hub==0.25.0
-langchain==0.1.17
-langchain-community==0.0.36
-langchain-core==0.1.50
-langchain-openai==0.1.6
-numpy==1.24.4
-openai==1.25.2
+Flask==3.0.3
 pandas==2.2.2
-streamlit==1.34.0
-streamlit_modal==0.1.2
-sentence-transformers==2.2.2
-faiss_cpu==1.7.4
-pydantic==1.10.13
+numpy==1.26.4
+scikit-learn==1.5.1
+pdfminer.six>=20221105
+python-docx==1.1.2
+Werkzeug==3.0.4
+httpx==0.27.0
 python-dotenv==1.0.1
-pypdf==5.0.0
+qdrant-client==1.7.3
+tiktoken==0.6.0
+spacy==3.7.2
+fr-core-news-lg @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_lg-3.7.0/fr_core_news_lg-3.7.0-py3-none-any.whl
+en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.0/en_core_web_lg-3.7.0-py3-none-any.whl
+
+# Chatbot RAG dependencies
+langchain==0.3.7
+langchain-openai==0.2.8
+langchain-community==0.3.7
+faiss-cpu==1.9.0
+sentence-transformers==3.3.1

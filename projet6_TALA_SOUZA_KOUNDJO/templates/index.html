@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card border-0 shadow p-4">
+  <h1 class="h4 text-primary mb-3">Processeur de CVs</h1>
+  <p class="text-muted mb-4">Uploadez vos CVs et générez un fichier CSV standardisé avec des descriptions détaillées.</p>
+
+  <form action="{{ url_for('process_cvs') }}" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label class="form-label">Clé API OpenAI</label>
+      <div class="input-group">
+        <input type="password" class="form-control" id="openai_key_index" name="api_key" placeholder="sk-..." autocomplete="off" required>
+        <button class="btn btn-outline-secondary" type="button" id="toggleKeyIndex">&#128065;</button>
+      </div>
+      <small class="form-text text-muted">Votre clé n'est jamais stockée côté serveur.</small>
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Télécharger vos CVs (PDF/DOCX/TXT)</label>
+      <input class="form-control shadow-sm" type="file" name="cv_files" id="cv_files" multiple accept=".pdf,.docx,.txt" required>
+      <small class="form-text text-muted">Formats acceptés : PDF, DOCX, TXT. Vous pouvez sélectionner plusieurs fichiers.</small>
+      <div id="file-list" class="mt-2"></div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary btn-lg px-5 shadow" id="submitBtn">
+        <span class="spinner-border spinner-border-sm d-none me-2" id="submitSpinner"></span>
+        <span id="btnText">Générer le CSV</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+// Form submission with loading state
+document.querySelector('form').addEventListener('submit', function(e) {
+  const btn = document.getElementById('submitBtn');
+  const spinner = document.getElementById('submitSpinner');
+  const btnText = document.getElementById('btnText');
+  const fileInput = document.getElementById('cv_files');
+  
+  if (fileInput.files.length > 0) {
+    // Show loading state
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    btnText.textContent = 'Traitement en cours...';
+  }
+});
+
+// OpenAI key toggle and localStorage
+document.addEventListener('DOMContentLoaded', function() {
+  const keyInput = document.getElementById('openai_key_index');
+  const toggleBtn = document.getElementById('toggleKeyIndex');
+  // Load from localStorage
+  keyInput.value = localStorage.getItem('openai_key') || '';
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (keyInput.type === 'password') {
+      keyInput.type = 'text';
+      this.innerHTML = '&#128584;'; // Closed eye (see-no-evil)
+    } else {
+      keyInput.type = 'password';
+      this.innerHTML = '&#128065;'; // Open eye
+    }
+  });
+  keyInput.addEventListener('input', function() {
+    localStorage.setItem('openai_key', keyInput.value);
+  });
+});
+
+// Show selected files
+document.getElementById('cv_files').addEventListener('change', function(e) {
+  const fileList = document.getElementById('file-list');
+  const files = e.target.files;
+  
+  if (files.length > 0) {
+    let html = '<div class="alert alert-info"><strong>' + files.length + ' fichier(s) sélectionné(s):</strong><ul class="mb-0 mt-2">';
+    for (let i = 0; i < files.length; i++) {
+      html += '<li>' + files[i].name + '</li>';
+    }
+    html += '</ul></div>';
+    fileList.innerHTML = html;
+  } else {
+    fileList.innerHTML = '';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const gen = localStorage.getItem('generated_jd');
+    if (gen) {
+      const ta = document.querySelector('textarea[name="jd_text"]');
+      if (ta) {
+        ta.value = gen;
+      }
+      localStorage.removeItem('generated_jd');
+    }
+  } catch (e) {
+    console.warn('Could not load generated description:', e);
+  }
+});
+</script>
+{% endblock %}

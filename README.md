@@ -1,97 +1,360 @@
-# Projet de Fin de Cours - IA Générative 2025
+# Smart·Recrut - Agent de Recrutement Augmenté par IA
 
-Bienvenue sur le dépôt officiel pour la soumission du projet de fin de cours sur l'IA Générative.
+## 📋 Description du Projet
 
-## Instructions de Soumission
+**Smart·Recrut** est une plateforme web intelligente qui révolutionne le processus de recrutement en utilisant l'intelligence artificielle générative. L'application offre quatre fonctionnalités principales :
 
-1.  **Forkez ce dépôt :** Chaque groupe doit créer un "fork" de ce dépôt pour y travailler.
-2.  **Créez un dossier pour votre groupe :** À la racine de votre fork, créez un dossier unique pour votre groupe (ex: `groupe-alpha`, `projet-rag-chatbot`, etc.).
-3.  **Placez vos livrables :** Tous vos livrables (code, `README.md` de votre projet, slides, etc.) doivent être placés à l'intérieur de ce dossier.
-4.  **Soumettez via une Pull Request :** Une fois votre projet terminé, créez une Pull Request depuis votre fork vers le dépôt principal. La PR doit être soumise au plus tard **l'avant-veille de la présentation finale**.
+1. **Processeur de CVs** : Analyse automatique de CVs (PDF, DOCX, TXT) et génération d'un fichier CSV structuré
+2. **Générateur de Fiches de Poste** : Création automatique de descriptions de poste détaillées à partir d'une simple description
+3. **Base de Fiches** : Gestion et stockage des fiches de poste générées
+4. **Chatbot IA avec RAG** : Assistant conversationnel pour rechercher et analyser les candidats via recherche sémantique
 
-## Sujets Proposés
+## 🎯 Fonctionnalités Clés
 
-Voici quelques pistes de sujets. Vous êtes encouragés à proposer les vôtres.
+### 1. Processeur de CVs
+- Upload de multiples CVs simultanément (PDF, DOCX, TXT)
+- Extraction automatique des informations (compétences, expérience, formation)
+- Export en CSV standardisé pour Excel/Google Sheets
+- Utilisation de GPT-4o-mini pour l'analyse sémantique
 
-### Catégorie : Agents et Systèmes Intelligents
+### 2. Générateur de Fiches de Poste
+- Génération de descriptions détaillées à partir d'une description basique
+- Trois niveaux de verbosité (court, moyen, long)
+- Édition et sauvegarde dans la base de données
+- Export et copie faciles
 
-1.  **Agent RAG pour la documentation du cours**
-    *   Description : Créer un chatbot capable de répondre aux questions des étudiants sur le contenu du cours en se basant sur les supports fournis.
-    *   Technologies clés : RAG, Base de données vectorielle, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+### 3. Base de Fiches
+- Stockage SQLite des fiches générées
+- Visualisation et gestion (éditer, supprimer)
+- Interface intuitive avec cartes interactives
 
-2.  **Agent autonome pour la planification de voyage**
-    *   Description : Créer un agent capable de planifier un itinéraire de voyage en utilisant des outils (recherche web, API) via du "Function Calling".
-    *   Technologies clés : IA Agentique, Function Calling, API externes.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### 4. Chatbot IA avec RAG
+- Upload de CVs au format CSV
+- Recherche sémantique avec FAISS vectorstore
+- Réponses contextualisées basées sur vos documents
+- Support markdown pour formatage des réponses
 
-3.  **Tuteur de code adaptatif**
-    *   Description : Développer un agent qui aide les étudiants à apprendre un concept de programmation en posant des questions et en expliquant les erreurs.
-    *   Technologies clés : Prompt engineering avancé (rôle, CoT), analyse de code.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## 🛠️ Technologies Utilisées
 
-4.  **Agent d'Analyse d'Arguments Hybride**
-    *   Description : Un système qui analyse un débat en utilisant un LLM pour l'analyse informelle (sophismes) et une bibliothèque d'IA symbolique (TweetyProject) pour valider la structure logique.
-    *   Technologies clés : IA Hybride, TweetyProject, LangChain/Semantic Kernel.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+- **Backend** : Flask 3.0.3
+- **IA** : OpenAI API (GPT-4o-mini), LangChain 0.3.7
+- **RAG** : FAISS vectorstore, sentence-transformers 3.3.1
+- **Traitement de données** : pandas 2.2.2, numpy 1.26.4
+- **NLP** : spaCy 3.8.2
+- **Parsing** : pdfminer.six, python-docx 1.1.2
+- **Frontend** : Bootstrap 5.3.3, Vanilla JavaScript
+- **Base de données** : SQLite3
 
-5.  **Simulateur de Scénario Ludique Multi-Agents**
-    *   Description : Concevoir une simulation textuelle (escape game, mini-jeu de rôle) où plusieurs agents IA dotés de personnalités distinctes doivent interagir pour atteindre un objectif.
-    *   Technologies clés : Semantic Kernel (AgentGroupChat), stratégies de conversation.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## 📦 Prérequis
 
-### Catégorie : Applications Métier
+### Versions Requises
+- **Python** : 3.10 ou 3.11 (testé sur Python 3.11.4)
+  - ⚠️ Python 3.9 ou inférieur : non compatible
+  - ⚠️ Python 3.12+ : non testé, peut avoir des problèmes de compatibilité
+- **Système d'exploitation** : Windows 10/11, macOS, Linux
+- **RAM** : Minimum 4 GB recommandé
+- **Espace disque** : ~500 MB pour les dépendances
 
-6.  **Agent de Recrutement Augmenté**
-    *   Description : Développez un outil qui compare un lot de CVs à une fiche de poste et produit un classement justifié des candidats.
-    *   Technologies clés : RAG, extraction d'entités, Pandas.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Clé API OpenAI
+- Vous devez avoir une clé API OpenAI valide
+- Créer un compte sur [platform.openai.com](https://platform.openai.com)
+- Générer une clé API dans la section "API Keys"
+- ⚠️ La clé doit avoir accès au modèle `gpt-4o-mini`
 
-7.  **Veille Concurrentielle Automatisée**
-    *   Description : Créez un agent qui scrape les sites de concurrents et synthétise les informations clés dans un rapport de veille hebdomadaire.
-    *   Technologies clés : Scraping web, analyse et synthèse de texte.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+## 🚀 Installation et Configuration
 
-8.  **Assistant de Réponse à Appel d'Offres**
-    *   Description : Concevez un système qui génère une première ébauche de réponse technique à un appel d'offres en se basant sur le cahier des charges et une base de connaissances interne.
-    *   Technologies clés : RAG, génération de texte long format.
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+### Étape 1 : Cloner le projet
 
-### Catégorie : Génération Multimédia et Créative
+```bash
+git clone https://github.com/BrendaKoundjo/2025-MSMIN5IN52-GenAI-Groupe6.git
+cd 2025-MSMIN5IN52-GenAI-Groupe6/projet6_TALA_SOUZA_KOUNDJO
+```
 
-9.  **Générateur d'histoires multimodales**
-    *   Description : Développer une application qui génère une histoire courte et illustre chaque paragraphe avec une image générée.
-    *   Technologies clés : API OpenAI (GPT-4o, DALL-E 3) ou modèles locaux.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+### Étape 2 : Créer un environnement virtuel
 
-10. **Compositeur de Bandes Sonores d'Ambiance**
-    *   Description : Créez une application qui génère des boucles musicales instrumentales pour des ambiances spécifiques (ex: "forêt mystérieuse", "cyberpunk sous la pluie").
-    *   Technologies clés : API de génération musicale (Suno, Udio, Stable Audio).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+**Sur Windows :**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-11. **Générateur de Storyboards Vidéo**
-    *   Description : Développez un outil qui prend un court scénario et le transforme en une séquence de clips vidéo courts (storyboard animé).
-    *   Technologies clés : LLM pour la scénarisation, API de génération vidéo (Luma Dream Machine).
-    *   Difficulté : ⭐⭐⭐⭐ (Très avancé)
+**Sur macOS/Linux :**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-12. **Créateur d'Assets 3D pour le Prototypage**
-    *   Description : Concevez une application qui génère rapidement des modèles 3D simples à partir d'images ou de textes pour une utilisation dans un moteur de jeu.
-    *   Technologies clés : Modèles Image-to-3D (TripoSR) ou Text-to-3D (Luma Genie).
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+Vous devriez voir `(venv)` apparaître au début de votre ligne de commande.
 
-### Catégorie : Outils de Développement et d'Analyse
+### Étape 3 : Installer les dépendances
 
-13. **Auditeur de biais dans les LLMs**
-    *   Description : Concevoir un outil qui évalue les biais d'un modèle de langage en lui soumettant des prompts standardisés et en analysant les réponses.
-    *   Technologies clés : Prompt engineering, analyse de texte, visualisation de données.
-    *   Difficulté : ⭐⭐ (Intermédiaire)
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-14. **Générateur de Contenu Structuré (CV, Facture, Rapport)**
-    *   Description : Développez un workflow multi-agents qui prend des informations en langage naturel et génère un document structuré au format PDF.
-    *   Technologies clés : Semantic Kernel, ReportLab (pour PDF), gestion de workflow.
-    *   Difficulté : ⭐⭐⭐ (Avancé)
+⏱️ Cette étape peut prendre 5-10 minutes selon votre connexion.
+
+### Étape 4 : Télécharger le modèle spaCy
+
+spaCy nécessite un modèle de langue française :
+
+```bash
+python -m spacy download fr_core_news_sm
+```
+
+### Étape 5 : Configurer les variables d'environnement
+
+Le fichier `.env` est déjà créé avec la configuration par défaut :
+
+```env
+OPENAI_MODEL=gpt-4o-mini
+```
+
+⚠️ **Important** : Vous n'avez PAS besoin d'ajouter votre clé API dans ce fichier. Pour des raisons de sécurité, vous entrerez votre clé directement dans l'interface web.
+
+### Étape 6 : Vérifier la structure des dossiers
+
+Les dossiers nécessaires sont créés automatiquement au lancement, mais vous pouvez les créer manuellement :
+
+```bash
+mkdir -p uploads outputs vectorstore
+```
+
+## 🎮 Lancement de l'Application
+
+### Démarrer le serveur Flask
+
+Dans le dossier `marilson` avec l'environnement virtuel activé :
+
+```bash
+python app.py
+```
+
+Vous devriez voir :
+
+```
+ * Running on http://127.0.0.1:5000
+ * Restarting with stat
+ * Debugger is active!
+```
+
+### Accéder à l'application
+
+Ouvrez votre navigateur et allez à :
+
+```
+http://localhost:5000
+```
+
+ou
+
+```
+http://127.0.0.1:5000
+```
+
+## 📖 Guide d'Utilisation
+
+### 1. Page d'Accueil (Landing Page)
+
+La page d'accueil présente toutes les fonctionnalités. Cliquez sur les boutons pour accéder à chaque section.
+
+### 2. Utiliser le Processeur de CVs
+
+1. Cliquez sur **"Processeur de CVs"** dans le menu
+2. Entrez votre **clé API OpenAI** (cliquez sur l'œil 👁️ pour voir/masquer)
+3. Sélectionnez vos fichiers CVs (PDF, DOCX ou TXT)
+4. Cliquez sur **"Générer le CSV"**
+5. Attendez le traitement (peut prendre 30s-2min selon le nombre de CVs)
+6. Le fichier CSV sera téléchargé automatiquement
+
+**Format du CSV généré :**
+- Colonnes : ID, Name, Resume (description complète)
+- Compatible Excel avec encodage UTF-8-BOM
+
+### 3. Générer une Fiche de Poste
+
+1. Cliquez sur **"Générer une Fiche"** dans le menu
+2. Entrez votre **clé API OpenAI**
+3. Décrivez le poste en quelques mots (ex: "Développeur Python avec 3 ans d'expérience")
+4. Choisissez le niveau de détail (court/moyen/long)
+5. Cliquez sur **"Générer la description"**
+6. Éditez si nécessaire
+7. Sauvegardez dans la base de données ou copiez le texte
+
+### 4. Gérer la Base de Fiches
+
+1. Cliquez sur **"Base de Fiches"** dans le menu
+2. Visualisez toutes les fiches sauvegardées
+3. Cliquez sur **"Modifier"** pour éditer une fiche
+4. Cliquez sur **"Supprimer"** pour retirer une fiche
+
+### 5. Utiliser le Chatbot IA
+
+1. Cliquez sur **"🤖 Chatbot IA"** dans le menu
+2. Entrez votre **clé API OpenAI**
+3. Uploadez un fichier CSV de CVs (colonnes obligatoires : ID, Resume)
+4. Attendez l'indexation (création du vectorstore FAISS)
+5. Posez vos questions en français :
+   - "Trouve-moi un développeur Python avec 3 ans d'expérience"
+   - "Quels candidats ont de l'expérience en IA ?"
+   - "Compare les candidats 123 et 456"
+6. Le chatbot répond en utilisant la recherche sémantique sur vos CVs
+
+## 🔧 Dépannage
+
+### Problème : `ModuleNotFoundError`
+
+**Solution :**
+```bash
+pip install -r requirements.txt
+python -m spacy download fr_core_news_sm
+```
+
+### Problème : `Port 5000 already in use`
+
+**Solution :**
+
+**Windows :**
+```bash
+netstat -ano | findstr :5000
+taskkill /PID <PID> /F
+```
+
+**macOS/Linux :**
+```bash
+lsof -ti:5000 | xargs kill -9
+```
+
+Ou changez le port dans `app.py` :
+```python
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)  # Changez 5000 en 5001
+```
+
+### Problème : `401 Unauthorized` avec OpenAI
+
+**Causes possibles :**
+- Clé API invalide ou expirée
+- Clé API sans accès au modèle `gpt-4o-mini`
+- Quota dépassé
+
+**Solution :**
+- Vérifiez votre clé sur [platform.openai.com](https://platform.openai.com)
+- Vérifiez votre usage et limites
+- Créez une nouvelle clé si nécessaire
+
+### Problème : Erreur lors du parsing de PDF
+
+**Solution :**
+- Vérifiez que le PDF n'est pas protégé par mot de passe
+- Vérifiez que le PDF contient du texte (pas une image scannée)
+- Essayez de convertir le PDF en DOCX ou TXT
+
+### Problème : Le chatbot ne trouve pas de résultats pertinents
+
+**Solutions :**
+- Assurez-vous que le CSV contient bien les colonnes `ID` et `Resume`
+- Vérifiez que la colonne `Resume` contient des textes suffisamment détaillés
+- Reformulez votre question de manière plus spécifique
+
+### Problème : `Error: Python version`
+
+Si vous avez plusieurs versions de Python installées :
+
+**Windows :**
+```bash
+py -3.11 -m venv venv
+```
+
+**macOS/Linux :**
+```bash
+python3.11 -m venv venv
+```
+
+## 📁 Structure du Projet
+
+```
+projet6_TALA_SOUZA_KOUNDJO/
+├── app.py                      # Application Flask principale
+├── requirements.txt            # Dépendances Python
+├── .env                        # Variables d'environnement
+├── job_descriptions.db         # Base de données SQLite (créée automatiquement)
+│
+├── matching/                   # Modules de traitement
+│   ├── job_generator.py        # Génération de fiches de poste
+│   ├── cv_processor.py         # Traitement des CVs
+│   ├── cv_chatbot.py           # Chatbot RAG avec FAISS
+│   ├── parse.py                # Parsing de fichiers (PDF, DOCX, TXT)
+│   ├── ner.py                  # Extraction d'entités nommées
+│   ├── rag.py                  # Logique RAG (non utilisé actuellement)
+│   └── ranker.py               # Classement de candidats (non utilisé actuellement)
+│
+├── templates/                  # Templates HTML (Jinja2)
+│   ├── base.html               # Template de base
+│   ├── landing.html            # Page d'accueil
+│   ├── index.html              # Processeur de CVs
+│   ├── generate.html           # Générateur de fiches
+│   ├── fiches.html             # Base de fiches
+│   ├── results.html            # Résultats de traitement
+│   └── chatbot.html            # Interface chatbot
+│
+├── static/                     # Fichiers statiques
+│   └── style.css               # Styles CSS personnalisés
+│
+├── uploads/                    # Dossier temporaire pour uploads (créé automatiquement)
+├── outputs/                    # Fichiers CSV générés (créé automatiquement)
+└── vectorstore/                # Base vectorielle FAISS (créée automatiquement)
+```
+
+## 🔒 Sécurité et Confidentialité
+
+- ✅ **Clés API non stockées** : Votre clé OpenAI est utilisée uniquement côté client (localStorage)
+- ✅ **Pas de stockage permanent** : Les CVs uploadés sont traités puis supprimés
+- ✅ **Base de données locale** : SQLite stocké localement sur votre machine
+- ✅ **Aucun tracking** : Aucune donnée n'est envoyée à des services tiers (sauf OpenAI pour le traitement)
+
+## 📝 Notes Importantes
+
+1. **Coûts OpenAI** : L'utilisation de l'API OpenAI est payante. Le modèle `gpt-4o-mini` est économique (~$0.15 pour 1000 CVs de taille moyenne).
+
+2. **Formats de CVs** :
+   - PDF : Fonctionne avec la plupart des PDFs (texte extractible)
+   - DOCX : Format Microsoft Word
+   - TXT : Fichiers texte brut
+
+3. **Limitations** :
+   - Taille max par fichier : ~10 MB (configurable dans Flask)
+   - Le traitement est séquentiel (pas de parallélisation)
+   - Le chatbot nécessite un CSV au format spécifique (colonnes ID et Resume)
+
+4. **Performance** :
+   - 1 CV : ~3-5 secondes
+   - 10 CVs : ~30-50 secondes
+   - 50 CVs : ~3-5 minutes
+
+## 🤝 Contribution
+
+Ce projet est développé dans un cadre académique. Pour toute question ou amélioration :
+
+1. Ouvrez une issue sur GitHub
+2. Proposez une pull request
+3. Contactez l'équipe du projet
+
+## 👥 Équipe
+
+**Groupe 6 - Projet GenAI 2025**
+
+- KOUNDJO Brenda
+- SOUZA Marilson  
+- TALA Lamyae
+
+## 📄 Licence
+
+Projet académique - 2025 - Usage pédagogique uniquement
 
 ---
-Pour toutes les autres informations (planning, critères d'évaluation détaillés), veuillez vous référer au document de modalités fourni dans le dossier du cours.
 
-Bon projet à tous !
+**Dernière mise à jour** : Novembre 2025
+
+Pour toute question ou problème, consultez la section [Dépannage](#-dépannage) ou ouvrez une issue sur GitHub.

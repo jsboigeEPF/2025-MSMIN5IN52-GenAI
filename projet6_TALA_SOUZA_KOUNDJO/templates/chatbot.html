@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <!-- Left sidebar: Upload CSV -->
+  <div class="col-md-3 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title text-primary mb-3">📁 Import CVs</h5>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label small">Fichier CSV de CVs</label>
+            <input type="file" class="form-control form-control-sm" id="csvFile" accept=".csv" required>
+            <small class="text-muted">Doit contenir les colonnes ID et Resume</small>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100" id="uploadBtn">
+            <span class="spinner-border spinner-border-sm d-none" id="uploadSpinner"></span>
+            Charger les CVs
+          </button>
+        </form>
+        
+        <div id="uploadStatus" class="mt-3 small"></div>
+        
+        <hr class="my-3">
+        
+        <div class="mb-2">
+          <strong class="small">📊 Statistiques</strong>
+        </div>
+        <div class="small text-muted">
+          <div>CVs chargés: <span id="cvCount" class="badge bg-secondary">0</span></div>
+          <div class="mt-1">Mode RAG: <span id="ragMode" class="badge bg-info">Actif</span></div>
+        </div>
+        
+        <hr class="my-3">
+        
+        <div class="mb-2">
+          <label class="form-label">Clé API OpenAI</label>
+          <div class="input-group mb-2">
+            <input type="password" class="form-control" id="openai_key_chatbot" placeholder="sk-..." autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="toggleKeyChatbot">&#128065;</button>
+          </div>
+          <small class="form-text text-muted">Votre clé n'est jamais stockée côté serveur.</small>
+          <strong class="small mt-3 d-block">💡 Suggestions</strong>
+        </div>
+        <div class="d-grid gap-1">
+          <button class="btn btn-outline-secondary btn-sm text-start" onclick="suggestQuery('Trouve-moi un développeur Python avec 3 ans d\'expérience')">
+            Développeur Python
+          </button>
+          <button class="btn btn-outline-secondary btn-sm text-start" onclick="suggestQuery('Qui a de l\'expérience en machine learning?')">
+            Expert ML
+          </button>
+          <button class="btn btn-outline-secondary btn-sm text-start" onclick="suggestQuery('Liste les candidats qui parlent français')">
+            Candidats francophones
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main chat area -->
+  <div class="col-md-9">
+    <div class="card border-0 shadow-sm" style="height: 80vh;">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">🤖 Assistant de Recrutement IA</h5>
+        <small>Posez vos questions sur les CVs ou les fiches de poste</small>
+      </div>
+      
+      <div class="card-body d-flex flex-column" style="overflow: hidden;">
+        <!-- Chat messages -->
+        <div id="chatMessages" class="flex-grow-1 overflow-auto mb-3" style="max-height: calc(80vh - 180px);">
+          <div class="message-ai mb-3">
+            <div class="d-flex align-items-start">
+              <div class="bg-primary text-white rounded-circle p-2 me-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                🤖
+              </div>
+              <div class="flex-grow-1">
+                <div class="bg-light p-3 rounded">
+                  <strong>Assistant IA</strong>
+                  <p class="mb-0 mt-2">
+                    Bonjour! Je suis votre assistant de recrutement. 
+                    <br><br>
+                    <strong>Comment m'utiliser:</strong>
+                    <br>1️⃣ Chargez un fichier CSV de CVs (avec colonnes ID et Resume)
+                    <br>2️⃣ Posez-moi des questions sur les candidats
+                    <br>3️⃣ Je peux aussi accéder aux fiches de poste sauvegardées
+                    <br><br>
+                    Exemples de questions:
+                    <br>• "Trouve-moi les meilleurs candidats pour un poste de développeur Python"
+                    <br>• "Quels candidats ont de l'expérience en IA?"
+                    <br>• "Compare les candidats 123 et 456"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input area -->
+        <div class="mt-auto">
+          <form id="chatForm">
+            <div class="input-group">
+              <input type="text" class="form-control" id="userMessage" 
+                     placeholder="Tapez votre question ici..." 
+                     autocomplete="off" required>
+              <button type="submit" class="btn btn-primary" id="sendBtn">
+                <span class="spinner-border spinner-border-sm d-none" id="sendSpinner"></span>
+                📤 Envoyer
+              </button>
+            </div>
+          </form>
+          <div class="small text-muted mt-2">
+            💡 Astuce: Mentionnez des IDs de candidats ou décrivez le poste recherché
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+#chatMessages {
+  scroll-behavior: smooth;
+}
+
+.message-user {
+  text-align: right;
+}
+
+.message-user .bg-primary {
+  display: inline-block;
+  max-width: 70%;
+  text-align: left;
+}
+
+.message-ai .bg-light {
+  max-width: 100%;
+}
+
+.message-loading {
+  opacity: 0.7;
+}
+</style>
+
+<script>
+let cvCount = 0;
+let eventSource = null;
+
+// Upload CSV
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const fileInput = document.getElementById('csvFile');
+  const spinner = document.getElementById('uploadSpinner');
+  const statusDiv = document.getElementById('uploadStatus');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const apiKey = document.getElementById('openai_key_chatbot').value;
+  
+  if (!apiKey) {
+    statusDiv.innerHTML = '<div class="alert alert-warning py-1">Veuillez entrer votre clé API OpenAI</div>';
+    return;
+  }
+  
+  if (!fileInput.files[0]) {
+    statusDiv.innerHTML = '<div class="alert alert-warning py-1">Veuillez sélectionner un fichier</div>';
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('csv_file', fileInput.files[0]);
+  formData.append('api_key', apiKey);
+  
+  spinner.classList.remove('d-none');
+  uploadBtn.disabled = true;
+  statusDiv.innerHTML = '<div class="alert alert-info py-1">Chargement et indexation...</div>';
+  
+  try {
+    const response = await fetch('/chatbot/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      cvCount = data.cv_count;
+      document.getElementById('cvCount').textContent = cvCount;
+      statusDiv.innerHTML = `<div class="alert alert-success py-1">✅ ${cvCount} CVs chargés</div>`;
+    } else {
+      statusDiv.innerHTML = `<div class="alert alert-danger py-1">❌ ${data.error}</div>`;
+    }
+  } catch (error) {
+    statusDiv.innerHTML = `<div class="alert alert-danger py-1">❌ Erreur: ${error}</div>`;
+  } finally {
+    spinner.classList.add('d-none');
+    uploadBtn.disabled = false;
+  }
+});
+
+// Send message
+document.getElementById('chatForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const input = document.getElementById('userMessage');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  if (cvCount === 0) {
+    alert('Veuillez d\'abord charger un fichier CSV de CVs');
+    return;
+  }
+  
+  // Add user message
+  addMessage('user', message);
+  input.value = '';
+  
+  // Show loading
+  const loadingId = addMessage('ai', 'Réflexion en cours...', true);
+  
+  // Disable input
+  const sendBtn = document.getElementById('sendBtn');
+  const spinner = document.getElementById('sendSpinner');
+  input.disabled = true;
+  sendBtn.disabled = true;
+  spinner.classList.remove('d-none');
+  
+  try {
+    // Use Server-Sent Events for streaming
+    if (eventSource) {
+      eventSource.close();
+    }
+    
+    eventSource = new EventSource(`/chatbot/chat?message=${encodeURIComponent(message)}`);
+    let fullResponse = '';
+    let messageDiv = null;
+    
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      if (data.done) {
+        eventSource.close();
+        input.disabled = false;
+        sendBtn.disabled = false;
+        spinner.classList.add('d-none');
+        
+        // Remove loading message
+        const loadingElem = document.getElementById(loadingId);
+        if (loadingElem) loadingElem.remove();
+      } else if (data.error) {
+        eventSource.close();
+        document.getElementById(loadingId).querySelector('.bg-light p').textContent = `❌ Erreur: ${data.error}`;
+        document.getElementById(loadingId).classList.remove('message-loading');
+        input.disabled = false;
+        sendBtn.disabled = false;
+        spinner.classList.add('d-none');
+      } else {
+        fullResponse += data.content;
+        
+        // Remove loading and create real message on first chunk
+        if (!messageDiv) {
+          const loadingElem = document.getElementById(loadingId);
+          if (loadingElem) loadingElem.remove();
+          messageDiv = document.getElementById(addMessage('ai', fullResponse));
+        } else {
+          // Patch: use innerHTML for markdown rendering
+          messageDiv.querySelector('.ai-message-content').innerHTML = renderAIMessage(fullResponse);
+        }
+        
+        // Auto-scroll
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+      }
+    };
+    
+    eventSource.onerror = () => {
+      eventSource.close();
+      document.getElementById(loadingId).querySelector('.bg-light p').textContent = '❌ Erreur de connexion';
+      document.getElementById(loadingId).classList.remove('message-loading');
+      input.disabled = false;
+      sendBtn.disabled = false;
+      spinner.classList.add('d-none');
+    };
+    
+  } catch (error) {
+    document.getElementById(loadingId).querySelector('.bg-light p').textContent = `❌ ${error}`;
+    document.getElementById(loadingId).classList.remove('message-loading');
+    input.disabled = false;
+    sendBtn.disabled = false;
+    spinner.classList.add('d-none');
+  }
+});
+
+function renderAIMessage(raw) {
+  if (!raw) return '';
+  // Escape HTML first
+  let s = raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  // Headings: ###
+  s = s.replace(/^### (.*)$/gm, '<h4>$1</h4>');
+  // Bold: **text**
+  s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Normalize line endings
+  s = s.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Paragraphs: split on double newlines
+  const paragraphs = s.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  return paragraphs.map(p => '<p>' + p.replace(/\n/g, '<br>') + '</p>').join('');
+}
+
+// OpenAI key toggle and localStorage for chatbot page
+document.addEventListener('DOMContentLoaded', function() {
+  const keyInput = document.getElementById('openai_key_chatbot');
+  const toggleBtn = document.getElementById('toggleKeyChatbot');
+  keyInput.value = localStorage.getItem('openai_key') || '';
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (keyInput.type === 'password') {
+      keyInput.type = 'text';
+      this.innerHTML = '&#128584;'; // Closed eye (see-no-evil)
+    } else {
+      keyInput.type = 'password';
+      this.innerHTML = '&#128065;'; // Open eye
+    }
+  });
+  keyInput.addEventListener('input', function() {
+    localStorage.setItem('openai_key', keyInput.value);
+  });
+});
+
+function addMessage(type, content, isLoading = false) {
+  const messagesDiv = document.getElementById('chatMessages');
+  const messageId = 'msg-' + Date.now();
+  
+  if (type === 'user') {
+    messagesDiv.innerHTML += `
+      <div class="message-user mb-3" id="${messageId}">
+        <div class="d-flex align-items-start justify-content-end">
+          <div class="flex-grow-1"></div>
+          <div class="bg-primary text-white p-3 rounded">
+            <strong>Vous</strong>
+            <p class="mb-0 mt-2">${escapeHtml(content)}</p>
+          </div>
+          <div class="bg-secondary text-white rounded-circle p-2 ms-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+            👤
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    const loadingClass = isLoading ? 'message-loading' : '';
+    messagesDiv.innerHTML += `
+      <div class="message-ai mb-3 ${loadingClass}" id="${messageId}">
+        <div class="d-flex align-items-start">
+          <div class="bg-primary text-white rounded-circle p-2 me-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+            🤖
+          </div>
+          <div class="flex-grow-1">
+            <div class="bg-light p-3 rounded">
+              <strong>Assistant IA</strong>
+              <div class="mb-0 mt-2 ai-message-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    // Set innerHTML for AI message content
+    setTimeout(() => {
+      const msgElem = document.getElementById(messageId);
+      if (msgElem) {
+        msgElem.querySelector('.ai-message-content').innerHTML = renderAIMessage(content);
+      }
+    }, 0);
+  }
+  
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  return messageId;
+}
+
+function suggestQuery(query) {
+  document.getElementById('userMessage').value = query;
+  document.getElementById('userMessage').focus();
+}
+
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/\n/g, '<br>');
+}
+</script>
+{% endblock %}

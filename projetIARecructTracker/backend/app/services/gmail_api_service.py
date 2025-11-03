@@ -143,7 +143,7 @@ class GmailAPIService:
             
             # Calculer la date limite pour le filtrage côté serveur
             date_limit = datetime.now() - timedelta(days=days_back)
-            
+            new_emails = []
             for message_info in messages:
                 try:
                     message_id = message_info["id"]
@@ -174,6 +174,8 @@ class GmailAPIService:
                     if email_data:
                         email_obj = Email(**email_data)
                         self.db.add(email_obj)
+                        self.db.flush()  # Assurer un ID pour le traitement NLP
+                        new_emails.append(email_obj)
                         synced_count += 1
                         
                 except Exception as e:
@@ -182,9 +184,28 @@ class GmailAPIService:
                     continue
             
             # Sauvegarder en lot
+            application_results = None
             if synced_count > 0:
                 self.db.commit()
                 
+                # Lancer automatiquement l'analyse NLP sur les nouveaux emails
+                from app.nlp.nlp_orchestrator import NLPOrchestrator
+                orchestrator = NLPOrchestrator(self.db)
+                
+                for email_obj in new_emails:
+                    try:
+                        await orchestrator.process_email_complete(email_obj)
+                    except Exception as e:
+                        logger.error(f"Erreur NLP post-synchronisation pour l'email {email_obj.id}: {str(e)}")
+            else:
+                # Aucun nouvel email : s'assurer que la session ne garde pas de nouvelles instances
+                self.db.rollback()
+            
+            # Toujours tenter la conversion des emails classifiés en candidatures
+            from app.services.email_to_application_service import EmailToApplicationService
+            email_to_app = EmailToApplicationService(self.db)
+            application_results = email_to_app.process_classified_emails()
+            
             logger.info(f"Synchronisation Gmail terminée pour l'utilisateur {user.id}: "
                        f"{synced_count} nouveaux, {skipped_count} ignorés, {error_count} erreurs")
             
@@ -193,7 +214,8 @@ class GmailAPIService:
                 "synced_emails": synced_count,
                 "skipped_emails": skipped_count,
                 "errors": error_count,
-                "total_processed": len(messages)
+                "total_processed": len(messages),
+                "applications": application_results
             }
             
         except Exception as e:

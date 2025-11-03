@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -167,7 +167,8 @@ import { Email, ProcessEmailRequest, NLPProcessingResult } from '../../models';
             </div>
           } @else {
             <div class="emails-list">
-              @for (email of emails(); track email.id) {
+              @let paginatedEmails = getPaginatedEmails();
+              @for (email of paginatedEmails; track email.id) {
                 <div class="email-card" [routerLink]="['/emails', email.id]">
                   <div class="email-header">
                     <div class="email-info">
@@ -192,6 +193,11 @@ import { Email, ProcessEmailRequest, NLPProcessingResult } from '../../models';
                   </div>
                 </div>
               }
+            </div>
+            <div class="pagination" *ngIf="emails().length > pageSize">
+              <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">←</button>
+              <span class="page-info">Page {{ currentPage() }} / {{ totalPages() }}</span>
+              <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">→</button>
             </div>
           }
         </div>
@@ -465,6 +471,40 @@ import { Email, ProcessEmailRequest, NLPProcessingResult } from '../../models';
       line-height: 1.4;
     }
 
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .page-btn {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .page-btn:disabled {
+      background: #cbd5f5;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: #4b5563;
+      font-weight: 600;
+    }
+
     .email-footer {
       margin-top: 15px;
       padding-top: 15px;
@@ -486,6 +526,12 @@ export class EmailsListComponent implements OnInit {
   error = signal<string | null>(null);
   processingTest = signal(false);
   nlpResult = signal<NLPProcessingResult | null>(null);
+  currentPage = signal(1);
+  readonly pageSize = 10;
+  totalPages = computed(() => {
+    const total = this.emails().length;
+    return Math.max(1, Math.ceil(total / this.pageSize));
+  });
 
   testEmail: ProcessEmailRequest = {
     subject: '',
@@ -514,6 +560,7 @@ export class EmailsListComponent implements OnInit {
     observable.subscribe({
       next: (response: any) => {
         this.emails.set(response.items || response || []);
+        this.currentPage.set(1);
         this.loading.set(false);
       },
       error: (error) => {
@@ -531,6 +578,37 @@ export class EmailsListComponent implements OnInit {
 
   refreshEmails() {
     this.loadEmails();
+  }
+
+  getPaginatedEmails(): Email[] {
+    const emails = this.emails();
+    const total = Math.max(1, Math.ceil(emails.length / this.pageSize));
+    if (this.currentPage() > total) {
+      this.currentPage.set(total);
+    }
+    if (this.currentPage() < 1) {
+      this.currentPage.set(1);
+    }
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return emails.slice(start, start + this.pageSize);
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
   }
 
   loadSampleEmail() {

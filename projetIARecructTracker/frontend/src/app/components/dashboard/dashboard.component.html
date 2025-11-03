@@ -19,22 +19,28 @@
     <div class="stats-grid">
       <div class="stat-card applications">
         <div class="stat-value">{{ stats.totalApplications }}</div>
-        <div class="stat-label">Candidatures</div>
+        <div class="stat-label">Candidatures totales</div>
+        <div class="stat-subtitle" *ngIf="stats.manualApplications">
+          Dont {{ stats.manualApplications }} saisies manuellement
+        </div>
       </div>
       
-      <div class="stat-card companies">
-        <div class="stat-value">{{ stats.totalCompanies }}</div>
-        <div class="stat-label">Entreprises</div>
+      <div class="stat-card automation">
+        <div class="stat-value">{{ stats.autoCreatedApplications }}</div>
+        <div class="stat-label">Créées par l'IA</div>
+        <div class="stat-subtitle">
+          Taux d'automatisation&nbsp;: {{ stats.automationRate }}%
+        </div>
       </div>
       
-      <div class="stat-card offers">
-        <div class="stat-value">{{ stats.totalOffers }}</div>
-        <div class="stat-label">Offres d'emploi</div>
+      <div class="stat-card linked-emails">
+        <div class="stat-value">{{ stats.linkedEmails }}</div>
+        <div class="stat-label">Emails liés aux candidatures</div>
       </div>
       
-      <div class="stat-card emails">
-        <div class="stat-value">{{ stats.totalEmails }}</div>
-        <div class="stat-label">Emails</div>
+      <div class="stat-card pending-emails">
+        <div class="stat-value">{{ stats.unprocessedEmails }}</div>
+        <div class="stat-label">Emails à traiter</div>
       </div>
     </div>
 
@@ -63,14 +69,14 @@
               </thead>
               <tbody>
                 <tr *ngFor="let app of stats.recentApplications">
-                  <td>{{ app.job_offer?.title || 'N/A' }}</td>
-                  <td>{{ app.company?.name || 'N/A' }}</td>
+                  <td>{{ app.job_title || app.job_offer?.title || 'N/A' }}</td>
+                  <td>{{ app.company_name || app.company?.name || 'N/A' }}</td>
                   <td>
                     <span [class]="getStatusBadgeClass(app.status)">
-                      {{ app.status }}
+                      {{ getStatusLabel(app.status) }}
                     </span>
                   </td>
-                  <td>{{ formatDate(app.created_at) }}</td>
+                  <td>{{ formatDate(app.created_at || app.applied_date || app.updated_at) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -97,7 +103,9 @@
           <div *ngIf="Object.keys(stats.applicationsByStatus).length > 0">
             <div *ngFor="let status of Object.keys(stats.applicationsByStatus)" 
                  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-              <span [class]="getStatusBadgeClass(status)">{{ status }}</span>
+              <span [class]="getStatusBadgeClass(status)">
+                {{ getStatusLabel(status) }}
+              </span>
               <span style="font-weight: 600; font-size: 18px;">{{ stats.applicationsByStatus[status] }}</span>
             </div>
           </div>

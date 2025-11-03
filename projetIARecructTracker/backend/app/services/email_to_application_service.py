@@ -28,6 +28,7 @@ class EmailToApplicationService:
         emails_to_process = self.db.query(Email).filter(
             Email.application_id.is_(None),
             Email.classification.in_([
+                EmailClassification.ACK.value,
                 EmailClassification.INTERVIEW.value,
                 EmailClassification.OFFER.value,
                 EmailClassification.REQUEST.value,
@@ -64,12 +65,21 @@ class EmailToApplicationService:
         """
         Crée une nouvelle candidature ou lie à une existante basé sur l'email
         """
+        if not self._is_recruitment_email(email):
+            logger.info(f"Email {email.id} ignoré: contenu non lié au recrutement.")
+            return None
+
         # Extraire les informations de l'email
         company_name = self._extract_company_name(email)
         job_title = self._extract_job_title(email)
         
+        if not email.user_id:
+            logger.warning(f"Email {email.id} has no user_id; skipping automatic application creation.")
+            return None
+        
         # Chercher une candidature existante pour la même entreprise
         existing_application = self.db.query(Application).filter(
+            Application.user_id == email.user_id,
             Application.company_name.ilike(f"%{company_name}%")
         ).first()
         
@@ -89,10 +99,97 @@ class EmailToApplicationService:
             notes=f"Créé automatiquement à partir de l'email: {email.subject}\n\nContenu: {email.snippet[:200]}..."
         )
         
-        application = self.application_service.create_application(application_data)
+        application = self.application_service.create_application(application_data, email.user_id)
         application._newly_created = True  # Marquer comme nouvellement créé
         
         return application
+
+    def _is_recruitment_email(self, email: Email) -> bool:
+        """
+        Vérifie qu'un email est réellement lié au recrutement avant de créer une candidature.
+        """
+        subject = (email.subject or "").lower()
+        content = (email.raw_body or email.snippet or "").lower()
+        sender = (email.sender or "").lower()
+        text = f"{subject} {content}"
+
+        # Keywords positifs
+        strong_keywords = [
+            'candidature', 'recrutement', 'entretien', 'entervue',
+            'cv', 'curriculum', 'profil', 'processus de recrutement',
+            'application', 'applicant', 'hiring', 'candidate', 'interview',
+            'talent acquisition', 'rh', 'ressources humaines', 'notre équipe rh',
+            'thank you for applying', 'we received your application',
+            'offre d\'emploi', 'offer letter', 'contrat de travail'
+        ]
+        weak_keywords = [
+            'poste', 'position', 'emploi', 'job', 'mission', 'stage',
+            'offre', 'opportunité', 'career', 'team', 'manager', 'full stack',
+            'développeur', 'ingénieur', 'product', 'data', 'developer',
+            'software', 'technique', 'rejoindre', 'process', 'hiring manager'
+        ]
+        recruitment_phrases = [
+            'votre candidature', 'nous avons bien reçu votre candidature',
+            'processus de recrutement', 'prochaine étape', 'merci pour votre candidature',
+            'nous reviendrons vers vous', 'suite à votre candidature',
+            'entretien prévu', 'planifier un entretien', 'convocation',
+            'selection process', 'your application'
+        ]
+
+        # Keywords ou domaines à exclure
+        exclusion_keywords = [
+            'newsletter', 'promotion', 'bons plans', 'bon plan', 'événement', 'abonnement', 'publicité',
+            'réduction', 'réductions', 'remise', 'remises', 'vente', 'soldes', 'billet', 'concert', 'festival',
+            'avis client', 'parrainage', 'streaming', 'film', 'serie', 'évènement', 'code promo', 'livraison gratuite',
+            'livraison express', 'cashback', 'catalogue', 'nouvelle collection', 'lookbook', 'magasin',
+            'panier', 'shopping', 'promotionnelle', 'newsletter', 'bons d\'achat', 'bons d’achat',
+            'unsubscribe', 'se désabonner', 'désabonner', 'préférences d\'abonnement', 'preferences marketing',
+            'gérer mes préférences', 'view in browser', 'voir dans le navigateur', 'special offer',
+            'exclusive offer', 'save up to', 'flash sale', 'soldes exceptionnelles', 'promo exceptionnelle',
+            'financement disponible'
+        ]
+        exclusion_domains = [
+            'spotify', 'netflix', 'youtube', 'deezer', 'ticketmaster',
+            'allocine', 'eventbrite', 'meetup', 'mailchimp', 'sendgrid',
+            'zalando', 'carrefour', 'myunidays', 'promopro', 'vente-privee',
+            'groupon', 'promotions', 'journee-offres'
+        ]
+        marketing_patterns = [
+            r'\b\d{1,2}\s*%(\s*de)?\s*(réduction|off)\b',
+            r'\b(code|coupon)\s+promo\b',
+            r'\boffre\s+(?:spéciale|exclusive)\b',
+            r'\bvente\s+flash\b',
+            r'\bacheter\s+maintenant\b',
+            r'livraison\s+(?:gratuite|offerte)',
+            r'\bprofitez-en\b',
+            r'\bremise\s+exceptionnelle\b'
+        ]
+
+        text_with_sender = f"{text} {sender}"
+
+        if any(domain in sender for domain in exclusion_domains):
+            return False
+        if any(keyword in text_with_sender for keyword in exclusion_keywords):
+            return False
+        if any(re.search(pattern, text_with_sender) for pattern in marketing_patterns):
+            return False
+
+        strong_hits = sum(1 for keyword in strong_keywords if keyword in text)
+        phrase_hits = sum(1 for phrase in recruitment_phrases if phrase in text)
+        weak_hits = sum(1 for keyword in weak_keywords if keyword in text)
+
+        if strong_hits > 0 or phrase_hits > 0:
+            return True
+
+        # Pour les emails sans mots forts, exiger au moins deux mots faibles ET une structure typique
+        context_markers = [
+            'candidature', 'candidat', 'candidate', 'recrutement', 'ressources humaines',
+            'entrevue', 'entretien', 'processus de recrutement', 'talent', 'profil', 'cv',
+            'application', 'applicant', 'hiring process', 'recruter', 'position ouverte',
+            'stage', 'internship'
+        ]
+
+        return weak_hits >= 3 and any(marker in text for marker in context_markers)
 
     def _extract_company_name(self, email: Email) -> str:
         """
@@ -171,6 +268,7 @@ class EmailToApplicationService:
         return self.db.query(Email).filter(
             Email.application_id.is_(None),
             Email.classification.in_([
+                EmailClassification.ACK.value,
                 EmailClassification.INTERVIEW.value,
                 EmailClassification.OFFER.value,
                 EmailClassification.REQUEST.value,

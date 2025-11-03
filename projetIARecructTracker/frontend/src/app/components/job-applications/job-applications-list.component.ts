@@ -1,5 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { JobApplicationService } from '../../services/job-application.service';
 import { JobApplication } from '../../models';
@@ -7,7 +8,7 @@ import { JobApplication } from '../../models';
 @Component({
   selector: 'app-job-applications-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="applications-container">
       <div class="page-header">
@@ -45,6 +46,48 @@ import { JobApplication } from '../../models';
 
       <!-- Liste des candidatures -->
       <div class="applications-list">
+        <div class="filters-toolbar">
+          <div class="search-field">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Rechercher une candidature (poste, entreprise, notes...)"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearchChange($event)"
+            />
+            @if (searchTerm()) {
+              <button class="clear-button" (click)="searchTerm.set('')">✕</button>
+            }
+          </div>
+          <div class="filter-chips">
+            @for (option of statusFilterOptions; track option.value) {
+              <button
+                class="filter-chip"
+                [class.active]="activeStatusFilter() === option.value"
+                (click)="setStatusFilter(option.value)">
+                {{ option.label }}
+                <span class="chip-count">{{ getFilterCount(option.value) }}</span>
+              </button>
+            }
+            <button class="reset-filters" (click)="resetFilters()">Réinitialiser</button>
+          </div>
+        </div>
+
+        <div class="bulk-actions" *ngIf="jobApplications.length">
+          <span>{{ getFilteredApplications().length }} résultat(s)</span>
+          <button 
+            class="btn btn-sm btn-danger"
+            (click)="confirmDeleteFiltered()"
+            [disabled]="getFilteredApplications().length === 0">
+            🗑️ Supprimer les {{ getFilteredApplications().length }} affichées
+          </button>
+          <button 
+            class="btn btn-sm btn-danger outline"
+            (click)="confirmDeleteAll()">
+            🧹 Supprimer toutes les candidatures
+          </button>
+        </div>
+
         @if (loading) {
           <div class="loading-card">
             <div class="loading-spinner"></div>
@@ -66,19 +109,36 @@ import { JobApplication } from '../../models';
             </button>
           </div>
         } @else {
-          @for (application of jobApplications; track application.id) {
+          @let filtered = getFilteredApplications();
+          @if (filtered.length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon">🔎</div>
+              <h3>Aucune candidature ne correspond aux filtres</h3>
+              <p>Modifiez votre recherche ou réinitialisez les filtres.</p>
+              <button class="btn btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
+            </div>
+          } @else {
+          @let paginated = getPaginatedApplications(filtered);
+          @for (application of paginated; track application.id) {
             <div class="application-card" [class]="'status-' + application.status.toLowerCase()">
               <div class="card-header">
                 <div class="card-title-section">
-                  <h3 class="application-id">Candidature #{{ application.id }}</h3>
+                  <h3 class="application-id">
+                    {{ application.job_title || 'Candidature' }}
+                  </h3>
                   <div class="application-info">
-                    <span class="application-details">Offre: {{ application.job_offer_id }}</span>
+                    <span class="application-details">
+                      {{ application.company_name || 'Entreprise inconnue' }}
+                    </span>
+                    @if (application.source) {
+                      <span class="application-source">• {{ application.source }}</span>
+                    }
                   </div>
                 </div>
                 <div class="card-actions">
                   <div class="status-management">
                     <div class="status-inputs">
-                      <span class="status-badge" [class]="'badge-' + application.status.toLowerCase()">
+                      <span [ngClass]="getStatusBadgeClass(application.status)">
                         {{ getStatusLabel(application.status) }}
                       </span>
                       <select
@@ -180,10 +240,19 @@ import { JobApplication } from '../../models';
                             [queryParams]="{application_id: application.id}">
                       📧 Voir emails liés
                     </button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteApplication(application.id)">
+                      🗑️ Supprimer
+                    </button>
                   </div>
                 </div>
               }
             </div>
+          }
+          <div class="pagination" *ngIf="filtered.length > pageSize">
+            <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1">←</button>
+            <span class="page-info">Page {{ currentPage() }} / {{ totalPages() }}</span>
+            <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()">→</button>
+          </div>
           }
         }
       </div>
@@ -288,12 +357,162 @@ import { JobApplication } from '../../models';
       gap: 20px;
     }
 
+    .filters-toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .bulk-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    .btn.btn-sm.btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn.btn-sm.btn-danger.outline {
+      background: #fff;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+    }
+
+    .search-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .search-field input {
+      border: none;
+      background: transparent;
+      flex: 1;
+      padding: 4px 8px;
+      font-size: 14px;
+      outline: none;
+      color: #1f2933;
+    }
+
+    .search-icon {
+      font-size: 16px;
+      color: #6b7280;
+    }
+
+    .clear-button {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #374151;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-chip.active {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+    }
+
+    .chip-count {
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+    }
+
+    .filter-chip.active .chip-count {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .reset-filters {
+      border: none;
+      background: transparent;
+      color: #2563eb;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+    }
+
     .loading-card, .empty-state, .error-card {
       background: white;
       padding: 60px 20px;
       border-radius: 12px;
       text-align: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .page-btn {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .page-btn:disabled {
+      background: #cbd5f5;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 14px;
+      color: #4b5563;
+      font-weight: 600;
     }
 
     .loading-spinner {
@@ -355,9 +574,18 @@ import { JobApplication } from '../../models';
       font-size: 1.3em;
     }
 
-    .application-details {
+    .application-info {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
       color: #666;
       font-size: 14px;
+    }
+
+    .application-source {
+      font-size: 12px;
+      color: #999;
     }
 
     .card-actions {
@@ -419,22 +647,26 @@ import { JobApplication } from '../../models';
     }
 
     .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 6px 12px;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: 12px;
-      font-weight: bold;
+      font-weight: 600;
       text-transform: uppercase;
     }
 
-    .badge-applied { background: #e3f2fd; color: #1976d2; }
-    .badge-acknowledged { background: #e8f5e8; color: #388e3c; }
-    .badge-screening { background: #fff3e0; color: #f57c00; }
-    .badge-interview { background: #fff3e0; color: #f57c00; }
-    .badge-technical_test { background: #f3e5f5; color: #7b1fa2; }
-    .badge-offer { background: #e0f2f1; color: #00796b; }
-    .badge-rejected { background: #ffebee; color: #d32f2f; }
-    .badge-accepted { background: #e8f5e8; color: #388e3c; }
-    .badge-withdrawn { background: #f5f5f5; color: #666; }
+    .status-badge.applied { background: #e3f2fd; color: #1d4ed8; }
+    .status-badge.acknowledged { background: #f5f3ff; color: #5b21b6; }
+    .status-badge.screening { background: #fff7ed; color: #c2410c; }
+    .status-badge.interview { background: #e0f2fe; color: #0369a1; }
+    .status-badge.test { background: #fce7f3; color: #be185d; }
+    .status-badge.offer { background: #dcfce7; color: #15803d; }
+    .status-badge.rejected { background: #fee2e2; color: #b91c1c; }
+    .status-badge.accepted { background: #ecfdf5; color: #047857; }
+    .status-badge.withdrawn { background: #f8fafc; color: #475569; }
+    .status-badge.on-hold { background: #fef3c7; color: #b45309; }
 
     .action-buttons {
       display: flex;
@@ -578,8 +810,29 @@ export class JobApplicationsListComponent implements OnInit {
     'REJECTED',
     'WITHDRAWN'
   ];
+  readonly statusFilterOptions: Array<{ value: JobApplication['status'] | 'ALL' | 'AUTO' | 'MANUAL', label: string }> = [
+    { value: 'ALL', label: 'Toutes' },
+    { value: 'AUTO', label: 'Créées par IA' },
+    { value: 'MANUAL', label: 'Créées manuellement' },
+    { value: 'ACKNOWLEDGED', label: 'Reçues' },
+    { value: 'APPLIED', label: 'Envoyées' },
+    { value: 'SCREENING', label: 'Sélection' },
+    { value: 'INTERVIEW', label: 'Entretiens' },
+    { value: 'OFFER', label: 'Offres' },
+    { value: 'ACCEPTED', label: 'Acceptées' },
+    { value: 'REJECTED', label: 'Refusées' }
+  ];
   pendingStatusUpdates = signal(new Set<string>());
   statusUpdateErrors = signal<Record<string, string>>({});
+  searchTerm = signal('');
+  activeStatusFilter = signal<JobApplication['status'] | 'ALL' | 'AUTO' | 'MANUAL'>('ALL');
+  showOnlyAuto = signal(false);
+  currentPage = signal(1);
+  readonly pageSize = 10;
+  totalPages = computed(() => {
+    const filteredLength = this.getFilteredApplications().length;
+    return Math.max(1, Math.ceil(filteredLength / this.pageSize));
+  });
 
   constructor(private jobApplicationService: JobApplicationService) {}
 
@@ -598,7 +851,12 @@ export class JobApplicationsListComponent implements OnInit {
         console.log('✅ Job applications received:', applications);
         console.log('📝 Number of applications:', applications?.length || 0);
         
-        this.jobApplications = applications || [];
+        this.jobApplications = (applications || []).sort((a, b) => {
+          const dateA = new Date(a.applied_date || a.created_at || a.updated_at || 0).getTime();
+          const dateB = new Date(b.applied_date || b.created_at || b.updated_at || 0).getTime();
+          return dateB - dateA;
+        });
+        this.currentPage.set(1);
         this.loading = false;
       },
       error: (error) => {
@@ -658,18 +916,21 @@ export class JobApplicationsListComponent implements OnInit {
     return this.pendingStatusUpdates().has(applicationId);
   }
 
-  deleteApplication(id: string) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
-      this.jobApplicationService.deleteJobApplication(id).subscribe({
-        next: () => {
-          this.jobApplications = this.jobApplications.filter(app => app.id !== id);
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          alert('Erreur lors de la suppression de la candidature');
-        }
-      });
+  deleteApplication(id: string, skipConfirmation: boolean = false) {
+    if (!skipConfirmation && !confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
+      return;
     }
+
+    this.jobApplicationService.deleteJobApplication(id).subscribe({
+      next: () => {
+        this.jobApplications = this.jobApplications.filter(app => app.id !== id);
+        this.ensureValidPage();
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression de la candidature');
+      }
+    });
   }
 
   getApplicationsByStatus(status: string): JobApplication[] {
@@ -691,6 +952,126 @@ export class JobApplicationsListComponent implements OnInit {
     return labels[status] || status;
   }
 
+  getFilteredApplications(): JobApplication[] {
+    const term = this.normalize(this.searchTerm());
+    const filter = this.activeStatusFilter();
+    return this.jobApplications.filter(app => {
+      const matchesSearch = !term || this.normalize(app.job_title).includes(term) ||
+        this.normalize(app.company_name).includes(term) ||
+        this.normalize(app.notes).includes(term);
+      
+      const matchesStatus = filter === 'ALL'
+        ? true
+        : filter === 'AUTO'
+          ? this.isAutoCreated(app)
+          : filter === 'MANUAL'
+            ? !this.isAutoCreated(app)
+            : app.status === filter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  getPaginatedApplications(filtered: JobApplication[]): JobApplication[] {
+    const total = Math.max(1, Math.ceil(filtered.length / this.pageSize));
+    if (this.currentPage() > total) {
+      this.currentPage.set(total);
+    }
+    if (this.currentPage() < 1) {
+      this.currentPage.set(1);
+    }
+
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  setStatusFilter(filter: JobApplication['status'] | 'ALL' | 'AUTO' | 'MANUAL') {
+    this.activeStatusFilter.set(filter);
+    this.currentPage.set(1);
+  }
+
+  normalize(value: string | null | undefined): string {
+    return (value || '').trim().toLowerCase();
+  }
+
+  getFilterCount(filter: JobApplication['status'] | 'ALL' | 'AUTO' | 'MANUAL'): number {
+    switch (filter) {
+      case 'ALL':
+        return this.jobApplications.length;
+      case 'AUTO':
+        return this.jobApplications.filter(app => this.isAutoCreated(app)).length;
+      case 'MANUAL':
+        return this.jobApplications.filter(app => !this.isAutoCreated(app)).length;
+      default:
+        return this.jobApplications.filter(app => app.status === filter).length;
+    }
+  }
+
+  resetFilters() {
+    this.searchTerm.set('');
+    this.activeStatusFilter.set('ALL');
+    this.currentPage.set(1);
+  }
+
+  onSearchChange(value: string) {
+    this.searchTerm.set(value ?? '');
+    this.currentPage.set(1);
+  }
+
+  confirmDeleteFiltered() {
+    const filtered = this.getFilteredApplications();
+    if (!filtered.length) {
+      return;
+    }
+
+    if (!confirm(`Supprimer ${filtered.length} candidature(s) affichée(s) ?`)) {
+      return;
+    }
+
+    const idsToDelete = new Set(filtered.map(app => app.id));
+    filtered.forEach(app => this.deleteApplication(app.id, true));
+    this.jobApplications = this.jobApplications.filter(app => !idsToDelete.has(app.id));
+    this.ensureValidPage(true);
+  }
+
+  confirmDeleteAll() {
+    if (!this.jobApplications.length) {
+      return;
+    }
+
+    if (!confirm('Supprimer toutes les candidatures ? Cette action est irréversible.')) {
+      return;
+    }
+
+    this.jobApplications.forEach(app => this.jobApplicationService.deleteJobApplication(app.id).subscribe());
+    this.jobApplications = [];
+    this.currentPage.set(1);
+  }
+
+  isAutoCreated(app: JobApplication): boolean {
+    const source = this.normalize(app.source);
+    const autoTokens = ['auto', 'détect', 'ia', 'automatique', 'machine'];
+    return autoTokens.some(token => source.includes(token));
+  }
+
   getPriorityIcon(priority: string): string {
     const icons: { [key: string]: string } = {
       'HIGH': '🔴',
@@ -700,9 +1081,9 @@ export class JobApplicationsListComponent implements OnInit {
     return icons[priority] || '⚪';
   }
 
-  formatDate(dateString: string | undefined): string {
-    if (!dateString) return 'Non défini';
-    const date = new Date(dateString);
+  formatDate(dateInput: string | Date | undefined): string {
+    if (!dateInput) return 'Non défini';
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
     return date.toLocaleDateString('fr-FR');
   }
 
@@ -719,14 +1100,20 @@ export class JobApplicationsListComponent implements OnInit {
  
 
   getStatusBadgeClass(status: string): string {
+    const normalized = this.normalize(status);
     const statusClasses: { [key: string]: string } = {
-      'pending': 'badge pending',
-      'applied': 'badge applied',
-      'interview': 'badge interview',
-      'rejected': 'badge rejected',
-      'accepted': 'badge accepted'
+      'applied': 'status-badge applied',
+      'acknowledged': 'status-badge acknowledged',
+      'screening': 'status-badge screening',
+      'interview': 'status-badge interview',
+      'technical_test': 'status-badge test',
+      'offer': 'status-badge offer',
+      'rejected': 'status-badge rejected',
+      'accepted': 'status-badge accepted',
+      'withdrawn': 'status-badge withdrawn',
+      'on_hold': 'status-badge on-hold'
     };
-    return statusClasses[status] || 'badge';
+    return statusClasses[normalized] || 'status-badge';
   }
 
   private updateJobApplicationsArray(index: number, updatedApplication: JobApplication) {
@@ -735,6 +1122,7 @@ export class JobApplicationsListComponent implements OnInit {
       updatedApplication,
       ...this.jobApplications.slice(index + 1)
     ];
+    this.ensureValidPage();
   }
 
   private setPendingStatus(applicationId: string, updating: boolean) {
@@ -755,5 +1143,19 @@ export class JobApplicationsListComponent implements OnInit {
       delete current[applicationId];
     }
     this.statusUpdateErrors.set(current);
+  }
+
+  private ensureValidPage(forceFirst: boolean = false) {
+    if (forceFirst) {
+      this.currentPage.set(1);
+      return;
+    }
+    const total = this.totalPages();
+    if (this.currentPage() > total) {
+      this.currentPage.set(total);
+    }
+    if (this.currentPage() < 1) {
+      this.currentPage.set(1);
+    }
   }
 }

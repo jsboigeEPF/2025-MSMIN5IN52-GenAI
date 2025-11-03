@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from app.models.models import Email, Application
 from app.models.schemas import (
-    ApplicationCreate, ApplicationStatus, EmailClassification
+    ApplicationCreate, ApplicationStatus, EmailClassification, ApplicationUpdate
 )
 from app.services.application_service import ApplicationService
 import re
 import logging
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -72,19 +74,49 @@ class EmailToApplicationService:
         # Extraire les informations de l'email
         company_name = self._extract_company_name(email) or "Entreprise non spécifiée"
         job_title = self._extract_job_title(email) or self._generate_job_title(email)
+        normalized_company = company_name.strip().lower()
+        normalized_title = (job_title or "").strip().lower()
         
         if not email.user_id:
             logger.warning(f"Email {email.id} has no user_id; skipping automatic application creation.")
             return None
         
-        # Chercher une candidature existante pour la même entreprise
-        existing_application = self.db.query(Application).filter(
-            Application.user_id == email.user_id,
-            Application.company_name.ilike(f"%{company_name}%")
-        ).first()
+        # Chercher une candidature existante pour la même entreprise et le même intitulé
+        existing_application = None
+        if normalized_company:
+            query = self.db.query(Application).filter(
+                Application.user_id == email.user_id,
+                func.lower(Application.company_name) == normalized_company
+            )
+            if normalized_title:
+                query = query.filter(func.lower(Application.job_title) == normalized_title)
+            else:
+                query = query.filter(
+                    (Application.job_title.is_(None)) | (func.trim(Application.job_title) == "")
+                )
+            existing_application = query.first()
         
         if existing_application:
-            # Lier à la candidature existante
+            # Mettre à jour le statut ou l'intitulé si nécessaire
+            status = self._determine_status_from_classification(email.classification)
+            update_payload = {}
+            if status and existing_application.status != status:
+                update_payload["status"] = status
+            
+            if (job_title and 
+                self._is_placeholder_title(existing_application.job_title) and 
+                not self._is_placeholder_title(job_title)):
+                update_payload["job_title"] = job_title
+            
+            if update_payload:
+                updated = self.application_service.update_application(
+                    existing_application.id,
+                    ApplicationUpdate(**update_payload),
+                    email.user_id
+                )
+                if updated:
+                    existing_application = updated
+            
             return existing_application
         
         # Créer une nouvelle candidature
@@ -96,7 +128,7 @@ class EmailToApplicationService:
             source=f"Email de {email.sender or 'expéditeur inconnu'}",
             location=None,
             status=status,
-            notes=f"Créé automatiquement à partir de l'email: {(email.subject or 'Sujet inconnu')}\n\nContenu: {(email.snippet or email.raw_body or '')[:200]}..."
+            notes=self._build_note_preview(email)
         )
         
         application = self.application_service.create_application(application_data, email.user_id)
@@ -307,3 +339,27 @@ class EmailToApplicationService:
                 EmailClassification.REJECTED.value
             ])
         ).count()
+
+    def _is_placeholder_title(self, title: Optional[str]) -> bool:
+        if not title:
+            return True
+        normalized = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('ascii').lower().strip()
+        if not normalized:
+            return True
+        placeholders = {
+            'poste non specifie',
+            'candidature',
+            'candidature automatique'
+        }
+        if normalized in placeholders:
+            return True
+        return normalized.startswith('candidature creee automatiquement')
+
+    def _build_note_preview(self, email: Email) -> str:
+        """
+        Construit une note lisible sans exposer l'identifiant interne de l'email.
+        """
+        subject = (email.subject or "Email de suivi").strip()
+        preview_source = (email.snippet or email.raw_body or "").strip()
+        preview = preview_source.splitlines()[0][:200] if preview_source else "Aperçu non disponible."
+        return f"Créé automatiquement depuis l'email «{subject}».\n\nAperçu: {preview}"

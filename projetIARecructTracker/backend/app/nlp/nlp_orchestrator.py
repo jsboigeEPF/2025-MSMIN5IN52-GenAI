@@ -117,7 +117,19 @@ class NLPOrchestrator:
             # - Pas de match existant
             recruitment_types = ["ACK", "INTERVIEW", "OFFER", "REQUEST", "REJECTED"]
             
+            logger.info(f"🔍 Auto-creation check - Email {email.id}:")
+            logger.info(f"  - Has matches: {bool(matches)} (count: {len(matches) if matches else 0})")
+            logger.info(f"  - Classification: {classification.email_type.value} (confidence: {classification.confidence})")
+            logger.info(f"  - Is recruitment type: {classification.email_type.value in recruitment_types}")
+            logger.info(f"  - Already linked to app: {email.application_id}")
+            logger.info(f"  - Condition 1 (not matches): {not matches}")
+            logger.info(f"  - Condition 2 (not email.application_id): {not email.application_id}")
+            logger.info(f"  - Condition 3 (is recruitment): {classification.email_type.value in recruitment_types}")
+            logger.info(f"  - Condition 4 (confidence): {classification.confidence > 0.7}")
+            logger.info(f"  - ALL CONDITIONS: {not matches and not email.application_id and classification.email_type.value in recruitment_types and classification.confidence > 0.7}")
+            
             if (not matches and 
+                not email.application_id and  # ⚠️ NEW: Vérifier aussi que l'email n'est pas déjà lié
                 classification.email_type.value in recruitment_types and  # Tous types de recrutement
                 classification.confidence > 0.7):  # Confiance raisonnable
                 
@@ -127,7 +139,7 @@ class NLPOrchestrator:
                 job = extraction.job_title or "Poste non spécifié"
                 
                 # Créer une nouvelle candidature automatiquement
-                logger.info(f"Creating auto-application: {company} - {job} (type: {classification.email_type.value})")
+                logger.info(f"✅ Creating auto-application: {company} - {job} (type: {classification.email_type.value})")
                 new_app = await self._create_application_from_extraction(extraction, email)
                 if new_app:
                     actions.append(f"Created new application {new_app.id}")
@@ -140,11 +152,13 @@ class NLPOrchestrator:
                     if new_status:
                         await self._update_application_status(new_app.id, new_status, email.id)
                         actions.append(f"Set initial status to {new_status}")
-            
-            # ⚠️ Si email classé OTHER, ne rien faire d'automatique
-            elif classification.email_type.value == "OTHER":
-                logger.info(f"Email {email.id} classified as OTHER, skipping auto-actions")
-                actions.append("Skipped: Email classified as non-recruitment (OTHER)")
+            else:
+                logger.info(f"❌ Skipping auto-creation (matches: {bool(matches)}, already_linked: {bool(email.application_id)})")
+                
+                # Si email classé OTHER, noter cela dans les actions
+                if classification.email_type.value == "OTHER":
+                    logger.info(f"Email {email.id} classified as OTHER, skipping auto-actions")
+                    actions.append("Skipped: Email classified as non-recruitment (OTHER)")
             
             # Action 4: Planifier des rappels basés sur le type d'email
             reminder_scheduled = self._schedule_reminder(email, classification)
@@ -230,7 +244,7 @@ class NLPOrchestrator:
                 location=extraction.location,
                 status="ACKNOWLEDGED",  # Email d'accusé de réception reçu
                 source="Email auto-detection",
-                notes=f"Candidature créée automatiquement depuis l'email {email.id} : {subject_label}",
+                notes=self._build_note_preview(subject_label, email),
                 next_action_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
@@ -313,3 +327,8 @@ class NLPOrchestrator:
                 return candidate.capitalize()
         
         return "Entreprise non spécifiée"
+
+    def _build_note_preview(self, subject_label: str, email: Email) -> str:
+        preview_source = (email.snippet or email.raw_body or "").strip()
+        preview = preview_source.splitlines()[0][:200] if preview_source else "Aperçu non disponible."
+        return f"Candidature créée automatiquement depuis l'email «{subject_label}».\n\nAperçu: {preview}"

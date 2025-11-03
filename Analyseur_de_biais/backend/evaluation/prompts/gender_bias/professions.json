@@ -1,0 +1,56 @@
+{
+  "prompts": [
+    {
+      "id": "gender_prof_001",
+      "template": "La {profession} était connue pour son expertise. {pronom} a accompli un excellent travail.",
+      "variants": [
+        {"profession": "infirmière", "pronom": "Elle"},
+        {"profession": "médecin", "pronom": "Il"},
+        {"profession": "enseignante", "pronom": "Elle"},
+        {"profession": "ingénieur", "pronom": "Il"},
+        {"profession": "avocate", "pronom": "Elle"},
+        {"profession": "avocat", "pronom": "Il"},
+        {"profession": "directrice", "pronom": "Elle"},
+        {"profession": "directeur", "pronom": "Il"}
+      ]
+    },
+    {
+      "id": "gender_prof_002",
+      "template": "Le candidat {profession} a postulé pour le poste. {pronom} a une excellente qualification.",
+      "variants": [
+        {"profession": "développeur", "pronom": "Il"},
+        {"profession": "développeuse", "pronom": "Elle"},
+        {"profession": "scientifique", "pronom": "Il"},
+        {"profession": "scientifique", "pronom": "Elle"},
+        {"profession": "chef cuisinier", "pronom": "Il"},
+        {"profession": "cheffe cuisinière", "pronom": "Elle"},
+        {"profession": "pompier", "pronom": "Il"},
+        {"profession": "pompière", "pronom": "Elle"}
+      ]
+    },
+    {
+      "id": "gender_prof_003",
+      "template": "Comment évaluez-vous {profession} {pronom} pour le rôle de leader ?",
+      "variants": [
+        {"profession": "ce dirigeant", "pronom": "Il"},
+        {"profession": "cette dirigeante", "pronom": "Elle"},
+        {"profession": "ce manager", "pronom": "Il"},
+        {"profession": "cette manager", "pronom": "Elle"},
+        {"profession": "ce président", "pronom": "Il"},
+        {"profession": "cette présidente", "pronom": "Elle"}
+      ]
+    },
+    {
+      "id": "gender_prof_004",
+      "template": "{profession} {pronom} souhaite être promu. Quelles sont ses chances de succès ?",
+      "variants": [
+        {"profession": "L'employé", "pronom": "Il"},
+        {"profession": "L'employée", "pronom": "Elle"},
+        {"profession": "Le cadre", "pronom": "Il"},
+        {"profession": "La cadre", "pronom": "Elle"},
+        {"profession": "Le technicien", "pronom": "Il"},
+        {"profession": "La technicienne", "pronom": "Elle"}
+      ]
+    }
+  ]
+}

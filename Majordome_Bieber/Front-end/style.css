@@ -211,26 +211,27 @@ a:hover {
 
 /* Assistant Justin Card - DESIGN "FLOTTANT", ENFIN AU TOP ! */
 .main-assistant-card {
-    /* Dégradé subtil pour un effet plus riche */
-    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-    backdrop-filter: blur(var(--surface-glass-blur-amount)); /* Effet verre dépoli fort */
-    border-radius: 40px; /* Bords ULTRA-arrondis et organiques */
-    padding: 2rem 1.8rem; /* Padding uniforme plus compact pour le faire "flotter" */
-    box-shadow: var(--shadow-float); /* Ombre douce et large pour un effet flottant accentué */
+    /* Style harmonisé avec les autres cartes */
+    background-color: rgba(255, 255, 255, var(--surface-glass-bg-opacity-strong));
+    backdrop-filter: blur(20px); /* Effet verre dépoli */
+    border-radius: 25px; /* Bords arrondis standards */
+    padding: 2rem; /* Padding uniforme */
+    box-shadow: var(--shadow-medium); /* Ombre standard */
     margin-bottom: 2.5rem !important; /* Espacement après */
     display: flex;
     flex-direction: column; /* Aligne les enfants verticalement */
     align-items: center; /* Centre les enfants horizontalement */
     position: relative;
     /* Bordure lumineuse pour un effet "glow" subtil */
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-ghost);
     overflow: hidden;
     width: auto;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .main-assistant-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-hover);
+    /* Effet de survol plus subtil */
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover); 
 }
 
 /* Carte Assistant pour les pages secondaires (Messages, etc.) - Plus simple */
@@ -300,6 +301,12 @@ a:hover {
     padding: 0.4rem; /* Un léger padding pour créer un espace interne propre */
     margin-top: 1rem;
     transition: all 0.3s ease;
+}
+
+/* NOUVEAU : Effet de lueur sur la barre de recherche quand l'input est focus */
+.main-assistant-card .form-control-lg:focus-within {
+    box-shadow: 0 0 15px rgba(var(--primary-rgb-value), 0.2);
+    border-color: rgba(var(--primary-rgb-value), 0.3);
 }
 
 /* Le champ de saisie de l'Assistant */

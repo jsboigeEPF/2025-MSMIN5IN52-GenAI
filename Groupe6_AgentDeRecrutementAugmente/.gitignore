@@ -1,0 +1,19 @@
+# Environnement virtuel
+venv/
+.env/
+
+# Fichiers temporaires
+__pycache__/
+*.pyc
+
+# Dossiers de cache VSCode
+.vscode/
+.idea/
+
+# Fichiers uploadés ou générés
+/static/uploads/
+output/
+
+# Fichiers de configuration système
+.DS_Store
+Thumbs.db

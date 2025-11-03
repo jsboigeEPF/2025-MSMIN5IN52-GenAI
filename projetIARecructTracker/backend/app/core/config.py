@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import validator
-from typing import List, Union
+from typing import List, Union, Optional
 import os
 
 
@@ -23,10 +23,7 @@ class Settings(BaseSettings):
     GMAIL_CLIENT_ID: str
     GMAIL_CLIENT_SECRET: str
     
-    # IMAP settings
-    IMAP_HOST: str = "imap.gmail.com"
-    IMAP_USER: str
-    IMAP_PASSWORD: str
+    
     
     # Scheduler
     INGESTION_INTERVAL_MINUTES: int = 10
@@ -58,6 +55,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # Ignorer les variables dans .env qui ne sont pas dans le modèle
 
 
 settings = Settings()

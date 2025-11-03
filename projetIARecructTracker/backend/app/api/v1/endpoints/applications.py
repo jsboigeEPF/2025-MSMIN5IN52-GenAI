@@ -28,6 +28,9 @@ def get_applications(
     Récupérer la liste des candidatures avec filtres optionnels pour l'utilisateur connecté
     """
     try:
+        from loguru import logger
+        logger.info(f"🔍 GET /applications - User: {current_user.email} (ID: {current_user.id})")
+        
         application_service = ApplicationService(db)
         applications = application_service.get_applications(
             user_id=current_user.id,
@@ -37,8 +40,12 @@ def get_applications(
             company=company, 
             search_query=q
         )
+        
+        logger.info(f"✅ Found {len(applications)} applications for user {current_user.email}")
         return applications
     except Exception as e:
+        from loguru import logger
+        logger.error(f"❌ Error in get_applications: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

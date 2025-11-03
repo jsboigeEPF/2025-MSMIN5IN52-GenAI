@@ -31,7 +31,8 @@ class MistralAIClient:
         self, 
         text: str, 
         extraction_schema: Dict[str, Any],
-        model: str = None
+        model: str = None,
+        context: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Extraire des données structurées d'un texte avec Mistral en mode JSON
@@ -59,9 +60,14 @@ class MistralAIClient:
             
             # Construire le prompt pour l'extraction structurée
             schema_str = json.dumps(extraction_schema, indent=2)
+            context_block = ""
+            if context:
+                context_block = f"\nContexte d'analyse:\n{context.strip()}\n"
             prompt = f"""
 Analysez le texte suivant et extrayez les informations selon le schéma JSON fourni.
 Répondez uniquement avec un JSON valide, sans texte explicatif.
+
+{context_block}
 
 Schéma de réponse attendu:
 {schema_str}
@@ -72,11 +78,11 @@ Texte à analyser:
 JSON:"""
 
             from mistralai import Mistral
-            from mistralai.models import ChatMessage
             
+            # Dans les nouvelles versions de mistralai, on utilise des dictionnaires simples
             response = self.client.chat.complete(
                 model=model_name,
-                messages=[ChatMessage(role="user", content=prompt)],
+                messages=[{"role": "user", "content": prompt}],
                 temperature=settings.MISTRAL_TEMPERATURE,
                 max_tokens=settings.MISTRAL_MAX_TOKENS
             )
@@ -149,12 +155,11 @@ Texte à classifier:
 {text}
 
 JSON:"""
-
-            from mistralai.models import ChatMessage
             
+            # Dans les nouvelles versions de mistralai, on utilise des dictionnaires simples
             response = self.client.chat.complete(
                 model=model_name,
-                messages=[ChatMessage(role="user", content=prompt)],
+                messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,  # Plus déterministe pour la classification
                 max_tokens=200
             )

@@ -1,10 +1,11 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { IntelligentTrackerService, ProcessingResult, ProcessingSummary, ExcelExport } from '../../services/intelligent-tracker.service';
 import { JobApplicationService } from '../../services/job-application.service';
 import { JobApplication } from '../../models/job-application.model';
+import { firstValueFrom } from 'rxjs';
 
 interface TableColumn {
   key: string;
@@ -26,9 +27,10 @@ interface FilterState {
 }
 
 @Component({
-  selector: 'app-intelligent-excel-tracker',
+  
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="intelligent-tracker">
       <!-- Header avec actions principales -->
@@ -59,8 +61,14 @@ interface FilterState {
           <button class="btn btn-outline" (click)="refreshData()">
             🔄 Actualiser
           </button>
-        </div>
       </div>
+    </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
 
       <!-- Métriques en temps réel -->
       @if (summary()) {
@@ -132,6 +140,7 @@ interface FilterState {
               <option value="OFFER">Offre reçue</option>
               <option value="ACCEPTED">Acceptée</option>
               <option value="REJECTED">Refusée</option>
+              <option value="WITHDRAWN">Candidature retirée</option>
             </select>
           </div>
           
@@ -390,6 +399,15 @@ interface FilterState {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .error-banner {
+      background: #ffebee;
+      border: 1px solid #f44336;
+      color: #c62828;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
     }
 
     .btn {
@@ -673,6 +691,7 @@ interface FilterState {
     .badge-offer { background: #e0f2f1; color: #00796b; }
     .badge-accepted { background: #e8f5e8; color: #388e3c; }
     .badge-rejected { background: #ffebee; color: #d32f2f; }
+    .badge-withdrawn { background: #eceff1; color: #546e7a; }
 
     .priority-badge {
       font-size: 16px;
@@ -816,7 +835,8 @@ export class IntelligentExcelTrackerComponent implements OnInit {
   isProcessing = signal(false);
   summary = signal<ProcessingSummary | null>(null);
   lastProcessingResult = signal<(ProcessingResult & { timestamp: Date }) | null>(null);
-  
+  errorMessage = signal<string | null>(null);
+
   // Configuration des colonnes
   columns = signal<TableColumn[]>([
     { key: 'company_name', label: 'Entreprise', visible: true, sortable: true, filterable: true, width: '200px' },
@@ -851,7 +871,9 @@ export class IntelligentExcelTrackerComponent implements OnInit {
   sortField = signal<string>('updated_at');
   sortDirection = signal<'asc' | 'desc'>('desc');
   currentPage = signal(1);
-  pageSize = 50;
+  private readonly pageSize = 50;
+  private readonly sortableDateFields = new Set(['applied_date', 'last_update_date', 'created_at', 'updated_at', 'interview_date']);
+  private readonly autoSourceTokens = ['automatique', 'automatic', 'auto', 'ia'];
   
   // Computed properties
   visibleColumns = computed(() => this.columns().filter(col => col.visible));
@@ -875,42 +897,42 @@ export class IntelligentExcelTrackerComponent implements OnInit {
     this.loadData();
   }
 
-  private async loadData() {
+  private async loadData(): Promise<void> {
     this.isLoading.set(true);
+    this.errorMessage.set(null);
     
     try {
       // Charger les candidatures et le résumé en parallèle
       const [applicationsResult, summaryResult] = await Promise.all([
-        this.jobApplicationService.getJobApplications().toPromise(),
-        this.intelligentTracker.getProcessingSummary().toPromise()
+        firstValueFrom(this.jobApplicationService.getJobApplications()),
+        firstValueFrom(this.intelligentTracker.getProcessingSummary())
       ]);
       
-      // Traiter les candidatures
-      if (applicationsResult) {
-        if ('items' in applicationsResult) {
-          this.applications.set(applicationsResult.items);
-        } else {
-          this.applications.set(applicationsResult as JobApplication[]);
-        }
-      } else {
-        this.applications.set([]);
-      }
-      
-      this.summary.set(summaryResult || null);
+      // Le backend retourne maintenant un tableau simple
+      this.applications.set(applicationsResult ?? []);
+      this.summary.set(summaryResult ?? null);
       this.applyFilters();
       
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
+      this.applications.set([]);
+      this.filteredApplications.set([]);
+      this.errorMessage.set('Impossible de charger les données. Merci de réessayer dans quelques instants.');
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  async processEmails() {
+  async processEmails(): Promise<void> {
+    if (this.isProcessing()) {
+      return;
+    }
+
     this.isProcessing.set(true);
+    this.errorMessage.set(null);
     
     try {
-      const result = await this.intelligentTracker.processEmails().toPromise();
+      const result = await firstValueFrom(this.intelligentTracker.processEmails());
       
       if (result) {
         this.lastProcessingResult.set({
@@ -924,82 +946,93 @@ export class IntelligentExcelTrackerComponent implements OnInit {
       
     } catch (error) {
       console.error('Erreur lors du traitement des emails:', error);
+      this.errorMessage.set('L’analyse automatique n’a pas pu aboutir. Merci de réessayer ou de vérifier votre connexion.');
     } finally {
       this.isProcessing.set(false);
     }
   }
 
-  async exportToExcel() {
+  async exportToExcel(): Promise<void> {
+    this.errorMessage.set(null);
+
     try {
-      const exportData = await this.intelligentTracker.getExcelExport(
+      const exportData = await firstValueFrom(this.intelligentTracker.getExcelExport(
         this.filters.company || undefined,
         this.filters.status || undefined
-      ).toPromise();
+      ));
       
-      if (exportData) {
+      if (exportData?.data?.records?.length) {
         this.intelligentTracker.exportToCSV(exportData.data);
+      } else {
+        this.errorMessage.set('Aucune donnée disponible pour l’export pour le moment.');
       }
       
     } catch (error) {
       console.error('Erreur lors de l\'export:', error);
+      this.errorMessage.set('Impossible de générer le fichier CSV. Merci de réessayer plus tard.');
     }
   }
 
-  applyFilters() {
-    let filtered = this.applications();
-    
-    // Filtre de recherche globale
-    if (this.filters.search.trim()) {
-      const searchTerm = this.filters.search.toLowerCase();
-      filtered = filtered.filter(app => 
-        app.company_name?.toLowerCase().includes(searchTerm) ||
-        app.job_title?.toLowerCase().includes(searchTerm) ||
-        app.contact_person?.toLowerCase().includes(searchTerm) ||
-        app.notes?.toLowerCase().includes(searchTerm)
-      );
+  applyFilters(): void {
+    const applications = this.applications();
+
+    if (!applications.length) {
+      this.filteredApplications.set([]);
+      this.currentPage.set(1);
+      return;
     }
     
-    // Filtre par statut
-    if (this.filters.status) {
-      filtered = filtered.filter(app => app.status === this.filters.status);
+    const searchTerm = this.normalize(this.filters.search);
+    const companyTerm = this.normalize(this.filters.company);
+    const statusFilter = this.filters.status;
+    const priorityFilter = this.filters.priority;
+    const autoCreatedFilter = this.filters.autoCreated;
+    const fromDate = this.parseDate(this.filters.dateFrom);
+    const toDate = this.parseDate(this.filters.dateTo, true);
+    
+    let filtered = applications;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(app => this.matchesSearch(app, searchTerm));
     }
     
-    // Filtre par entreprise
-    if (this.filters.company.trim()) {
-      const companyTerm = this.filters.company.toLowerCase();
-      filtered = filtered.filter(app => 
-        app.company_name?.toLowerCase().includes(companyTerm)
-      );
+    if (statusFilter) {
+      filtered = filtered.filter(app => app.status === statusFilter);
     }
     
-    // Filtre par priorité
-    if (this.filters.priority) {
-      filtered = filtered.filter(app => app.priority === this.filters.priority);
+    if (companyTerm) {
+      filtered = filtered.filter(app => this.normalize(app.company_name).includes(companyTerm));
     }
     
-    // Filtre par source (auto-créé ou manuel)
-    if (this.filters.autoCreated) {
-      const isAuto = this.filters.autoCreated === 'true';
+    if (priorityFilter) {
+      filtered = filtered.filter(app => app.priority === priorityFilter);
+    }
+    
+    if (autoCreatedFilter) {
+      const isAuto = autoCreatedFilter === 'true';
       filtered = filtered.filter(app => this.isAutoCreated(app) === isAuto);
     }
+
+    if (fromDate || toDate) {
+      filtered = filtered.filter(app => {
+        const referenceDate = this.parseDate(app.applied_date ?? app.created_at);
+        if (!referenceDate) {
+          return false;
+        }
+        if (fromDate && referenceDate < fromDate) {
+          return false;
+        }
+        if (toDate && referenceDate > toDate) {
+          return false;
+        }
+        return true;
+      });
+    }
     
-    // Appliquer le tri
-    filtered.sort((a, b) => {
-      const field = this.sortField();
-      const direction = this.sortDirection() === 'asc' ? 1 : -1;
-      
-      const aValue = this.getFieldValue(a, field);
-      const bValue = this.getFieldValue(b, field);
-      
-      if (aValue === bValue) return 0;
-      if (aValue === null || aValue === undefined) return 1;
-      if (bValue === null || bValue === undefined) return -1;
-      
-      return (aValue < bValue ? -1 : 1) * direction;
-    });
+    const sorted = [...filtered].sort((a, b) => this.compareForSort(a, b));
     
-    this.filteredApplications.set(filtered);
-    this.currentPage.set(1); // Reset pagination
+    this.filteredApplications.set(sorted);
+    this.currentPage.set(1);
   }
 
   sortBy(field: string) {
@@ -1033,6 +1066,115 @@ export class IntelligentExcelTrackerComponent implements OnInit {
 
   // Méthodes utilitaires
   
+  private compareForSort(a: JobApplication, b: JobApplication): number {
+    const field = this.sortField();
+    const direction = this.sortDirection() === 'asc' ? 1 : -1;
+
+    const aValue = this.getSortComparableValue(a, field);
+    const bValue = this.getSortComparableValue(b, field);
+
+    if (aValue === bValue) {
+      return 0;
+    }
+
+    if (aValue === null || aValue === undefined) {
+      return 1;
+    }
+
+    if (bValue === null || bValue === undefined) {
+      return -1;
+    }
+
+    if (aValue instanceof Date && bValue instanceof Date) {
+      return (aValue.getTime() - bValue.getTime()) * direction;
+    }
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return (aValue - bValue) * direction;
+    }
+
+    const aString = String(aValue).trim();
+    const bString = String(bValue).trim();
+
+    return aString.localeCompare(bString, 'fr', { sensitivity: 'base' }) * direction;
+  }
+
+  private getSortComparableValue(app: JobApplication, field: string): string | number | Date | null {
+    if (field === 'last_interaction') {
+      return this.parseDate(app.last_update_date ?? app.updated_at, false, true);
+    }
+
+    const value = this.getFieldValue(app, field);
+
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (this.sortableDateFields.has(field)) {
+      return this.parseDate(value, false, true);
+    }
+
+    if (value instanceof Date || typeof value === 'number' || typeof value === 'string') {
+      return value as any;
+    }
+
+    return null;
+  }
+
+  private matchesSearch(app: JobApplication, term: string): boolean {
+    const haystacks = [
+      app.company_name,
+      app.job_title,
+      app.contact_person,
+      app.notes,
+      app.status,
+      app.location,
+      app.job_reference,
+      app.source
+    ];
+
+    return haystacks.some(value => this.normalize(value).includes(term));
+  }
+
+  private normalize(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value).trim().toLowerCase();
+  }
+
+  private parseDate(value: unknown, setToEndOfDay = false, preserveTime = false): Date | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    let date: Date;
+
+    if (value instanceof Date) {
+      date = new Date(value.getTime());
+    } else if (typeof value === 'string' || typeof value === 'number') {
+      date = new Date(value);
+    } else {
+      return null;
+    }
+
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    if (preserveTime) {
+      return date;
+    }
+
+    if (setToEndOfDay) {
+      date.setHours(23, 59, 59, 999);
+    } else {
+      date.setHours(0, 0, 0, 0);
+    }
+
+    return date;
+  }
+  
   getAutomationRate(): number {
     const summary = this.summary();
     if (!summary) return 0;
@@ -1046,16 +1188,27 @@ export class IntelligentExcelTrackerComponent implements OnInit {
   }
 
   isAutoCreated(app: JobApplication): boolean {
-    return app.source?.includes('Détecté automatiquement') || false;
+    if (!app.source) {
+      return false;
+    }
+    const normalizedSource = this.normalize(app.source);
+    return this.autoSourceTokens.some(token => normalizedSource.includes(token));
   }
 
   getFieldValue(app: JobApplication, field: string): any {
-    return (app as any)[field];
+    switch (field) {
+      case 'last_interaction':
+        return app.last_update_date ?? app.updated_at ?? null;
+      case 'applied_date':
+        return app.applied_date ?? app.created_at ?? null;
+      default:
+        return (app as any)[field];
+    }
   }
 
   hasActiveFilters(): boolean {
     return !!(this.filters.search || this.filters.status || this.filters.company || 
-             this.filters.priority || this.filters.autoCreated);
+             this.filters.priority || this.filters.autoCreated || this.filters.dateFrom || this.filters.dateTo);
   }
 
   clearFilters() {
@@ -1071,8 +1224,8 @@ export class IntelligentExcelTrackerComponent implements OnInit {
     this.applyFilters();
   }
 
-  refreshData() {
-    this.loadData();
+  refreshData(): void {
+    void this.loadData();
   }
 
   selectApplication(id: string) {
@@ -1090,8 +1243,8 @@ export class IntelligentExcelTrackerComponent implements OnInit {
   }
 
   getEmailCount(applicationId: string): number {
-    // Cette méthode devra être implémentée pour compter les emails
-    return 0;
+    const application = this.applications().find(app => app.id === applicationId);
+    return application?.emails?.length ?? 0;
   }
 
   // Méthodes de formatage

@@ -313,7 +313,7 @@ import { Email } from '../../models/email.model';
                   @if (application.notes) {
                     <div class="detail-section">
                       <strong>📝 Notes:</strong>
-                      <p class="notes-text">{{ application.notes }}</p>
+                      <p class="notes-text">{{ sanitizeNotes(application.notes) }}</p>
                     </div>
                   }
 
@@ -841,13 +841,9 @@ export class JobApplicationsAdvancedComponent implements OnInit {
   private loadApplications(): Promise<void> {
     return new Promise((resolve) => {
       this.jobApplicationService.getJobApplications().subscribe({
-        next: (response) => {
-          // Gérer les réponses paginées
-          if (response && 'items' in response) {
-            this.applications.set(response.items);
-          } else {
-            this.applications.set(response as JobApplication[]);
-          }
+        next: (applications) => {
+          // Le backend retourne maintenant un tableau simple
+          this.applications.set(applications || []);
           resolve();
         },
         error: (error) => {
@@ -1005,6 +1001,16 @@ export class JobApplicationsAdvancedComponent implements OnInit {
     if (!dateString) return 'Non défini';
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR');
+  }
+
+  sanitizeNotes(notes: string | null | undefined): string {
+    if (!notes) {
+      return '';
+    }
+    return notes
+      .replace(/\b(email)\s+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '$1')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   }
 
   toggleApplicationDetails(applicationId: string) {

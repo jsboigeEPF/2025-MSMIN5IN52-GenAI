@@ -148,7 +148,6 @@ alembic/versions/*.py
 !alembic/versions/__init__.py
 
 # ML Models
-models/
 *.pkl
 *.joblib
 *.h5

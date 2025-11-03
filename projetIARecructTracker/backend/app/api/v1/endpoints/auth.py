@@ -1,8 +1,10 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from typing import Optional
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.schemas import UserCreate, UserRead, UserLogin
 from app.services.auth_service import (
     create_user, authenticate_user, create_access_token, 
@@ -10,7 +12,7 @@ from app.services.auth_service import (
 )
 
 router = APIRouter()
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 @router.post("/register", response_model=UserRead, status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -28,7 +30,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
-    """Connexion d'un utilisateur"""
+    """Connexion d'un utilisateur - retourne un token Bearer"""
     user = authenticate_user(db, user_credentials.email, user_credentials.password)
     if not user:
         raise HTTPException(
@@ -43,7 +45,10 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
         expires_delta=access_token_expires
     )
     
+    # Retourner le token directement dans la réponse (simple et fiable)
     return {
+        "success": True,
+        "message": "Connexion réussie",
         "access_token": access_token,
         "token_type": "bearer",
         "user": {
@@ -53,9 +58,31 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
         }
     }
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
-    """Récupérer l'utilisateur actuel à partir du token JWT"""
-    token = credentials.credentials
+def get_current_user(
+    request: Request,
+    db: Session = Depends(get_db),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+):
+    """
+    Récupérer l'utilisateur actuel à partir du token JWT
+    Priorité: 1) Cookie HttpOnly, 2) Header Authorization Bearer
+    """
+    token = None
+    
+    # Essayer de récupérer le token depuis le cookie (prioritaire)
+    token = request.cookies.get("access_token")
+    
+    # Si pas de cookie, essayer le header Authorization
+    if not token and credentials:
+        token = credentials.credentials
+    
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Non authentifié",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     payload = verify_token(token)
     
     if payload is None:
@@ -87,3 +114,10 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 def read_users_me(current_user = Depends(get_current_user)):
     """Récupérer les informations de l'utilisateur connecté"""
     return current_user
+
+@router.post("/logout")
+def logout(current_user = Depends(get_current_user)):
+    """
+    Déconnexion de l'utilisateur
+    """
+    return {"success": True, "message": "Déconnexion réussie"}

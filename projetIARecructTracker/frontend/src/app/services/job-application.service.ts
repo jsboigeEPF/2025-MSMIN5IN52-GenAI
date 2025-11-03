@@ -14,14 +14,15 @@ import {
   providedIn: 'root'
 })
 export class JobApplicationService {
-  private readonly baseUrl = `${environment.apiUrl}/job-applications/`;
+  private readonly baseUrl = `${environment.apiUrl}/job-applications`;
 
   constructor(private http: HttpClient) {}
 
   /**
    * Récupérer toutes les candidatures avec pagination et filtres
+   * Note: Le backend retourne un tableau simple, pas une réponse paginée
    */
-  getJobApplications(filters?: FilterParams): Observable<PaginatedResponse<JobApplication>> {
+  getJobApplications(filters?: FilterParams): Observable<JobApplication[]> {
     let params = new HttpParams();
     
     if (filters) {
@@ -33,7 +34,7 @@ export class JobApplicationService {
       });
     }
 
-    return this.http.get<PaginatedResponse<JobApplication>>(this.baseUrl, { params });
+    return this.http.get<JobApplication[]>(this.baseUrl, { params });
   }
 
   /**
@@ -68,7 +69,7 @@ export class JobApplicationService {
    * Changer le statut d'une candidature
    */
   updateStatus(id: string, status: string, notes?: string): Observable<JobApplication> {
-    return this.http.patch<JobApplication>(`${this.baseUrl}/${id}/status`, {
+    return this.http.patch<JobApplication>(`${this.baseUrl}/${id}`, {
       status,
       notes
     });

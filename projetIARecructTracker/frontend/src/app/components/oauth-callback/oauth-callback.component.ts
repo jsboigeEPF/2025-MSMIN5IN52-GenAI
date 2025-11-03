@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GmailOAuthService } from '../../core/services/gmail-oauth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -147,34 +148,49 @@ export class OAuthCallbackComponent implements OnInit {
   success = false;
   email = '';
   errorMessage = '';
+  isNewUser = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private gmailOAuthService: GmailOAuthService
+    private gmailOAuthService: GmailOAuthService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    // Récupérer les paramètres de l'URL
+    // Récupérer les paramètres d'URL
     this.route.queryParams.subscribe(params => {
       const success = params['success'] === 'true';
-      const email = params['email'];
       const error = params['error'];
-
+      const email = params['email'];
+      const token = params['token'];  // ✅ Récupérer le token depuis l'URL
+      const isNewUser = params['new_user'] === 'true';
+      
+      console.log('OAuth Callback - Params reçus:', { success, error, email, token: token ? 'present' : 'missing', isNewUser });
+      
+      // Simuler un temps de traitement
       setTimeout(() => {
         this.isLoading = false;
         
-        if (success && email) {
+        if (success && email && token) {
           this.success = true;
           this.email = email;
+          
+          // ✅ Stocker le token dans sessionStorage IMMÉDIATEMENT
+          sessionStorage.setItem('app_token', token);
+          console.log('✅ Token stocké dans sessionStorage');
+          
+          // Charger l'utilisateur maintenant que le token est disponible
+          this.loadCurrentUser();
           
           // Notifier le service OAuth
           this.gmailOAuthService.handleOAuthCallback(true, email);
           
-          // Redirection automatique après 3 secondes
+          // Redirection après un court délai
           setTimeout(() => {
+            console.log('Redirection vers le dashboard...');
             this.redirectToApp();
-          }, 3000);
+          }, 1500);
           
         } else {
           this.success = false;
@@ -200,11 +216,42 @@ export class OAuthCallbackComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les informations de l'utilisateur depuis le backend
+   * Le cookie HttpOnly a été configuré par le backend lors du callback OAuth
+   */
+  private loadCurrentUser(): void {
+    // ✅ Le cookie est déjà défini par le backend lors du callback OAuth
+    // Recharger explicitement l'état d'authentification
+    console.log('✅ Gmail connecté avec succès - Rechargement de l\'état d\'authentification...');
+    
+    this.authService.reloadAuthState().subscribe({
+      next: (user) => {
+        console.log('✅ Utilisateur authentifié:', user.email);
+        // Rediriger vers le dashboard maintenant que l'état est à jour
+        this.redirectToApp();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement de l\'utilisateur:', error);
+        this.errorMessage = 'Impossible de charger les informations utilisateur';
+        this.isLoading = false;
+      }
+    });
+  }
+
   retryAuth(): void {
     this.gmailOAuthService.initiateGmailAuth();
   }
 
   redirectToApp(): void {
-    this.router.navigate(['/dashboard']);
+    console.log('Navigation vers /dashboard...');
+    this.router.navigate(['/dashboard'], { 
+      replaceUrl: true,
+      skipLocationChange: false 
+    }).then(success => {
+      console.log('Navigation réussie:', success);
+    }).catch(error => {
+      console.error('Erreur navigation:', error);
+    });
   }
 }

@@ -3,7 +3,7 @@ Service pour interagir avec l'API Gmail en utilisant OAuth 2.0
 """
 import httpx
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import base64
 import email
 import json
@@ -93,7 +93,9 @@ class GmailAPIService:
 
     async def get_message_details(self, user: User, message_id: str) -> Dict[str, Any]:
         """
-        Récupère les détails complets d'un message
+        Récupère les détails d'un message avec le format METADATA
+        Note: Le scope gmail.metadata ne permet que les formats 'metadata' et 'minimal'
+        Format 'metadata' inclut: headers complets, payload metadata, snippet
         """
         if not await self.oauth_service.ensure_valid_token(user):
             raise Exception("Token Gmail non valide")
@@ -104,7 +106,7 @@ class GmailAPIService:
             response = await client.get(
                 f"{self.base_url}/users/me/messages/{message_id}",
                 headers=headers,
-                params={"format": "full"}
+                params={"format": "metadata", "metadataHeaders": ["From", "To", "Subject", "Date"]}
             )
             
             if response.status_code != 200:
@@ -128,17 +130,20 @@ class GmailAPIService:
             days_back: Nombre de jours dans le passé à synchroniser
         """
         try:
-            # Construire une requête pour les emails récents
-            from_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
-            query = f"after:{from_date}"
+            # Note: Le scope gmail.metadata ne supporte pas le paramètre 'q' (query)
+            # On récupère simplement les N derniers emails sans filtre de date
+            # Le filtrage par date sera fait côté serveur après récupération
             
-            # Récupérer la liste des messages
-            messages = await self.list_messages(user, max_emails, query)
+            # Récupérer la liste des messages (sans query)
+            messages = await self.list_messages(user, max_emails, query=None)
             
             synced_count = 0
             skipped_count = 0
             error_count = 0
             
+            # Calculer la date limite pour le filtrage côté serveur
+            date_limit = datetime.now() - timedelta(days=days_back)
+            new_emails = []
             for message_info in messages:
                 try:
                     message_id = message_info["id"]
@@ -156,11 +161,21 @@ class GmailAPIService:
                     # Récupérer les détails du message
                     message_details = await self.get_message_details(user, message_id)
                     
+                    # Vérifier la date du message (filtrage côté serveur)
+                    message_timestamp = int(message_details.get("internalDate", 0)) / 1000
+                    message_date = datetime.fromtimestamp(message_timestamp)
+                    
+                    if message_date < date_limit:
+                        skipped_count += 1
+                        continue
+                    
                     # Parser et sauvegarder l'email
                     email_data = self._parse_gmail_message(message_details, user.id)
                     if email_data:
                         email_obj = Email(**email_data)
                         self.db.add(email_obj)
+                        self.db.flush()  # Assurer un ID pour le traitement NLP
+                        new_emails.append(email_obj)
                         synced_count += 1
                         
                 except Exception as e:
@@ -169,9 +184,28 @@ class GmailAPIService:
                     continue
             
             # Sauvegarder en lot
+            application_results = None
             if synced_count > 0:
                 self.db.commit()
                 
+                # Lancer automatiquement l'analyse NLP sur les nouveaux emails
+                from app.nlp.nlp_orchestrator import NLPOrchestrator
+                orchestrator = NLPOrchestrator(self.db)
+                
+                for email_obj in new_emails:
+                    try:
+                        await orchestrator.process_email_complete(email_obj)
+                    except Exception as e:
+                        logger.error(f"Erreur NLP post-synchronisation pour l'email {email_obj.id}: {str(e)}")
+            else:
+                # Aucun nouvel email : s'assurer que la session ne garde pas de nouvelles instances
+                self.db.rollback()
+            
+            # Toujours tenter la conversion des emails classifiés en candidatures
+            from app.services.email_to_application_service import EmailToApplicationService
+            email_to_app = EmailToApplicationService(self.db)
+            application_results = email_to_app.process_classified_emails()
+            
             logger.info(f"Synchronisation Gmail terminée pour l'utilisateur {user.id}: "
                        f"{synced_count} nouveaux, {skipped_count} ignorés, {error_count} erreurs")
             
@@ -180,7 +214,8 @@ class GmailAPIService:
                 "synced_emails": synced_count,
                 "skipped_emails": skipped_count,
                 "errors": error_count,
-                "total_processed": len(messages)
+                "total_processed": len(messages),
+                "applications": application_results
             }
             
         except Exception as e:
@@ -222,7 +257,7 @@ class GmailAPIService:
                 "thread_id": message_data.get("threadId"),
                 "is_sent": is_sent,
                 "gmail_labels": ",".join(message_data.get("labelIds", [])),
-                "created_at": datetime.utcnow()
+                "created_at": datetime.now(timezone.utc)
             }
             
         except Exception as e:
@@ -264,20 +299,20 @@ class GmailAPIService:
         Parse la date d'un email au format RFC 2822
         """
         try:
-            # Utiliser le module email pour parser la date
             import email.utils
-            timestamp = email.utils.parsedate_tz(date_str)
-            if timestamp:
-                # Convertir en datetime UTC
-                dt = datetime(*timestamp[:6])
-                if timestamp[9]:  # Timezone offset
-                    dt = dt - timedelta(seconds=timestamp[9])
-                return dt
-        except:
-            pass
-            
-        # Fallback: retourner l'heure actuelle si le parsing échoue
-        return datetime.utcnow()
+            if not date_str:
+                raise ValueError("empty date header")
+            parsed = email.utils.parsedate_to_datetime(date_str)
+            if parsed is None:
+                raise ValueError(f"unable to parse date: {date_str}")
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            else:
+                parsed = parsed.astimezone(timezone.utc)
+            return parsed
+        except Exception as exc:
+            logger.debug(f"Fallback to current UTC for email date parsing error: {exc}")
+            return datetime.now(timezone.utc)
 
     async def get_labels(self, user: User) -> List[Dict[str, Any]]:
         """
@@ -309,32 +344,50 @@ class GmailAPIService:
     ) -> List[Dict[str, Any]]:
         """
         Recherche spécifiquement les emails liés aux candidatures
+        Note: Le scope gmail.metadata ne supporte pas les queries de recherche
+        On récupère tous les emails et on filtre côté serveur
         """
-        # Construire une requête pour les emails de recrutement
-        from_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
-        
-        job_keywords = [
-            "candidature", "entretien", "interview", "poste", "offre d'emploi",
-            "recrutement", "RH", "ressources humaines", "CV", "motivation",
-            "job", "employment", "hiring", "recruiter", "opportunity"
-        ]
-        
-        # Construire la requête Gmail
-        keyword_query = " OR ".join([f'"{keyword}"' for keyword in job_keywords])
-        query = f"({keyword_query}) after:{from_date}"
-        
         try:
-            messages = await self.list_messages(user, max_results, query)
+            # Récupérer les messages sans query (scope metadata ne supporte pas 'q')
+            messages = await self.list_messages(user, max_results, query=None)
+            
+            # Mots-clés pour identifier les emails de recrutement
+            job_keywords = [
+                "candidature", "entretien", "interview", "poste", "offre d'emploi",
+                "recrutement", "RH", "ressources humaines", "CV", "motivation",
+                "job", "employment", "hiring", "recruiter", "opportunity"
+            ]
+            
+            # Date limite pour le filtrage
+            date_limit = datetime.now() - timedelta(days=days_back)
             
             detailed_messages = []
             for message_info in messages:
                 try:
                     details = await self.get_message_details(user, message_info["id"])
-                    detailed_messages.append(details)
+                    
+                    # Filtrer par date
+                    message_timestamp = int(details.get("internalDate", 0)) / 1000
+                    message_date = datetime.fromtimestamp(message_timestamp)
+                    
+                    if message_date < date_limit:
+                        continue
+                    
+                    # Filtrer par mots-clés (dans le sujet ou le corps)
+                    headers = {h["name"].lower(): h["value"] for h in details["payload"]["headers"]}
+                    subject = headers.get("subject", "").lower()
+                    snippet = details.get("snippet", "").lower()
+                    
+                    # Vérifier si un mot-clé est présent
+                    content_to_check = f"{subject} {snippet}"
+                    if any(keyword.lower() in content_to_check for keyword in job_keywords):
+                        detailed_messages.append(details)
+                    
                 except Exception as e:
                     logger.error(f"Erreur récupération détails message {message_info['id']}: {str(e)}")
                     continue
             
+            logger.info(f"Trouvé {len(detailed_messages)} emails de candidature sur {len(messages)} examinés")
             return detailed_messages
             
         except Exception as e:

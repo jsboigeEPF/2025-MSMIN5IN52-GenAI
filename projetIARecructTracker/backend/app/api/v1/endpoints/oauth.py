@@ -1,20 +1,78 @@
 """
 API endpoints for Gmail OAuth authentication
 """
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.core.database import get_db
 from app.models.models import User
 from app.services.gmail_oauth_service import GmailOAuthService
 from app.api.v1.endpoints.auth import get_current_user
+from app.services.auth_service import verify_token, get_user_by_email
 import logging
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+def get_user_from_token(token: str, db: Session) -> User:
+    """
+    Valide un token JWT et retourne l'utilisateur correspondant
+    """
+    payload = verify_token(token)
+    
+    if payload is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Token invalide"
+        )
+    
+    email: str = payload.get("sub")
+    if email is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Token invalide"
+        )
+    
+    user = get_user_by_email(db, email=email)
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Utilisateur non trouvé"
+        )
+    
+    return user
+
+
+@router.get("/gmail/authorize-and-register")
+async def authorize_gmail_and_register(
+    db: Session = Depends(get_db)
+):
+    """
+    Autorisation Gmail avec création automatique de compte utilisateur
+    
+    Cette route permet à un nouvel utilisateur de s'inscrire ET d'autoriser Gmail en une seule étape.
+    L'utilisateur sera redirigé vers Google OAuth, et à son retour, un compte sera créé automatiquement
+    si il n'existe pas déjà.
+    """
+    try:
+        # Démarrer le processus OAuth sans authentification préalable
+        # L'utilisateur sera créé lors du callback
+        oauth_service = GmailOAuthService(db)
+        
+        # Utiliser la méthode spécifique pour l'inscription qui génère le bon state
+        auth_url, state = oauth_service.generate_registration_url()
+            
+        logger.info(f"Redirection vers autorisation Gmail avec inscription: {auth_url}")
+        return RedirectResponse(url=auth_url)
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de l'autorisation Gmail avec inscription: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur lors de l'autorisation Gmail: {str(e)}"
+        )
 
 @router.get("/gmail/authorize")
 async def authorize_gmail(
@@ -25,8 +83,10 @@ async def authorize_gmail(
     Initie le processus d'autorisation OAuth avec Gmail
     
     Redirige l'utilisateur vers la page d'autorisation Google
+    L'utilisateur doit être authentifié (cookie HttpOnly)
     """
     try:
+            
         oauth_service = GmailOAuthService(db)
         authorization_url, state = oauth_service.generate_authorization_url(current_user.id)
         
@@ -45,6 +105,7 @@ async def authorize_gmail(
 
 @router.get("/gmail/callback")
 async def gmail_oauth_callback(
+    response: Response,
     code: str = Query(..., description="Code d'autorisation retourné par Google"),
     state: str = Query(..., description="State pour vérifier la sécurité"),
     error: str = Query(None, description="Erreur retournée par Google"),
@@ -54,6 +115,7 @@ async def gmail_oauth_callback(
     Gère le callback OAuth de Google
     
     Échange le code d'autorisation contre des tokens d'accès
+    Configure un cookie HttpOnly avec le JWT
     """
     try:
         # Vérifier s'il y a une erreur
@@ -61,7 +123,7 @@ async def gmail_oauth_callback(
             logger.warning(f"Erreur OAuth reçue: {error}")
             # Rediriger vers le frontend avec l'erreur
             return RedirectResponse(
-                url=f"http://localhost:4200/oauth-callback?error={error}",
+                url=f"http://localhost:4200/oauth/callback?error={error}",
                 status_code=302
             )
         
@@ -71,15 +133,33 @@ async def gmail_oauth_callback(
         if result["success"]:
             logger.info(f"OAuth callback réussi: {result['user_email']}")
             
-            # Rediriger vers le frontend avec succès
+            # Générer un token JWT pour connecter l'utilisateur automatiquement
+            from app.services.auth_service import create_access_token
+            from datetime import timedelta
+            
+            access_token_expires = timedelta(hours=24)
+            access_token = create_access_token(
+                data={"sub": result['user_email'], "user_id": str(result['user_id'])}, 
+                expires_delta=access_token_expires
+            )
+            
+            # Construire l'URL de callback avec le token (Bearer token approach)
+            callback_url = "http://localhost:4200/oauth/callback?success=true"
+            callback_url += f"&email={result['user_email']}"
+            callback_url += f"&token={access_token}"  # ✅ Passer le token dans l'URL
+            
+            if result.get("is_new_user"):
+                callback_url += "&new_user=true"
+            
+            # Rediriger avec le token
             return RedirectResponse(
-                url=f"http://localhost:4200/oauth-callback?success=true&email={result['user_email']}",
+                url=callback_url,
                 status_code=302
             )
         else:
             # Rediriger vers le frontend avec erreur
             return RedirectResponse(
-                url=f"http://localhost:4200/oauth-callback?error=authorization_failed",
+                url=f"http://localhost:4200/oauth/callback?error=authorization_failed",
                 status_code=302
             )
             
@@ -88,7 +168,7 @@ async def gmail_oauth_callback(
         
         # Rediriger vers le frontend avec erreur
         return RedirectResponse(
-            url=f"http://localhost:4200/oauth-callback?error=callback_error",
+            url=f"http://localhost:4200/oauth/callback?error=callback_error",
             status_code=302
         )
 

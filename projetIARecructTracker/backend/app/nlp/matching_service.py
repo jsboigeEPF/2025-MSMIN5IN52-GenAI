@@ -6,6 +6,7 @@ from app.models.models import Application, Email
 from sqlalchemy.orm import Session
 from loguru import logger
 import re
+from datetime import datetime, timedelta, timezone
 
 def cosine_similarity_simple(a, b):
     """Simple cosine similarity calculation"""
@@ -36,22 +37,25 @@ class EmailMatchingService:
         email_subject: str,
         email_body: str,
         sender_email: str,
+        user_id,  # Ajouter user_id pour filtrer
         sender_domain: str = None
     ) -> List[MatchingResult]:
         """
-        Trouver les candidatures correspondant à un email
+        Trouver les candidatures correspondant à un email pour un utilisateur spécifique
         
         Args:
             email_subject: Sujet de l'email
             email_body: Corps de l'email  
             sender_email: Email de l'expéditeur
+            user_id: ID de l'utilisateur (pour filtrer ses candidatures uniquement)
             sender_domain: Domaine de l'expéditeur
             
         Returns:
             Liste des candidatures correspondantes triées par score
         """
-        # Récupérer toutes les candidatures actives
+        # Récupérer uniquement les candidatures actives de l'utilisateur
         applications = self.db.query(Application).filter(
+            Application.user_id == user_id,
             Application.status.in_(['APPLIED', 'ACKNOWLEDGED', 'SCREENING', 'INTERVIEW'])
         ).all()
         
@@ -142,8 +146,9 @@ class EmailMatchingService:
         
         # 4. Bonus pour candidatures récentes
         if application.created_at:
-            from datetime import datetime, timedelta
-            if datetime.utcnow() - application.created_at <= timedelta(days=30):
+            created_at = self._ensure_utc(application.created_at)
+            now = datetime.now(timezone.utc)
+            if created_at and now - created_at <= timedelta(days=30):
                 score += 0.1
                 reasons.append("Recent application (within 30 days)")
         
@@ -221,6 +226,16 @@ class EmailMatchingService:
         
         return any(matches)
     
+    def _ensure_utc(self, value: Optional[datetime]) -> Optional[datetime]:
+        """
+        Normalise les dates pour éviter les erreurs offset-naive/offset-aware.
+        """
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+    
     def _extract_keywords(self, text: str) -> List[str]:
         """
         Extraire les mots-clés pertinents d'un texte
@@ -261,6 +276,7 @@ class EmailMatchingService:
             email.subject or "",
             email.snippet or email.raw_body or "",
             email.sender or "",
+            email.user_id,  # Passer le user_id de l'email
         )
         
         if matches and matches[0].confidence >= min_confidence:

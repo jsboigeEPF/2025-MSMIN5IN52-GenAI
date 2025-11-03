@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from app.models.models import Email, Application
 from app.models.schemas import (
-    ApplicationCreate, ApplicationStatus, EmailClassification
+    ApplicationCreate, ApplicationStatus, EmailClassification, ApplicationUpdate
 )
 from app.services.application_service import ApplicationService
 import re
 import logging
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,7 @@ class EmailToApplicationService:
         emails_to_process = self.db.query(Email).filter(
             Email.application_id.is_(None),
             Email.classification.in_([
+                EmailClassification.ACK.value,
                 EmailClassification.INTERVIEW.value,
                 EmailClassification.OFFER.value,
                 EmailClassification.REQUEST.value,
@@ -64,35 +67,174 @@ class EmailToApplicationService:
         """
         Crée une nouvelle candidature ou lie à une existante basé sur l'email
         """
+        if not self._is_recruitment_email(email):
+            logger.info(f"Email {email.id} ignoré: contenu non lié au recrutement.")
+            return None
+
         # Extraire les informations de l'email
-        company_name = self._extract_company_name(email)
-        job_title = self._extract_job_title(email)
+        company_name = self._extract_company_name(email) or "Entreprise non spécifiée"
+        job_title = self._extract_job_title(email) or self._generate_job_title(email)
+        normalized_company = company_name.strip().lower()
+        normalized_title = (job_title or "").strip().lower()
         
-        # Chercher une candidature existante pour la même entreprise
-        existing_application = self.db.query(Application).filter(
-            Application.company_name.ilike(f"%{company_name}%")
-        ).first()
+        if not email.user_id:
+            logger.warning(f"Email {email.id} has no user_id; skipping automatic application creation.")
+            return None
+        
+        # Chercher une candidature existante pour la même entreprise et le même intitulé
+        existing_application = None
+        if normalized_company:
+            query = self.db.query(Application).filter(
+                Application.user_id == email.user_id,
+                func.lower(Application.company_name) == normalized_company
+            )
+            if normalized_title:
+                query = query.filter(func.lower(Application.job_title) == normalized_title)
+            else:
+                query = query.filter(
+                    (Application.job_title.is_(None)) | (func.trim(Application.job_title) == "")
+                )
+            existing_application = query.first()
         
         if existing_application:
-            # Lier à la candidature existante
+            # Mettre à jour le statut ou l'intitulé si nécessaire
+            status = self._determine_status_from_classification(email.classification)
+            update_payload = {}
+            if status and existing_application.status != status:
+                update_payload["status"] = status
+            
+            if (job_title and 
+                self._is_placeholder_title(existing_application.job_title) and 
+                not self._is_placeholder_title(job_title)):
+                update_payload["job_title"] = job_title
+            
+            if update_payload:
+                updated = self.application_service.update_application(
+                    existing_application.id,
+                    ApplicationUpdate(**update_payload),
+                    email.user_id
+                )
+                if updated:
+                    existing_application = updated
+            
             return existing_application
         
         # Créer une nouvelle candidature
         status = self._determine_status_from_classification(email.classification)
         
         application_data = ApplicationCreate(
-            job_title=job_title or "Poste non spécifié",
+            job_title=job_title,
             company_name=company_name,
-            source=f"Email de {email.sender}",
+            source=f"Email de {email.sender or 'expéditeur inconnu'}",
             location=None,
             status=status,
-            notes=f"Créé automatiquement à partir de l'email: {email.subject}\n\nContenu: {email.snippet[:200]}..."
+            notes=self._build_note_preview(email)
         )
         
-        application = self.application_service.create_application(application_data)
+        application = self.application_service.create_application(application_data, email.user_id)
         application._newly_created = True  # Marquer comme nouvellement créé
         
         return application
+
+    def _is_recruitment_email(self, email: Email) -> bool:
+        """
+        Vérifie qu'un email est réellement lié au recrutement avant de créer une candidature.
+        """
+        subject = (email.subject or "").lower()
+        content = (email.raw_body or email.snippet or "").lower()
+        sender = (email.sender or "").lower()
+        text = f"{subject} {content}"
+        classification = (email.classification or "").upper()
+
+        # Keywords positifs
+        strong_keywords = [
+            'candidature', 'recrutement', 'entretien', 'entervue',
+            'cv', 'curriculum', 'profil', 'processus de recrutement',
+            'application', 'applicant', 'hiring', 'candidate', 'interview',
+            'talent acquisition', 'rh', 'ressources humaines', 'notre équipe rh',
+            'thank you for applying', 'we received your application',
+            'offre d\'emploi', 'offer letter', 'contrat de travail'
+        ]
+        weak_keywords = [
+            'poste', 'position', 'emploi', 'job', 'mission', 'stage',
+            'offre', 'opportunité', 'career', 'team', 'manager', 'full stack',
+            'développeur', 'ingénieur', 'product', 'data', 'developer',
+            'software', 'technique', 'rejoindre', 'process', 'hiring manager'
+        ]
+        recruitment_phrases = [
+            'votre candidature', 'nous avons bien reçu votre candidature',
+            'processus de recrutement', 'prochaine étape', 'merci pour votre candidature',
+            'nous reviendrons vers vous', 'suite à votre candidature',
+            'entretien prévu', 'planifier un entretien', 'convocation',
+            'selection process', 'your application'
+        ]
+
+        # Keywords ou domaines à exclure
+        exclusion_keywords = [
+            'newsletter', 'promotion', 'bons plans', 'bon plan', 'événement', 'abonnement', 'publicité',
+            'réduction', 'réductions', 'remise', 'remises', 'vente', 'soldes', 'billet', 'concert', 'festival',
+            'avis client', 'parrainage', 'streaming', 'film', 'serie', 'évènement', 'code promo', 'livraison gratuite',
+            'livraison express', 'cashback', 'catalogue', 'nouvelle collection', 'lookbook', 'magasin',
+            'panier', 'shopping', 'promotionnelle', 'newsletter', 'bons d\'achat', 'bons d’achat',
+            'unsubscribe', 'se désabonner', 'désabonner', 'préférences d\'abonnement', 'preferences marketing',
+            'gérer mes préférences', 'view in browser', 'voir dans le navigateur', 'special offer',
+            'exclusive offer', 'save up to', 'flash sale', 'soldes exceptionnelles', 'promo exceptionnelle',
+            'financement disponible'
+        ]
+        exclusion_domains = [
+            'spotify', 'netflix', 'youtube', 'deezer', 'ticketmaster',
+            'allocine', 'eventbrite', 'meetup', 'mailchimp', 'sendgrid',
+            'zalando', 'carrefour', 'myunidays', 'promopro', 'vente-privee',
+            'groupon', 'promotions', 'journee-offres'
+        ]
+        marketing_patterns = [
+            r'\b\d{1,2}\s*%(\s*de)?\s*(réduction|off)\b',
+            r'\b(code|coupon)\s+promo\b',
+            r'\boffre\s+(?:spéciale|exclusive)\b',
+            r'\bvente\s+flash\b',
+            r'\bacheter\s+maintenant\b',
+            r'livraison\s+(?:gratuite|offerte)',
+            r'\bprofitez-en\b',
+            r'\bremise\s+exceptionnelle\b'
+        ]
+
+        text_with_sender = f"{text} {sender}"
+        recruitment_classifications = {'ACK', 'INTERVIEW', 'OFFER', 'REQUEST', 'REJECTED'}
+        classification_priority = classification in recruitment_classifications
+
+        if any(domain in sender for domain in exclusion_domains):
+            logger.info(f"Email {email.id} ignoré: domaine marketing détecté ({sender}).")
+            return False
+        marketing_keyword_hit = any(keyword in text_with_sender for keyword in exclusion_keywords)
+        marketing_pattern_hit = any(re.search(pattern, text_with_sender) for pattern in marketing_patterns)
+
+        strong_hits = sum(1 for keyword in strong_keywords if keyword in text)
+        phrase_hits = sum(1 for phrase in recruitment_phrases if phrase in text)
+        weak_hits = sum(1 for keyword in weak_keywords if keyword in text)
+
+        has_recruitment_signal = strong_hits > 0 or phrase_hits > 0
+
+        # Pour les emails sans mots forts, exiger au moins deux mots faibles ET une structure typique
+        context_markers = [
+            'candidature', 'candidat', 'candidate', 'recrutement', 'ressources humaines',
+            'entrevue', 'entretien', 'processus de recrutement', 'talent', 'profil', 'cv',
+            'application', 'applicant', 'hiring process', 'recruter', 'position ouverte',
+            'stage', 'internship'
+        ]
+        context_match = weak_hits >= 2 and any(marker in text for marker in context_markers)
+
+        if not has_recruitment_signal and not context_match:
+            logger.info(f"Email {email.id} ignoré: aucun signal de recrutement détecté.")
+            return False
+
+        # Si des signaux marketing sont présents et qu'aucun mot fort n'est détecté,
+        # considérer l'email comme marketing (sauf si classification prioritaire)
+        if not classification_priority and (marketing_keyword_hit or marketing_pattern_hit):
+            if not has_recruitment_signal:
+                logger.info(f"Email {email.id} ignoré: signaux marketing sans mots forts de recrutement.")
+                return False
+
+        return True
 
     def _extract_company_name(self, email: Email) -> str:
         """
@@ -121,13 +263,32 @@ class EmailToApplicationService:
             if key in sender_domain.lower():
                 return value
                 
+        if not company_name:
+            return "Entreprise non spécifiée"
         return company_name
+    
+    def _generate_job_title(self, email: Email) -> str:
+        """
+        Fallback pour générer un intitulé lisible lorsque l'extraction échoue
+        """
+        subject = (email.subject or "").strip()
+        if subject:
+            cleaned = re.sub(r'^(re|fw|fwd)\s*[:\-]\s*', '', subject, flags=re.IGNORECASE).strip()
+            cleaned = re.sub(r'\s+', ' ', cleaned)
+            return cleaned[:120] or "Candidature"
+        
+        snippet = (email.snippet or "").strip()
+        if snippet:
+            first_line = snippet.splitlines()[0]
+            return first_line[:120] or "Candidature"
+        
+        return "Candidature"
 
     def _extract_job_title(self, email: Email) -> Optional[str]:
         """
         Extrait le titre du poste à partir du sujet de l'email
         """
-        subject = email.subject.lower()
+        subject = (email.subject or "").lower()
         
         # Patterns courants pour les titres de poste
         job_patterns = [
@@ -171,9 +332,34 @@ class EmailToApplicationService:
         return self.db.query(Email).filter(
             Email.application_id.is_(None),
             Email.classification.in_([
+                EmailClassification.ACK.value,
                 EmailClassification.INTERVIEW.value,
                 EmailClassification.OFFER.value,
                 EmailClassification.REQUEST.value,
                 EmailClassification.REJECTED.value
             ])
         ).count()
+
+    def _is_placeholder_title(self, title: Optional[str]) -> bool:
+        if not title:
+            return True
+        normalized = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('ascii').lower().strip()
+        if not normalized:
+            return True
+        placeholders = {
+            'poste non specifie',
+            'candidature',
+            'candidature automatique'
+        }
+        if normalized in placeholders:
+            return True
+        return normalized.startswith('candidature creee automatiquement')
+
+    def _build_note_preview(self, email: Email) -> str:
+        """
+        Construit une note lisible sans exposer l'identifiant interne de l'email.
+        """
+        subject = (email.subject or "Email de suivi").strip()
+        preview_source = (email.snippet or email.raw_body or "").strip()
+        preview = preview_source.splitlines()[0][:200] if preview_source else "Aperçu non disponible."
+        return f"Créé automatiquement depuis l'email «{subject}».\n\nAperçu: {preview}"

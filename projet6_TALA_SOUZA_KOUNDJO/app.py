@@ -8,7 +8,6 @@ import sqlite3
 import json
 
 from matching.parse import is_allowed, read_any, normalize_text
-from matching.ner import extract_entities, rule_extract_skills, rule_extract_years_exp
 from matching.job_generator import JobGenerator
 
 # Load environment variables

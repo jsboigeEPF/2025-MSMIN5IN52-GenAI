@@ -37,37 +37,16 @@ def rule_extract_degrees(text:str)->Set[str]:
     t = normalize_lower(text)
     return {d for d in DEGREES if d in t}
 
-# spaCy optionnel
-_nlp = None
-def try_spacy(lang_code:Optional[str]="fr"):
-    global _nlp
-    if _nlp is not None:
-        return _nlp
-    try:
-        import spacy
-        model = "fr_core_news_sm" if lang_code=="fr" else "en_core_web_sm"
-        _nlp = spacy.load(model)
-        return _nlp
-    except Exception:
-        return None
-
 def extract_entities(text:str, lang_code:str="fr")->Dict:
     """
     Retourne un dict: {skills:set, degrees:set, years_exp:float, persons:set, orgs:set}
+    Note: persons and orgs are always empty sets since spaCy was removed
     """
     skills = rule_extract_skills(text)
     degrees = rule_extract_degrees(text)
     years = rule_extract_years_exp(text)
     persons, orgs = set(), set()
 
-    nlp = try_spacy(lang_code)
-    if nlp:
-        doc = nlp(text)
-        for ent in doc.ents:
-            if ent.label_ in {"PER","PERSON"}:
-                persons.add(ent.text)
-            if ent.label_ in {"ORG","ORGANIZATION"}:
-                orgs.add(ent.text)
     return {
         "skills": skills,
         "degrees": degrees,
@@ -75,3 +54,4 @@ def extract_entities(text:str, lang_code:str="fr")->Dict:
         "persons": persons,
         "orgs": orgs
     }
+

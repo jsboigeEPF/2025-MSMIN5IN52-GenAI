@@ -125,13 +125,13 @@ class NLPOrchestrator:
             logger.info(f"  - Condition 1 (not matches): {not matches}")
             logger.info(f"  - Condition 2 (not email.application_id): {not email.application_id}")
             logger.info(f"  - Condition 3 (is recruitment): {classification.email_type.value in recruitment_types}")
-            logger.info(f"  - Condition 4 (confidence): {classification.confidence > 0.7}")
-            logger.info(f"  - ALL CONDITIONS: {not matches and not email.application_id and classification.email_type.value in recruitment_types and classification.confidence > 0.7}")
+            logger.info(f"  - Condition 4 (confidence >= 0.7): {classification.confidence >= 0.7}")
+            logger.info(f"  - ALL CONDITIONS: {not matches and not email.application_id and classification.email_type.value in recruitment_types and classification.confidence >= 0.7}")
             
             if (not matches and 
                 not email.application_id and  # ⚠️ NEW: Vérifier aussi que l'email n'est pas déjà lié
                 classification.email_type.value in recruitment_types and  # Tous types de recrutement
-                classification.confidence > 0.7):  # Confiance raisonnable
+                classification.confidence >= 0.7):  # ⚠️ FIX: >= au lieu de > pour inclure 0.7
                 
                 # ⚠️ Créer même si extraction partielle (entreprise ou poste manquant)
                 # Utiliser des valeurs par défaut si nécessaire

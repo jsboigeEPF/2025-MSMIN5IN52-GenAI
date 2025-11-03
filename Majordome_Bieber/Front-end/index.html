@@ -148,8 +148,8 @@
 
         <!-- Dashboard -->
         <div class="row g-4 mb-5 justify-content-center">
-            <div class="col-md-6 col-lg-6" id="mail-card-container">
-                <a href="messages.html" class="text-decoration-none">
+            <div class="col-md-6 col-lg-4" id="mail-card-container">
+                <a href="messages.html" class="text-decoration-none h-100">
                     <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2 class="h5 fw-semibold mb-0">Mails</h2>
@@ -168,8 +168,8 @@
                     </div>
                 </a>
             </div>
-            <div class="col-md-6 col-lg-6" id="agenda-card-container">
-                <a href="calendar.html" class="text-decoration-none">
+            <div class="col-md-6 col-lg-4" id="agenda-card-container">
+                <a href="calendar.html" class="text-decoration-none h-100">
                     <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2 class="h5 fw-semibold mb-0">Calendrier</h2>
@@ -184,6 +184,26 @@
                         <!-- Contenu pour utilisateur déconnecté -->
                         <div class="logged-out-content flex-grow-1 d-flex align-items-center justify-content-center">
                             <p class="text-muted text-center">Veuillez vous connecter pour voir votre agenda.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4" id="weather-card-container">
+                <a href="#" class="text-decoration-none h-100">
+                    <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h5 fw-semibold mb-0">Météo</h2>
+                            <div class="icon-circle bg-warning-light">
+                                <i class="bi bi-cloud-sun fs-icon text-warning"></i>
+                            </div>
+                        </div>
+                        <!-- Contenu pour utilisateur connecté -->
+                        <div class="flex-grow-1 logged-in-content d-none" id="dashboard-weather-content">
+                            <!-- La météo sera injectée ici par le JS -->
+                        </div>
+                        <!-- Contenu pour utilisateur déconnecté -->
+                        <div class="logged-out-content flex-grow-1 d-flex align-items-center justify-content-center">
+                            <p class="text-muted text-center">Veuillez vous connecter pour voir la météo.</p>
                         </div>
                     </div>
                 </a>
@@ -442,6 +462,7 @@
                     // Charger les données réelles
                     loadDashboardEmails();
                     loadDashboardEvents();
+                    loadDashboardWeather();
                 } else {
                     // Affiche le contenu pour utilisateur déconnecté
                     loggedInElements.forEach(el => el.classList.add('d-none'));
@@ -454,6 +475,7 @@
                     // Vide le contenu des cartes
                     document.getElementById('dashboard-email-list').innerHTML = '';
                     document.getElementById('dashboard-event-list').innerHTML = '';
+                    document.getElementById('dashboard-weather-content').innerHTML = '';
                 }
             }
 
@@ -511,6 +533,32 @@
             } catch (error) {
                 console.error('Erreur chargement événements dashboard:', error);
                 eventListContainer.innerHTML = '<p class="text-danger text-center p-3">Erreur de chargement.</p>';
+            }
+        }
+
+        async function loadDashboardWeather() {
+            const weatherContainer = document.getElementById('dashboard-weather-content');
+            weatherContainer.innerHTML = '<div class="text-center text-muted p-3"><div class="spinner-border spinner-border-sm" role="status"></div></div>'; // Spinner
+
+            try {
+                const response = await fetch('http://localhost:5000/api/weather');
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                weatherContainer.innerHTML = `
+                    <div class="text-center d-flex flex-column justify-content-center h-100">
+                        <h3 class="display-5 fw-bold">${Math.round(data.temperature)}°C</h3>
+                        <p class="text-muted mb-0">${data.city}, ${data.country}</p>
+                        <small class="text-muted text-capitalize">${data.description}</small>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Erreur chargement météo dashboard:', error);
+                weatherContainer.innerHTML = '<p class="text-danger text-center p-3">Erreur de chargement.</p>';
             }
         }
     </script>

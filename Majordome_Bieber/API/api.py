@@ -5,9 +5,9 @@ from Calendar_API import get_credentials, list_events, create_event
 from login import get_credentials as auth_credentials
 from googleapiclient.discovery import build
 import datetime
+from OpenWeather_API import get_weather_data
 import os
 from chatbot import get_chatbot_response
-from OpenWeather_API import get_weather_data
 
 app = Flask(__name__)
 CORS(app)
@@ -100,11 +100,11 @@ def chatbot():
 
 @app.route('/api/weather')
 def get_weather():
-    """
-    Route API pour récupérer les informations météorologiques de Cachan, FR.
-    """
     try:
         weather_data = get_weather_data()
+        if "error" in weather_data:
+            # Si la clé API est manquante, c'est une erreur serveur
+            return jsonify({"error": weather_data["error"]}), 500
         return jsonify(weather_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

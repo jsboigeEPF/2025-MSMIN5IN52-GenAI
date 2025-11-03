@@ -292,7 +292,7 @@ a:hover {
 /* Input et Bouton de l'assistant - L'aspect de BARRE DE RECHERCHE LÉGÈRE ET FONCTIONNELLE */
 .main-assistant-card .d-flex.gap-3 {
     width: 100%;
-    max-width: 500px; /* Limite la largeur pour une esthétique fine de barre de recherche */
+    max-width: 850px; /* Limite la largeur pour une esthétique fine de barre de recherche */
     background-color: rgba(255, 255, 255, 0.98); /* Fond presque opaque blanc pour la barre elle-même */
     border-radius: 16px; /* Moins arrondi pour un look plus pro */
     box-shadow: var(--shadow-medium); /* Ombre douce mais visible */
@@ -304,7 +304,7 @@ a:hover {
 
 /* Le champ de saisie de l'Assistant */
 .main-assistant-card .form-control-lg {
-    padding: 0.6rem 1rem; /* Taille de l'input compactée */
+    padding: 0.8rem 1.2rem; /* Taille de l'input compactée */
     border-radius: 30px;
     border: none;
     font-size: 0.95rem;
@@ -328,7 +328,7 @@ a:hover {
 
 /* Bouton Envoyer de l'Assistant - Centré */
 .main-assistant-card .btn-primary {
-    padding: 0.6rem 1.2rem; /* Padding compact */
+    padding: 0.8rem 1.5rem; /* Padding compact */
     border-radius: 12px; /* Cohérent avec la barre */
     font-size: 0.9rem;
     margin: 0;

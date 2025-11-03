@@ -195,24 +195,64 @@ class EmailClassificationService:
         try:
             categories = [e.value for e in EmailType]
             context = """
-Contexte: Tu analyses des emails pour un tracker de candidatures d'emploi.
+Tu es un expert en analyse d'emails de recrutement. Ton rôle est de classifier précisément les emails liés aux candidatures d'emploi.
 
-⚠️ IMPORTANT: Classe comme OTHER tous les emails qui NE SONT PAS liés à une candidature d'emploi:
-- Newsletters commerciales (Uber, Snapchat, Vercel, TeamViewer, etc.)
-- Notifications de service (réseaux sociaux, e-commerce, etc.)
-- Emails marketing et promotions
-- Confirmations de commande
-- Alertes techniques
+🎯 RÈGLES DE CLASSIFICATION STRICTES:
 
-Les catégories sont UNIQUEMENT pour les emails de RECRUTEMENT:
-- ACK: Accusé de réception d'une candidature (doit mentionner recrutement/candidature/CV)
-- REJECTED: Refus de candidature explicite
-- INTERVIEW: Convocation à un entretien d'embauche
-- OFFER: Proposition d'emploi/contrat
-- REQUEST: Demande de documents pour une candidature (CV, références, portfolio)
-- OTHER: Tous les autres emails (newsletters, notifications, marketing, etc.)
+1️⃣ EMAILS À EXCLURE (→ OTHER):
+   - Newsletters commerciales (Uber, Snapchat, LinkedIn notifications, etc.)
+   - Notifications de services (réseaux sociaux, e-commerce)
+   - Emails marketing, promotions, publicités
+   - Confirmations de commande, livraison
+   - Alertes techniques ou sécurité
+   - Invitations à des événements non-recrutement
+   - Messages automatiques génériques
 
-Si l'email ne mentionne PAS de candidature, recrutement, CV, entretien ou emploi, classe-le comme OTHER.
+2️⃣ EMAILS DE RECRUTEMENT (analyser avec précision):
+   
+   📧 ACK (Accusé de Réception):
+      - Confirmation de réception de candidature
+      - "Nous avons bien reçu votre CV"
+      - Remerciement pour la candidature
+      ⚠️ DOIT explicitement mentionner: candidature, CV, application
+   
+   ❌ REJECTED (Refus):
+      - Refus clair et définitif
+      - "Candidature non retenue", "profil ne correspond pas"
+      - "Autres candidats", "ne donnerons pas suite"
+      ⚠️ Mots clés: malheureusement, regret, unable, unfortunately
+   
+   📞 INTERVIEW (Entretien):
+      - Convocation à un entretien
+      - Demande de disponibilité pour rencontre
+      - Confirmation de RDV téléphonique/vidéo
+      ⚠️ Mots clés: entretien, interview, rencontrer, disponibilité, RDV
+   
+   💼 OFFER (Offre d'emploi):
+      - Proposition d'embauche concrète
+      - Offre de contrat
+      - "Heureux de vous proposer le poste"
+      ⚠️ Mots clés: félicitations, offre, contrat, embauche, accepter
+   
+   📋 REQUEST (Demande d'infos):
+      - Demande de documents supplémentaires
+      - Besoin de compléter le dossier
+      - Demande de références, portfolio, CV mis à jour
+      ⚠️ Contexte: processus de candidature en cours
+
+3️⃣ ANALYSE CONTEXTUELLE:
+   - Regarde l'expéditeur: est-ce un service RH, recrutement, careers@ ?
+   - Analyse le ton: formel (recrutement) vs marketing (promotion)
+   - Vérifie les mentions: poste, candidature, CV, application
+   - Si aucun contexte de recrutement → OTHER
+
+4️⃣ NIVEAU DE CONFIANCE:
+   - 0.9-1.0: Mots-clés très clairs et contexte évident
+   - 0.7-0.9: Bonne correspondance avec quelques ambiguïtés
+   - 0.5-0.7: Correspondance partielle, contexte incertain
+   - <0.5: Très incertain ou probablement OTHER
+
+⚠️ EN CAS DE DOUTE: privilégie OTHER plutôt qu'une mauvaise classification.
 """
             
             full_text = f"Sujet: {subject}\n\nCorps:\n{body}"

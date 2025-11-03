@@ -143,7 +143,7 @@ class NLPOrchestrator:
         Mettre à jour le statut d'une candidature
         """
         from app.models.models import ApplicationEvent
-        from datetime import datetime
+        from datetime import datetime, timezone
         
         try:
             application = self.db.query(Application).filter(
@@ -161,7 +161,7 @@ class NLPOrchestrator:
             
             old_status = application.status
             application.status = new_status
-            application.updated_at = datetime.utcnow()
+            application.updated_at = datetime.now(timezone.utc)
             
             # Créer un événement
             event = ApplicationEvent(
@@ -191,7 +191,7 @@ class NLPOrchestrator:
         Créer une candidature automatiquement depuis les entités extraites
         """
         try:
-            from datetime import datetime, timedelta
+            from datetime import datetime, timedelta, timezone
             
             application = Application(
                 user_id=email.user_id,  # ⚠️ FIX: Lier au bon utilisateur !
@@ -201,7 +201,7 @@ class NLPOrchestrator:
                 status="ACKNOWLEDGED",  # Email d'accusé de réception reçu
                 source="Email auto-detection",
                 notes=f"Candidature créée automatiquement depuis email {email.id}",
-                next_action_at=datetime.utcnow() + timedelta(days=7)
+                next_action_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
             self.db.add(application)

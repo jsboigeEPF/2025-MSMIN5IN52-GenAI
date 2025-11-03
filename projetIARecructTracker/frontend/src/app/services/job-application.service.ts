@@ -14,7 +14,7 @@ import {
   providedIn: 'root'
 })
 export class JobApplicationService {
-  private readonly baseUrl = `${environment.apiUrl}/job-applications/`;
+  private readonly baseUrl = `${environment.apiUrl}/job-applications`;
 
   constructor(private http: HttpClient) {}
 
@@ -69,7 +69,7 @@ export class JobApplicationService {
    * Changer le statut d'une candidature
    */
   updateStatus(id: string, status: string, notes?: string): Observable<JobApplication> {
-    return this.http.patch<JobApplication>(`${this.baseUrl}/${id}/status`, {
+    return this.http.patch<JobApplication>(`${this.baseUrl}/${id}`, {
       status,
       notes
     });

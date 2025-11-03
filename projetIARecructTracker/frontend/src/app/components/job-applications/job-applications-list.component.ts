@@ -76,9 +76,30 @@ import { JobApplication } from '../../models';
                   </div>
                 </div>
                 <div class="card-actions">
-                  <span class="status-badge" [class]="'badge-' + application.status.toLowerCase()">
-                    {{ getStatusLabel(application.status) }}
-                  </span>
+                  <div class="status-management">
+                    <div class="status-inputs">
+                      <span class="status-badge" [class]="'badge-' + application.status.toLowerCase()">
+                        {{ getStatusLabel(application.status) }}
+                      </span>
+                      <select
+                        class="status-select"
+                        [value]="application.status"
+                        (change)="onStatusChange(application, $event)"
+                        [disabled]="isStatusUpdating(application.id)">
+                        @for (option of statusOptions; track option) {
+                          <option [value]="option">{{ getStatusLabel(option) }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="status-feedback">
+                      @if (isStatusUpdating(application.id)) {
+                        <span class="status-loading">Mise à jour...</span>
+                      }
+                      @if (statusUpdateErrors()[application.id]) {
+                        <span class="status-error">{{ statusUpdateErrors()[application.id] }}</span>
+                      }
+                    </div>
+                  </div>
                   <div class="action-buttons">
                     <button class="btn-icon" (click)="toggleApplicationDetails(application.id)" 
                             [title]="expandedApplications().has(application.id) ? 'Réduire' : 'Développer'">
@@ -346,6 +367,57 @@ import { JobApplication } from '../../models';
       flex-wrap: wrap;
     }
 
+    .status-management {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 220px;
+    }
+
+    .status-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-select {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      min-width: 160px;
+      background: white;
+    }
+
+    .status-select:focus {
+      outline: none;
+      border-color: #2196F3;
+      box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15);
+    }
+
+    .status-select:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .status-feedback {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 18px;
+    }
+
+    .status-loading {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .status-error {
+      font-size: 12px;
+      color: #d32f2f;
+    }
+
     .status-badge {
       padding: 6px 12px;
       border-radius: 12px;
@@ -471,6 +543,14 @@ import { JobApplication } from '../../models';
         justify-content: space-between;
       }
 
+      .status-management {
+        width: 100%;
+      }
+
+      .status-inputs {
+        justify-content: space-between;
+      }
+
       .detail-section {
         flex-direction: column;
         align-items: stretch;
@@ -487,6 +567,19 @@ export class JobApplicationsListComponent implements OnInit {
   loading = true;
   error: string | null = null;
   expandedApplications = signal(new Set<string>());
+  readonly statusOptions: JobApplication['status'][] = [
+    'APPLIED',
+    'ACKNOWLEDGED',
+    'SCREENING',
+    'INTERVIEW',
+    'TECHNICAL_TEST',
+    'OFFER',
+    'ACCEPTED',
+    'REJECTED',
+    'WITHDRAWN'
+  ];
+  pendingStatusUpdates = signal(new Set<string>());
+  statusUpdateErrors = signal<Record<string, string>>({});
 
   constructor(private jobApplicationService: JobApplicationService) {}
 
@@ -517,6 +610,52 @@ export class JobApplicationsListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onStatusChange(application: JobApplication, event: Event) {
+    const selectElement = event.target as HTMLSelectElement | null;
+    if (!selectElement) {
+      return;
+    }
+
+    const newStatus = selectElement.value as JobApplication['status'];
+    if (!newStatus || application.status === newStatus || this.isStatusUpdating(application.id)) {
+      return;
+    }
+
+    const index = this.jobApplications.findIndex(app => app.id === application.id);
+    if (index === -1) {
+      return;
+    }
+
+    const previousApplication = { ...this.jobApplications[index] };
+    const optimisticApplication = { ...previousApplication, status: newStatus };
+
+    this.updateJobApplicationsArray(index, optimisticApplication);
+    this.setStatusError(application.id, null);
+    this.setPendingStatus(application.id, true);
+
+    this.jobApplicationService.updateStatus(application.id, newStatus).subscribe({
+      next: (updatedApplication) => {
+        const merged = { ...optimisticApplication, ...updatedApplication };
+        this.updateJobApplicationsArray(index, merged);
+        this.setStatusError(application.id, null);
+      },
+      error: (err) => {
+        console.error('Erreur lors de la mise à jour du statut:', err);
+        this.updateJobApplicationsArray(index, previousApplication);
+        this.setStatusError(application.id, 'Impossible de mettre à jour le statut pour le moment.');
+        selectElement.value = previousApplication.status;
+        this.setPendingStatus(application.id, false);
+      },
+      complete: () => {
+        this.setPendingStatus(application.id, false);
+      }
+    });
+  }
+
+  isStatusUpdating(applicationId: string): boolean {
+    return this.pendingStatusUpdates().has(applicationId);
   }
 
   deleteApplication(id: string) {
@@ -588,5 +727,33 @@ export class JobApplicationsListComponent implements OnInit {
       'accepted': 'badge accepted'
     };
     return statusClasses[status] || 'badge';
+  }
+
+  private updateJobApplicationsArray(index: number, updatedApplication: JobApplication) {
+    this.jobApplications = [
+      ...this.jobApplications.slice(0, index),
+      updatedApplication,
+      ...this.jobApplications.slice(index + 1)
+    ];
+  }
+
+  private setPendingStatus(applicationId: string, updating: boolean) {
+    const current = new Set(this.pendingStatusUpdates());
+    if (updating) {
+      current.add(applicationId);
+    } else {
+      current.delete(applicationId);
+    }
+    this.pendingStatusUpdates.set(current);
+  }
+
+  private setStatusError(applicationId: string, message: string | null) {
+    const current = { ...this.statusUpdateErrors() };
+    if (message) {
+      current[applicationId] = message;
+    } else {
+      delete current[applicationId];
+    }
+    this.statusUpdateErrors.set(current);
   }
 }

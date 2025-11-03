@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { map, catchError, tap, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { 
   User, 
@@ -29,6 +29,8 @@ export class AuthService {
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private authInitializedSubject = new BehaviorSubject<boolean>(false);
+  public authInitialized$ = this.authInitializedSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -52,15 +54,17 @@ export class AuthService {
    */
   private initializeAuth(): void {
     // Essayer de récupérer l'utilisateur depuis le backend (cookie HttpOnly envoyé automatiquement)
-    this.getCurrentUser().subscribe({
-      next: (user) => {
-        this.setCurrentUser(user);
-      },
-      error: () => {
-        // Pas de cookie valide ou expiré, l'utilisateur n'est pas connecté
-        this.clearSession(false);
-      }
-    });
+    this.getCurrentUser({ suppressLogoutOn401: true })
+      .pipe(
+        tap(user => this.setCurrentUser(user)),
+        catchError(() => {
+          // Pas de cookie valide ou jeton invalide : nettoyer l'état sans redirection
+          this.clearSession(false);
+          return of(null);
+        }),
+        finalize(() => this.authInitializedSubject.next(true))
+      )
+      .subscribe();
   }
 
   /**
@@ -147,9 +151,16 @@ export class AuthService {
    * Récupère les informations de l'utilisateur actuel depuis le backend
    * Utilise le cookie HttpOnly automatiquement envoyé
    */
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/me`)
-      .pipe(catchError(this.handleError));
+  getCurrentUser(options: { suppressLogoutOn401?: boolean } = {}): Observable<User> {
+    const suppressLogoutOn401 = options.suppressLogoutOn401 ?? false;
+    return this.http.get<User>(`${this.API_URL}/me`).pipe(
+      catchError(error => {
+        if (suppressLogoutOn401 && error.status === 401) {
+          return throwError(() => error);
+        }
+        return this.handleError(error);
+      })
+    );
   }
 
   /**

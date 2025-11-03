@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, CanActivateChild, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable, map, take } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, take, filter, switchMap, catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -28,20 +29,36 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private checkAuth(url: string): Observable<boolean> {
-    return this.authService.isAuthenticated$.pipe(
+    return this.authService.authInitialized$.pipe(
+      filter(initialized => initialized),
       take(1),
-      map(isAuthenticated => {
+      switchMap(() => this.authService.isAuthenticated$.pipe(take(1))),
+      switchMap(isAuthenticated => {
         if (isAuthenticated) {
-          return true;
-        } else {
-          // Stocker l'URL de retour et rediriger vers la page de connexion
-          this.router.navigate(['/auth/login'], { 
-            queryParams: { returnUrl: url }
-          });
-          return false;
+          return of(true);
         }
+
+        const token = this.authService.getToken();
+        if (token) {
+          return this.authService.reloadAuthState().pipe(
+            map(() => true),
+            catchError(() => {
+              this.redirectToLogin(url);
+              return of(false);
+            })
+          );
+        }
+
+        this.redirectToLogin(url);
+        return of(false);
       })
     );
+  }
+
+  private redirectToLogin(url: string): void {
+    this.router.navigate(['/auth/login'], { 
+      queryParams: { returnUrl: url }
+    });
   }
 }
 
@@ -59,8 +76,10 @@ export class GuestGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return this.authService.isAuthenticated$.pipe(
+    return this.authService.authInitialized$.pipe(
+      filter(initialized => initialized),
       take(1),
+      switchMap(() => this.authService.isAuthenticated$.pipe(take(1))),
       map(isAuthenticated => {
         if (!isAuthenticated) {
           return true;
@@ -88,8 +107,10 @@ export class AdminGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return this.authService.isAuthenticated$.pipe(
+    return this.authService.authInitialized$.pipe(
+      filter(initialized => initialized),
       take(1),
+      switchMap(() => this.authService.isAuthenticated$.pipe(take(1))),
       map(isAuthenticated => {
         if (isAuthenticated && this.authService.hasRole('admin')) {
           return true;

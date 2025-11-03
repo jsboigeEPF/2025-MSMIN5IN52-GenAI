@@ -31,7 +31,8 @@ class MistralAIClient:
         self, 
         text: str, 
         extraction_schema: Dict[str, Any],
-        model: str = None
+        model: str = None,
+        context: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Extraire des données structurées d'un texte avec Mistral en mode JSON
@@ -59,9 +60,14 @@ class MistralAIClient:
             
             # Construire le prompt pour l'extraction structurée
             schema_str = json.dumps(extraction_schema, indent=2)
+            context_block = ""
+            if context:
+                context_block = f"\nContexte d'analyse:\n{context.strip()}\n"
             prompt = f"""
 Analysez le texte suivant et extrayez les informations selon le schéma JSON fourni.
 Répondez uniquement avec un JSON valide, sans texte explicatif.
+
+{context_block}
 
 Schéma de réponse attendu:
 {schema_str}

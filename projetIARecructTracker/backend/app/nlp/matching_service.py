@@ -6,6 +6,7 @@ from app.models.models import Application, Email
 from sqlalchemy.orm import Session
 from loguru import logger
 import re
+from datetime import datetime, timedelta, timezone
 
 def cosine_similarity_simple(a, b):
     """Simple cosine similarity calculation"""
@@ -145,8 +146,9 @@ class EmailMatchingService:
         
         # 4. Bonus pour candidatures récentes
         if application.created_at:
-            from datetime import datetime, timedelta
-            if datetime.utcnow() - application.created_at <= timedelta(days=30):
+            created_at = self._ensure_utc(application.created_at)
+            now = datetime.now(timezone.utc)
+            if created_at and now - created_at <= timedelta(days=30):
                 score += 0.1
                 reasons.append("Recent application (within 30 days)")
         
@@ -223,6 +225,16 @@ class EmailMatchingService:
         ]
         
         return any(matches)
+    
+    def _ensure_utc(self, value: Optional[datetime]) -> Optional[datetime]:
+        """
+        Normalise les dates pour éviter les erreurs offset-naive/offset-aware.
+        """
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
     
     def _extract_keywords(self, text: str) -> List[str]:
         """

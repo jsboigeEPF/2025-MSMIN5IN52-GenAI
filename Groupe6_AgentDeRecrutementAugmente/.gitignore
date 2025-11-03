@@ -1,19 +1,16 @@
-# Environnement virtuel
+# Ignorer les environnements virtuels
 venv/
-.env/
+.venv/
 
-# Fichiers temporaires
+# Ignorer les fichiers Python compilés
 __pycache__/
 *.pyc
 
-# Dossiers de cache VSCode
-.vscode/
-.idea/
+# Ignorer les fichiers d’environnement
+.env
+*.env
 
-# Fichiers uploadés ou générés
-/static/uploads/
-output/
-
-# Fichiers de configuration système
+# Ignorer les dossiers système
 .DS_Store
-Thumbs.db
+.idea/
+.vscode/

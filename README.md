@@ -95,15 +95,8 @@ pip install -r requirements.txt
 
 ⏱️ Cette étape peut prendre 5-10 minutes selon votre connexion.
 
-### Étape 4 : Télécharger le modèle spaCy
 
-spaCy nécessite un modèle de langue française :
-
-```bash
-python -m spacy download fr_core_news_sm
-```
-
-### Étape 5 : Configurer les variables d'environnement
+### Étape 4 : Configurer les variables d'environnement
 
 Le fichier `.env` est déjà créé avec la configuration par défaut :
 
@@ -113,7 +106,7 @@ OPENAI_MODEL=gpt-4o-mini
 
 ⚠️ **Important** : Vous n'avez PAS besoin d'ajouter votre clé API dans ce fichier. Pour des raisons de sécurité, vous entrerez votre clé directement dans l'interface web.
 
-### Étape 6 : Vérifier la structure des dossiers
+### Étape 5 : Vérifier la structure des dossiers
 
 Les dossiers nécessaires sont créés automatiquement au lancement, mais vous pouvez les créer manuellement :
 
@@ -328,19 +321,6 @@ projet6_TALA_SOUZA_KOUNDJO/
    - Le traitement est séquentiel (pas de parallélisation)
    - Le chatbot nécessite un CSV au format spécifique (colonnes ID et Resume)
 
-4. **Performance** :
-   - 1 CV : ~3-5 secondes
-   - 10 CVs : ~30-50 secondes
-   - 50 CVs : ~3-5 minutes
-
-## 🤝 Contribution
-
-Ce projet est développé dans un cadre académique. Pour toute question ou amélioration :
-
-1. Ouvrez une issue sur GitHub
-2. Proposez une pull request
-3. Contactez l'équipe du projet
-
 ## 👥 Équipe
 
 **Groupe 6 - Projet GenAI 2025**
@@ -348,8 +328,6 @@ Ce projet est développé dans un cadre académique. Pour toute question ou amé
 - KOUNDJO Brenda
 - SOUZA Marilson  
 - TALA Lamyae
-
-## 📄 Licence
 
 Projet académique - 2025 - Usage pédagogique uniquement
 

@@ -1,0 +1,5 @@
+# Dépendances principales de l'application
+langchain-openai
+python-dotenv
+JPype1
+langchain

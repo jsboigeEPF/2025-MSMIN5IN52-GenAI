@@ -1,0 +1,22 @@
+# Ignore out directory
+/out/
+
+# Ignore Python compiled files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+
+# Ignore environment files
+.env
+*.env
+.venv/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db

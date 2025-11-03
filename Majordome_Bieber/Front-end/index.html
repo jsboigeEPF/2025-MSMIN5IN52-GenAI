@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justin Bieber | Majordome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css"> <!-- LIEN VERS VOTRE NOUVEAU STYLE.CSS -->
+</head>
+
+<body class="body-index"> <!-- Garde cette classe pour son fond spécifique background.jpg -->
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <div>
+                    <h1 class="h5 mb-0 fw-bold">Justin Bieber</h1>
+                    <small class="text-muted">Votre majordome numérique</small>
+                </div>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse d-lg-flex justify-content-between" id="navbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">
+                            <i class="bi bi-house-door fs-5 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calendar.html">
+                            <i class="bi bi-calendar3 fs-5 me-2"></i>Calendrier
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="messages.html">
+                            <i class="bi bi-envelope fs-5 me-2"></i>Mails
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="settings.html">
+                            <i class="bi bi-gear fs-5 me-2"></i>Paramètres
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2" id="auth-buttons">
+                    <button id="google-login-btn" class="btn btn-primary d-none">
+                        <i class="bi bi-google me-2"></i>Se connecter avec Google
+                    </button>
+                    <button id="logout-btn" class="btn btn-logout d-none">
+                        <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="container my-5">
+
+        <!-- Assistant Justin - REMONTÉ EN TÊTE ET AU CENTRE, AVEC NOUVELLE CLASSE -->
+        <div class="card p-4 mx-auto main-assistant-card">
+            <div class="assistant-intro gap-3 mb-3">
+                <div class="icon-circle p-3 flex-shrink-0">
+                    <i class="bi bi-robot fs-icon text-white"></i> <!-- Texte blanc sur le fond coloré -->
+                </div>
+                <div class="flex-grow-1">
+                    <h4 class="fw-bold mb-1">Assistant Justin</h4>
+                    <p class="text-muted mb-0">Comment puis-je vous aider aujourd'hui ? Demandez-moi !</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+            <input id="command-input" type="text" class="form-control form-control-lg"
+                placeholder="Ex: Résume mes emails non lus...">
+                <button id="send-command" class="btn btn-primary">
+                <i class="bi bi-send-fill me-2"></i>Envoyer
+            </button>
+        </div>
+        <div id="command-output" class="mt-4 d-none">
+            <div class="mb-2 text-muted">
+                <i class="bi bi-person-circle me-2"></i>
+                <span class="user-question fw-medium"></span>
+            </div>
+            <div class="ai-response">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-robot fs-4"></i>
+                    <p class="mb-0 fw-medium"></p>
+                </div>
+            </div>
+        </div>
+        <!-- FIN ASSISTANT -->
+
+        <!-- Carrousel - Positionné APRÈS l'assistant, réduit en hauteur -->
+        <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"
+                        aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"
+                        aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"
+                        aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <!-- La légende est maintenant la "carte" -->
+                        <a href="calendar.html" class="carousel-caption">
+                            <i class="bi bi-calendar-event fs-3 mb-2"></i>
+                            <h5>Votre Calendrier</h5>
+                            <p>Gérez vos événements et rendez-vous en un clin d'œil.</p>
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="messages.html" class="carousel-caption">
+                            <i class="bi bi-envelope fs-3 mb-2"></i>
+                            <h5>Vos Mails</h5>
+                            <p>Consultez et organisez vos messages importants.</p>
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="#" class="carousel-caption">
+                            <i class="bi bi-cloud-sun fs-3 mb-2"></i>
+                            <h5>La Météo</h5>
+                            <p>Restez informé des prévisions locales et mondiales.</p>
+                        </a>
+                    </div>
+                </div>
+                <!-- Les flèches sont MAINTENANT à l'intérieur de #heroCarousel -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche gauche -->
+                    <span class="visually-hidden">Précédent</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i> <!-- Icône Bootstrap pour la flèche droite -->
+                    <span class="visually-hidden">Suivant</span>
+                </button>
+        </div>
+        <!-- FIN DU CARROUSEL -->
+
+        <!-- Dashboard -->
+        <div class="row g-4 mb-5 justify-content-center">
+            <div class="col-md-6 col-lg-6" id="mail-card-container">
+                <a href="messages.html" class="text-decoration-none">
+                    <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h5 fw-semibold mb-0">Mails</h2>
+                            <div class="icon-circle bg-primary-light">
+                                <i class="bi bi-envelope fs-icon text-primary"></i>
+                            </div>
+                        </div>
+                        <!-- Contenu pour utilisateur connecté -->
+                        <div class="list-group list-group-flush flex-grow-1 logged-in-content d-none" id="dashboard-email-list">
+                            <!-- Les emails seront injectés ici par le JS -->
+                        </div>
+                        <!-- Contenu pour utilisateur déconnecté -->
+                        <div class="logged-out-content flex-grow-1 d-flex align-items-center justify-content-center">
+                            <p class="text-muted text-center">Veuillez vous connecter pour voir vos mails.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-6" id="agenda-card-container">
+                <a href="calendar.html" class="text-decoration-none">
+                    <div class="card p-4 d-flex flex-column" style="min-height: 200px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h5 fw-semibold mb-0">Calendrier</h2>
+                            <div class="icon-circle bg-success-light">
+                                <i class="bi bi-calendar3 fs-icon text-success"></i>
+                            </div>
+                        </div>
+                        <!-- Contenu pour utilisateur connecté -->
+                        <div class="list-group list-group-flush flex-grow-1 logged-in-content d-none" id="dashboard-event-list">
+                            <!-- Les événements seront injectés ici par le JS -->
+                        </div>
+                        <!-- Contenu pour utilisateur déconnecté -->
+                        <div class="logged-out-content flex-grow-1 d-flex align-items-center justify-content-center">
+                            <p class="text-muted text-center">Veuillez vous connecter pour voir votre agenda.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="fw-semibold mb-3">À propos</h5>
+                    <p class="text-muted">Justin Bieber est votre majordome numérique personnel, disponible 24/7 pour
+                        gérer vos tâches quotidiennes et vous simplifier la vie.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="fw-semibold mb-3">Contact</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 text-muted"><i class="bi bi-geo-alt me-2"></i>123 Rue Exemple, 75000 Paris</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-envelope me-2"></i>contact@majordome.fr</li>
+                        <li class="text-muted"><i class="bi bi-telephone me-2"></i>+33 1 23 45 67 89</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-semibold mb-3">Liens rapides</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Accueil</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Services</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bouton Aide -->
+    <button class="btn btn-primary help-btn shadow-lg" data-bs-toggle="modal" data-bs-target="#helpModal">
+        <i class="bi bi-question-circle me-2"></i>Aide
+    </button>
+
+    <!-- Modals -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold">Connexion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">Connectez-vous pour accéder à votre espace personnel</p>
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="signupModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header pb-0">
+                    <h5 class="modal-title fw-semibold">Créer un compte</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <p class="text-muted mb-4">Rejoignez-nous pour profiter de tous les services</p>
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Créer le compte</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold">Comment pouvons-nous vous aider ?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">Envoyez-nous votre message et nous vous répondrons rapidement</p>
+                    <form id="help-form">
+                        <div class="mb-3">
+                            <label class="form-label">Votre nom</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Votre email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Logic for dynamic background based on modal state
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const bodyElement = document.body;
+
+        function applyLoginBackground() {
+            bodyElement.classList.add('body-login-modal-open');
+        }
+
+        function removeLoginBackground() {
+            // Supprime la classe seulement si aucun modal de connexion/inscription n'est actuellement visible
+            if (!(loginModal.classList.contains('show') || signupModal.classList.contains('show'))) {
+                bodyElement.classList.remove('body-login-modal-open');
+            }
+        }
+
+        loginModal.addEventListener('show.bs.modal', applyLoginBackground);
+        loginModal.addEventListener('hidden.bs.modal', removeLoginBackground);
+        signupModal.addEventListener('show.bs.modal', applyLoginBackground);
+        signupModal.addEventListener('hidden.bs.modal', removeLoginBackground);
+
+
+        // Base de données simulée (pas de changements)
+        const database = { /* ... */ };
+        // Réponses intelligentes de l'IA (pas de changements)
+        function getAIResponse(query) { /* ... */ }
+        // Fonction pour traiter la commande (pas de changements)
+        function handleCommand() {
+            const commandInput = document.getElementById('command-input');
+            const query = commandInput.value.trim();
+            if (!query) return;
+
+            const commandOutput = document.getElementById('command-output');
+            const userQuestion = commandOutput.querySelector('.user-question');
+            const aiResponse = commandOutput.querySelector('.ai-response p');
+
+            userQuestion.textContent = query;
+            aiResponse.textContent = 'Thinking...';
+            commandOutput.classList.remove('d-none');
+            commandInput.value = '';
+
+            fetch('http://localhost:5000/api/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        aiResponse.textContent = `Error: ${data.error}`;
+                    } else {
+                        aiResponse.textContent = data.response;
+                    }
+                })
+                .catch(error => {
+                    aiResponse.textContent = 'Error communicating with the chatbot.';
+                    console.error('Error:', error);
+                });
+        }
+        document.getElementById('send-command').addEventListener('click', handleCommand);
+        document.getElementById('command-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); handleCommand(); }
+        });
+        document.getElementById('google-login-btn').addEventListener('click', () => {
+            fetch('http://localhost:5000/auth/login', {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // On sauvegarde l'état de connexion dans la session du navigateur
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        updateDashboardCards(true); // On passe true pour forcer l'état connecté
+                    } else {
+                        alert('Échec de la connexion: ' + data.message);
+                    }
+                })
+                .catch(error => { 
+                    alert('Erreur de communication avec le serveur.');
+                    console.error('Error:', error);
+                });
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            // Appel au backend pour supprimer le token.json
+            fetch('http://localhost:5000/auth/logout', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // On alerte l'utilisateur en cas d'échec, mais on continue la déconnexion côté client
+                    alert('Un problème est survenu lors de la déconnexion côté serveur, mais vous êtes déconnecté de cette session.');
+                }
+                // Quoi qu'il arrive, on déconnecte l'utilisateur côté client
+                sessionStorage.removeItem('isLoggedIn');
+                updateDashboardCards(false);
+            })
+            .catch(error => {
+                console.error('Erreur lors de la déconnexion:', error);
+                alert('Erreur de communication avec le serveur lors de la déconnexion.');
+            });
+        });
+
+        // --- NOUVELLE LOGIQUE POUR LES CARTES DU DASHBOARD ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifie si l'utilisateur était déjà connecté dans cette session
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+            updateDashboardCards(isLoggedIn);
+        });
+
+        function updateDashboardCards(isLoggedIn) {
+                const loggedInElements = document.querySelectorAll('.logged-in-content');
+                const loggedOutElements = document.querySelectorAll('.logged-out-content');
+                const loginBtn = document.getElementById('google-login-btn');
+                const logoutBtn = document.getElementById('logout-btn');
+
+                if (isLoggedIn) {
+                    // Affiche le contenu pour utilisateur connecté
+                    loggedInElements.forEach(el => el.classList.remove('d-none'));
+                    loggedOutElements.forEach(el => el.classList.add('d-none'));
+                    
+                    // Gère les boutons de connexion/déconnexion
+                    loginBtn.classList.add('d-none');
+                    logoutBtn.classList.remove('d-none');
+
+                    // Charger les données réelles
+                    loadDashboardEmails();
+                    loadDashboardEvents();
+                } else {
+                    // Affiche le contenu pour utilisateur déconnecté
+                    loggedInElements.forEach(el => el.classList.add('d-none'));
+                    loggedOutElements.forEach(el => el.classList.remove('d-none'));
+
+                    // Gère les boutons de connexion/déconnexion
+                    loginBtn.classList.remove('d-none');
+                    logoutBtn.classList.add('d-none');
+
+                    // Vide le contenu des cartes
+                    document.getElementById('dashboard-email-list').innerHTML = '';
+                    document.getElementById('dashboard-event-list').innerHTML = '';
+                }
+            }
+
+        async function loadDashboardEmails() {
+            const emailListContainer = document.getElementById('dashboard-email-list');
+            emailListContainer.innerHTML = '<div class="text-center text-muted p-3"><div class="spinner-border spinner-border-sm" role="status"></div></div>'; // Spinner
+
+            try {
+                const response = await fetch('http://localhost:5000/api/emails');
+                const data = await response.json();
+
+                if (data.emails && data.emails.length > 0) {
+                    // On prend seulement les 2 premiers emails
+                    const emailsToShow = data.emails.slice(0, 2);
+                    emailListContainer.innerHTML = emailsToShow.map(email => `
+                        <div class="list-group-item border-0 px-0 bg-transparent">
+                            <h6 class="mb-1 text-truncate">${email.from.split('<')[0].trim()}</h6>
+                            <small class="text-muted text-truncate d-block">${email.subject}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    emailListContainer.innerHTML = '<p class="text-muted text-center p-3">Aucun e-mail récent.</p>';
+                }
+            } catch (error) {
+                console.error('Erreur chargement emails dashboard:', error);
+                emailListContainer.innerHTML = '<p class="text-danger text-center p-3">Erreur de chargement.</p>';
+            }
+        }
+
+        async function loadDashboardEvents() {
+            const eventListContainer = document.getElementById('dashboard-event-list');
+            eventListContainer.innerHTML = '<div class="text-center text-muted p-3"><div class="spinner-border spinner-border-sm" role="status"></div></div>'; // Spinner
+
+            try {
+                const response = await fetch('http://localhost:5000/api/calendar/events');
+                const data = await response.json();
+
+                if (data.events && data.events.length > 0) {
+                    // On prend seulement les 2 prochains événements
+                    const eventsToShow = data.events.slice(0, 2);
+                    eventListContainer.innerHTML = eventsToShow.map(event => {
+                        // Formattage simple de la date/heure
+                        const eventDate = new Date(event.start);
+                        const formattedDate = eventDate.toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                        return `
+                            <div class="list-group-item border-0 px-0 bg-transparent">
+                                <h6 class="mb-1 text-truncate">${event.summary}</h6>
+                                <small class="text-muted">${formattedDate}</small>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    eventListContainer.innerHTML = '<p class="text-muted text-center p-3">Aucun événement à venir.</p>';
+                }
+            } catch (error) {
+                console.error('Erreur chargement événements dashboard:', error);
+                eventListContainer.innerHTML = '<p class="text-danger text-center p-3">Erreur de chargement.</p>';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

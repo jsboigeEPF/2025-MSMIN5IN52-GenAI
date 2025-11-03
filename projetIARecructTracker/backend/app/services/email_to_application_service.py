@@ -70,8 +70,8 @@ class EmailToApplicationService:
             return None
 
         # Extraire les informations de l'email
-        company_name = self._extract_company_name(email)
-        job_title = self._extract_job_title(email)
+        company_name = self._extract_company_name(email) or "Entreprise non spécifiée"
+        job_title = self._extract_job_title(email) or self._generate_job_title(email)
         
         if not email.user_id:
             logger.warning(f"Email {email.id} has no user_id; skipping automatic application creation.")
@@ -91,12 +91,12 @@ class EmailToApplicationService:
         status = self._determine_status_from_classification(email.classification)
         
         application_data = ApplicationCreate(
-            job_title=job_title or "Poste non spécifié",
+            job_title=job_title,
             company_name=company_name,
-            source=f"Email de {email.sender}",
+            source=f"Email de {email.sender or 'expéditeur inconnu'}",
             location=None,
             status=status,
-            notes=f"Créé automatiquement à partir de l'email: {email.subject}\n\nContenu: {email.snippet[:200]}..."
+            notes=f"Créé automatiquement à partir de l'email: {(email.subject or 'Sujet inconnu')}\n\nContenu: {(email.snippet or email.raw_body or '')[:200]}..."
         )
         
         application = self.application_service.create_application(application_data, email.user_id)
@@ -112,6 +112,7 @@ class EmailToApplicationService:
         content = (email.raw_body or email.snippet or "").lower()
         sender = (email.sender or "").lower()
         text = f"{subject} {content}"
+        classification = (email.classification or "").upper()
 
         # Keywords positifs
         strong_keywords = [
@@ -166,20 +167,20 @@ class EmailToApplicationService:
         ]
 
         text_with_sender = f"{text} {sender}"
+        recruitment_classifications = {'ACK', 'INTERVIEW', 'OFFER', 'REQUEST', 'REJECTED'}
+        classification_priority = classification in recruitment_classifications
 
         if any(domain in sender for domain in exclusion_domains):
+            logger.info(f"Email {email.id} ignoré: domaine marketing détecté ({sender}).")
             return False
-        if any(keyword in text_with_sender for keyword in exclusion_keywords):
-            return False
-        if any(re.search(pattern, text_with_sender) for pattern in marketing_patterns):
-            return False
+        marketing_keyword_hit = any(keyword in text_with_sender for keyword in exclusion_keywords)
+        marketing_pattern_hit = any(re.search(pattern, text_with_sender) for pattern in marketing_patterns)
 
         strong_hits = sum(1 for keyword in strong_keywords if keyword in text)
         phrase_hits = sum(1 for phrase in recruitment_phrases if phrase in text)
         weak_hits = sum(1 for keyword in weak_keywords if keyword in text)
 
-        if strong_hits > 0 or phrase_hits > 0:
-            return True
+        has_recruitment_signal = strong_hits > 0 or phrase_hits > 0
 
         # Pour les emails sans mots forts, exiger au moins deux mots faibles ET une structure typique
         context_markers = [
@@ -188,8 +189,20 @@ class EmailToApplicationService:
             'application', 'applicant', 'hiring process', 'recruter', 'position ouverte',
             'stage', 'internship'
         ]
+        context_match = weak_hits >= 2 and any(marker in text for marker in context_markers)
 
-        return weak_hits >= 3 and any(marker in text for marker in context_markers)
+        if not has_recruitment_signal and not context_match:
+            logger.info(f"Email {email.id} ignoré: aucun signal de recrutement détecté.")
+            return False
+
+        # Si des signaux marketing sont présents et qu'aucun mot fort n'est détecté,
+        # considérer l'email comme marketing (sauf si classification prioritaire)
+        if not classification_priority and (marketing_keyword_hit or marketing_pattern_hit):
+            if not has_recruitment_signal:
+                logger.info(f"Email {email.id} ignoré: signaux marketing sans mots forts de recrutement.")
+                return False
+
+        return True
 
     def _extract_company_name(self, email: Email) -> str:
         """
@@ -218,13 +231,32 @@ class EmailToApplicationService:
             if key in sender_domain.lower():
                 return value
                 
+        if not company_name:
+            return "Entreprise non spécifiée"
         return company_name
+    
+    def _generate_job_title(self, email: Email) -> str:
+        """
+        Fallback pour générer un intitulé lisible lorsque l'extraction échoue
+        """
+        subject = (email.subject or "").strip()
+        if subject:
+            cleaned = re.sub(r'^(re|fw|fwd)\s*[:\-]\s*', '', subject, flags=re.IGNORECASE).strip()
+            cleaned = re.sub(r'\s+', ' ', cleaned)
+            return cleaned[:120] or "Candidature"
+        
+        snippet = (email.snippet or "").strip()
+        if snippet:
+            first_line = snippet.splitlines()[0]
+            return first_line[:120] or "Candidature"
+        
+        return "Candidature"
 
     def _extract_job_title(self, email: Email) -> Optional[str]:
         """
         Extrait le titre du poste à partir du sujet de l'email
         """
-        subject = email.subject.lower()
+        subject = (email.subject or "").lower()
         
         # Patterns courants pour les titres de poste
         job_patterns = [

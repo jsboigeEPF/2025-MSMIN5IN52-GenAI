@@ -3,7 +3,7 @@ Service pour interagir avec l'API Gmail en utilisant OAuth 2.0
 """
 import httpx
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import base64
 import email
 import json
@@ -257,7 +257,7 @@ class GmailAPIService:
                 "thread_id": message_data.get("threadId"),
                 "is_sent": is_sent,
                 "gmail_labels": ",".join(message_data.get("labelIds", [])),
-                "created_at": datetime.utcnow()
+                "created_at": datetime.now(timezone.utc)
             }
             
         except Exception as e:
@@ -299,20 +299,20 @@ class GmailAPIService:
         Parse la date d'un email au format RFC 2822
         """
         try:
-            # Utiliser le module email pour parser la date
             import email.utils
-            timestamp = email.utils.parsedate_tz(date_str)
-            if timestamp:
-                # Convertir en datetime UTC
-                dt = datetime(*timestamp[:6])
-                if timestamp[9]:  # Timezone offset
-                    dt = dt - timedelta(seconds=timestamp[9])
-                return dt
-        except:
-            pass
-            
-        # Fallback: retourner l'heure actuelle si le parsing échoue
-        return datetime.utcnow()
+            if not date_str:
+                raise ValueError("empty date header")
+            parsed = email.utils.parsedate_to_datetime(date_str)
+            if parsed is None:
+                raise ValueError(f"unable to parse date: {date_str}")
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            else:
+                parsed = parsed.astimezone(timezone.utc)
+            return parsed
+        except Exception as exc:
+            logger.debug(f"Fallback to current UTC for email date parsing error: {exc}")
+            return datetime.now(timezone.utc)
 
     async def get_labels(self, user: User) -> List[Dict[str, Any]]:
         """

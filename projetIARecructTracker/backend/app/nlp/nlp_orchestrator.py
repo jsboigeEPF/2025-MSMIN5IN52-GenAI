@@ -5,6 +5,7 @@ from app.nlp.classification_service import EmailClassificationService, Classific
 from app.nlp.matching_service import EmailMatchingService, MatchingResult
 from app.models.models import Email, Application
 from loguru import logger
+import re
 
 
 class NLPOrchestrator:
@@ -110,17 +111,40 @@ class NLPOrchestrator:
                     if updated:
                         actions.append(f"Updated application status to {new_status}")
             
-            # Action 3: Créer des candidatures automatiques si entité bien extraite
+            # Action 3: Créer des candidatures automatiques SEULEMENT si:
+            # - Classification = email de recrutement (ACK, INTERVIEW, OFFER, REQUEST)
+            # - Confiance élevée
+            # - Pas de match existant
+            recruitment_types = ["ACK", "INTERVIEW", "OFFER", "REQUEST", "REJECTED"]
+            
             if (not matches and 
-                extraction.confidence > 0.8 and 
-                extraction.company_name and 
-                extraction.job_title and
-                classification.email_type.value == "ACK"):
+                classification.email_type.value in recruitment_types and  # Tous types de recrutement
+                classification.confidence > 0.7):  # Confiance raisonnable
+                
+                # ⚠️ Créer même si extraction partielle (entreprise ou poste manquant)
+                # Utiliser des valeurs par défaut si nécessaire
+                company = extraction.company_name or "Entreprise non spécifiée"
+                job = extraction.job_title or "Poste non spécifié"
                 
                 # Créer une nouvelle candidature automatiquement
+                logger.info(f"Creating auto-application: {company} - {job} (type: {classification.email_type.value})")
                 new_app = await self._create_application_from_extraction(extraction, email)
                 if new_app:
                     actions.append(f"Created new application {new_app.id}")
+                    email.application_id = new_app.id
+                    
+                    # Mettre à jour immédiatement le statut selon le type d'email
+                    new_status = self.classification_service.get_status_from_email_type(
+                        classification.email_type
+                    )
+                    if new_status:
+                        await self._update_application_status(new_app.id, new_status, email.id)
+                        actions.append(f"Set initial status to {new_status}")
+            
+            # ⚠️ Si email classé OTHER, ne rien faire d'automatique
+            elif classification.email_type.value == "OTHER":
+                logger.info(f"Email {email.id} classified as OTHER, skipping auto-actions")
+                actions.append("Skipped: Email classified as non-recruitment (OTHER)")
             
             # Action 4: Planifier des rappels basés sur le type d'email
             reminder_scheduled = self._schedule_reminder(email, classification)
@@ -170,7 +194,7 @@ class NLPOrchestrator:
                 payload={
                     "previous_status": old_status,
                     "new_status": new_status,
-                    "triggered_by_email": email_id,
+                    "triggered_by_email": str(email_id),  # ⚠️ Convertir UUID en string pour JSON
                     "auto_classified": True
                 }
             )
@@ -193,14 +217,20 @@ class NLPOrchestrator:
         try:
             from datetime import datetime, timedelta, timezone
             
+            # Utiliser des valeurs par défaut si extraction partielle
+            company_name = extraction.company_name or self._infer_company_from_email(email)
+            job_title = extraction.job_title or self._infer_job_title_from_email(email)
+            
+            subject_label = (email.subject or "Sujet inconnu").strip()
+
             application = Application(
                 user_id=email.user_id,  # ⚠️ FIX: Lier au bon utilisateur !
-                company_name=extraction.company_name,
-                job_title=extraction.job_title,
+                company_name=company_name,
+                job_title=job_title,
                 location=extraction.location,
                 status="ACKNOWLEDGED",  # Email d'accusé de réception reçu
                 source="Email auto-detection",
-                notes=f"Candidature créée automatiquement depuis email {email.id}",
+                notes=f"Candidature créée automatiquement depuis l'email {email.id} : {subject_label}",
                 next_action_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
             
@@ -250,3 +280,36 @@ class NLPOrchestrator:
         
         # Retraiter
         return await self.process_email_complete(email)
+
+    def _infer_job_title_from_email(self, email: Email) -> str:
+        subject = (email.subject or "").strip()
+        if subject:
+            cleaned = re.sub(r'^(re|fw|fwd)\s*[:\-]\s*', '', subject, flags=re.IGNORECASE).strip()
+            cleaned = re.sub(r'\s+', ' ', cleaned)
+            return cleaned[:120] or "Poste non spécifié"
+        
+        snippet = (email.snippet or email.raw_body or "").strip()
+        if snippet:
+            first_line = snippet.splitlines()[0]
+            return first_line[:120] or "Poste non spécifié"
+        
+        return "Poste non spécifié"
+
+    def _infer_company_from_email(self, email: Email) -> str:
+        sender = (email.sender or "").strip()
+        if '@' in sender:
+            domain = sender.split('@')[-1]
+        else:
+            domain = sender
+        
+        domain = domain.lower()
+        for suffix in ('.com', '.fr', '.net', '.io', '.co', '.org'):
+            if domain.endswith(suffix):
+                domain = domain[:-len(suffix)]
+        parts = [part for part in domain.split('.') if part]
+        if parts:
+            candidate = parts[0].replace('-', ' ').strip()
+            if candidate:
+                return candidate.capitalize()
+        
+        return "Entreprise non spécifiée"

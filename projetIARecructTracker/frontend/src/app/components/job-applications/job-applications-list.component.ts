@@ -124,7 +124,7 @@ import { JobApplication } from '../../models';
               <div class="card-header">
                 <div class="card-title-section">
                   <h3 class="application-id">
-                    {{ application.job_title || 'Candidature' }}
+                    {{ getApplicationTitle(application) }}
                   </h3>
                   <div class="application-info">
                     <span class="application-details">
@@ -1085,6 +1085,41 @@ export class JobApplicationsListComponent implements OnInit {
     if (!dateInput) return 'Non défini';
     const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
     return date.toLocaleDateString('fr-FR');
+  }
+
+  getApplicationTitle(app: JobApplication): string {
+    const rawTitle = (app.job_title || '').trim();
+    if (rawTitle && !this.isPlaceholderTitle(rawTitle)) {
+      return rawTitle;
+    }
+
+    if (app.notes) {
+      const subjectMatch = app.notes.match(/email:\s*(.+)/i);
+      if (subjectMatch && subjectMatch[1]) {
+        return subjectMatch[1].trim().slice(0, 120) || 'Candidature';
+      }
+      const firstLine = app.notes.split('\n').find(line => line.trim());
+      if (firstLine) {
+        return firstLine.trim().slice(0, 120) || 'Candidature';
+      }
+    }
+
+    if (app.company_name) {
+      return `Candidature ${app.company_name}`.trim();
+    }
+
+    if (app.source) {
+      return app.source.trim();
+    }
+
+    return 'Candidature';
+  }
+
+  private isPlaceholderTitle(title: string): boolean {
+    const normalized = this.normalize(title).replace(/é/g, 'e').replace(/è/g, 'e');
+    return normalized === 'poste non specifie' ||
+      normalized === 'candidature' ||
+      normalized === 'candidature automatique';
   }
 
   toggleApplicationDetails(applicationId: string) {

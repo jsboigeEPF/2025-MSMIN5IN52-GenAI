@@ -30,7 +30,8 @@ async def search_travel_options(destination: str, budget: int = None, dates: str
         summary_prompt = f"Summarize the following travel search results for a trip to {destination} (budget: {budget}, dates: {dates}) and extract key information like flight prices, hotel options, and relevant links. Make it concise and easy to read for a user. Here are the search results: {json.dumps(search_results)}"
 
         if openai_client:
-            ai_response = await openai_client.chat.completions.create(
+            # ✅ FIX: OpenAI is NOT async - remove await
+            ai_response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that summarizes web search results for travel planning."},
@@ -40,6 +41,7 @@ async def search_travel_options(destination: str, budget: int = None, dates: str
             )
             return ai_response.choices[0].message.content.strip()
         elif gemini_model:
+            # ✅ Gemini IS async - keep await
             ai_response = await gemini_model.generate_content_async(
                 [
                     {"role": "user", "parts": ["You are a helpful assistant that summarizes web search results for travel planning."]},

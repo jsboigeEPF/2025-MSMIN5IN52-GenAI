@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Node modules
 node_modules/
 **/node_modules*/
@@ -79,3 +80,8 @@ coverage-final.json
 
 # Dossier de suivi d'analyse Git
 git-analysis/
+=======
+node_modules/
+
+.env
+>>>>>>> dev_thomas

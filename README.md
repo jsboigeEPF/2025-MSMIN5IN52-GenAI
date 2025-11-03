@@ -286,9 +286,9 @@ projet6_TALA_SOUZA_KOUNDJO/
 │   ├── cv_processor.py         # Traitement des CVs
 │   ├── cv_chatbot.py           # Chatbot RAG avec FAISS
 │   ├── parse.py                # Parsing de fichiers (PDF, DOCX, TXT)
-│   ├── ner.py                  # Extraction d'entités nommées
-│   ├── rag.py                  # Logique RAG (non utilisé actuellement)
-│   └── ranker.py               # Classement de candidats (non utilisé actuellement)
+│   └── ner.py                  # Extraction d'entités nommées
+│   
+│  
 │
 ├── templates/                  # Templates HTML (Jinja2)
 │   ├── base.html               # Template de base

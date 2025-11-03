@@ -1,34 +1,13 @@
 import datetime
-import os.path
 from plyer import notification
 import time
 import threading
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from login import get_credentials
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
-
-def get_credentials():
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            credentials_path = os.path.join(base_dir, "credentials.json")
-            flow = InstalledAppFlow.from_client_secrets_file(
-                credentials_path, SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
-    return creds
 
 def list_events(service, notify=False):
     now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
@@ -49,7 +28,8 @@ def list_events(service, notify=False):
         start = event["start"].get("dateTime", event["start"].get("date"))
         summary = event.get("summary", "Sans titre")
         location = event.get("location", "")
-        result.append({"summary": summary, "start": start, "location": location})
+        result.append(
+            {"summary": summary, "start": start, "location": location})
         if notify:
             notification.notify(
                 title="Événement à venir",
@@ -57,6 +37,7 @@ def list_events(service, notify=False):
                 timeout=10
             )
     return result
+
 
 def create_event(service, summary, date, start_time, end_time, location=""):
     start = f"{date}T{start_time}:00"
@@ -73,13 +54,15 @@ def create_event(service, summary, date, start_time, end_time, location=""):
         },
         'location': location
     }
-    created_event = service.events().insert(calendarId='primary', body=event).execute()
+    created_event = service.events().insert(
+        calendarId='primary', body=event).execute()
     notification.notify(
         title="Événement créé",
         message=f"{summary}\nDébut : {start}",
         timeout=10
     )
     return created_event.get('id')
+
 
 def notify_events_at_time(service):
     """
@@ -105,14 +88,16 @@ def notify_events_at_time(service):
         events = events_result.get("items", [])
         for event in events:
             event_id = event["id"]
-            start_str = event["start"].get("dateTime", event["start"].get("date"))
+            start_str = event["start"].get(
+                "dateTime", event["start"].get("date"))
             try:
-                event_time = datetime.datetime.fromisoformat(start_str.replace('Z', '+00:00'))
+                event_time = datetime.datetime.fromisoformat(
+                    start_str.replace('Z', '+00:00'))
             except Exception:
                 continue
             # Si l'événement commence maintenant (à la minute près) et pas déjà notifié
             if (now.replace(second=0, microsecond=0) == event_time.replace(second=0, microsecond=0)
-                and event_id not in notified_events):
+                    and event_id not in notified_events):
                 summary = event.get("summary", "Sans titre")
                 notification.notify(
                     title="C'est l'heure de l'événement !",
@@ -122,12 +107,14 @@ def notify_events_at_time(service):
                 notified_events.add(event_id)
         time.sleep(30)  # Vérifie toutes les 30 secondes
 
+
 def main():
     creds = get_credentials()
     try:
         service = build("calendar", "v3", credentials=creds)
         # Lancer les notifications en arrière-plan
-        notif_thread = threading.Thread(target=notify_events_at_time, args=(service,), daemon=True)
+        notif_thread = threading.Thread(
+            target=notify_events_at_time, args=(service,), daemon=True)
         notif_thread.start()
         print("Notifications à l'heure des événements activées en arrière-plan.")
         print("1. Lire les événements")
@@ -142,11 +129,13 @@ def main():
                 start_time = input("Heure de début (HH:MM, 24h) : ")
                 end_time = input("Heure de fin (HH:MM, 24h) : ")
                 location = input("Lieu (optionnel) : ")
-                create_event(service, summary, date, start_time, end_time, location)
+                create_event(service, summary, date,
+                             start_time, end_time, location)
             else:
                 print("Choix invalide.")
     except HttpError as error:
         print(f"An error occurred: {error}")
+
 
 if __name__ == "__main__":
     main()

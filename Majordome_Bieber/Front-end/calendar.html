@@ -7,41 +7,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text: #0f172a;
-        }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--background);
-        }
-
-        .calendar-event {
-            border-left: 4px solid var(--primary);
-            background: var(--surface);
-            transition: transform 0.2s;
-        }
-
-        .calendar-event:hover {
-            transform: translateX(5px);
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- LIEN VERS VOTRE NOUVEAU STYLE.CSS -->
 </head>
-<body>
+<body class="body-calendar"> <!-- Classe spécifique pour cette page -->
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
         <h1 class="h3 fw-bold">Calendrier</h1>
-        <a href="index.html" class="btn btn-outline-primary">
+        <a href="index.html" class="btn btn-secondary-glass">
             <i class="bi bi-arrow-left me-2"></i>Retour
         </a>
     </div>
 
     <!-- Formulaire de création d'événement -->
-    <form id="event-form" class="mb-4">
+    <form id="event-form" class="mb-4 p-4 card"> <!-- Ajout de la classe card -->
+        <h5 class="fw-semibold mb-3">Créer un nouvel événement</h5>
         <div class="row g-2">
             <div class="col-md-3">
                 <input type="text" class="form-control" id="summary" placeholder="Titre de l'événement" required>
@@ -59,12 +38,13 @@
                 <input type="text" class="form-control" id="location" placeholder="Lieu (optionnel)">
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Créer l'événement</button>
+        <button type="submit" class="btn btn-primary mt-3">Créer l'événement</button>
     </form>
 
     <div class="row">
         <div class="col-lg-8" id="events-container">
             <!-- Les événements seront injectés ici -->
+            <p class="text-muted text-center py-5">Chargement des événements...</p>
         </div>
     </div>
 </div>
@@ -80,12 +60,12 @@ function loadEvents() {
             container.innerHTML = "";
 
             if (events.length === 0) {
-                container.innerHTML = "<p>Aucun événement à venir.</p>";
+                container.innerHTML = "<p class='text-muted text-center'>Aucun événement à venir.</p>";
             }
 
             events.forEach(event => {
                 const div = document.createElement("div");
-                div.className = "calendar-event p-3 rounded-3 shadow-sm mb-3";
+                div.className = "calendar-event p-3 shadow-sm mb-3";
                 div.innerHTML = `
                     <h5 class="fw-semibold mb-2">${event.summary || "Sans titre"}</h5>
                     <p class="text-muted mb-2"><i class="bi bi-clock me-2"></i>${event.start}</p>
@@ -96,7 +76,7 @@ function loadEvents() {
         })
         .catch(err => {
             const container = document.getElementById("events-container");
-            container.innerHTML = "<p>Erreur lors du chargement des événements.</p>";
+            container.innerHTML = "<p class='text-danger text-center'>Erreur lors du chargement des événements.</p>";
         });
 }
 

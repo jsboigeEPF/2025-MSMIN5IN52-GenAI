@@ -2,3 +2,4 @@
 API/credentials.json
 .venv
 token.json
+API/__pycache__

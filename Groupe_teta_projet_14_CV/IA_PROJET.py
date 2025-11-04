@@ -1,7 +1,5 @@
 # app_recruteur_augmente.py
-# -------------------------------------------------------------
-# Application Streamlit 100% en français : comparaison CV ↔ offre
-# -------------------------------------------------------------
+
 # Lancer :
 #   1) pip install -r requirements.txt
 #   2) Créer un fichier .env avec OPENAI_API_KEY=sk-...
@@ -29,7 +27,7 @@ import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
-# --- Lecture fichiers ---
+
 try:
     from PyPDF2 import PdfReader
 except Exception:
@@ -40,13 +38,12 @@ try:
 except Exception:
     docx2txt = None
 
-# --- Client OpenAI (SDK v1) ---
 try:
     from openai import OpenAI
 except Exception:
     OpenAI = None
 
-# ================== CONFIG UI ==================
+
 st.set_page_config(
     page_title="Agent de Recrutement Augmenté",
     page_icon="🧠",
@@ -54,7 +51,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# CSS léger
+
 st.markdown(
     """
     <style>
@@ -83,11 +80,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ================== ENV & ÉTAT ==================
+
 load_dotenv()
 API_KEY = os.getenv("OPENAI_API_KEY", "")
 
-# Valeurs par défaut des paramètres (persistants via session_state)
 if "params" not in st.session_state:
     st.session_state.params = {
         "modele": "gpt-4o-mini",
@@ -99,7 +95,6 @@ if "params" not in st.session_state:
         "w_culture": 15,
     }
 
-# ================== OUTILS ==================
 def lire_fichier(upload) -> str:
     """Convertit le fichier importé en texte brut (PDF/DOCX/TXT)."""
     if upload is None:
@@ -131,7 +126,7 @@ def lire_fichier(upload) -> str:
         if docx2txt is None:
             return "[Erreur] docx2txt n'est pas installé."
         try:
-            # docx2txt attend un chemin : on passe par un fichier temp.
+            
             with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp:
                 tmp.write(data)
                 tmp_path = tmp.name
@@ -166,7 +161,7 @@ def appeler_llm(texte_offre: str, texte_cv: str, poids: Dict[str, float],
 
     client = OpenAI(api_key=API_KEY)
 
-    # Instructions FR/EN — retour JSON strict
+    
     fr = f"""
 Tu es un recruteur IA. Compare ce CV avec l'offre. Utilise ces pondérations (somme=100) :
 - skills={poids['skills']:.1f}%
@@ -235,11 +230,10 @@ Return ONLY strict JSON with this schema:
     try:
         return json.loads(brut)
     except Exception:
-        # secours : tentative d'extraction du bloc JSON
+        
         i, j = brut.find("{"), brut.rfind("}")
         return json.loads(brut[i:j+1])
-
-# ================== PARAMÈTRES (SIDEBAR) ==================
+    
 with st.sidebar:
     st.subheader("Paramètres")
 
@@ -267,7 +261,7 @@ with st.sidebar:
 
         submitted = st.form_submit_button("Appliquer les paramètres", use_container_width=True)
 
-    # Persistance explicite
+    
     if submitted:
         st.session_state.params.update({
             "modele": modele,
@@ -280,7 +274,7 @@ with st.sidebar:
         })
         st.success("Paramètres appliqués.")
 
-    # Petit test de la clé (optionnel, non bloquant)
+    
     if st.button("Tester la clé OpenAI", use_container_width=True):
         try:
             if OpenAI is None:
@@ -310,7 +304,7 @@ with st.sidebar:
     else:
         st.caption(f"Somme actuelle des poids : **{total_w}** (normalisée automatiquement)")
 
-# ================== ONGLET CONTENU ==================
+
 onglet_import, onglet_resultats, onglet_apropos = st.tabs(["Importer", "Résultats", "À propos"])
 
 with onglet_import:
@@ -416,7 +410,6 @@ with onglet_resultats:
     df = st.session_state.get("results_df")
     cartes = st.session_state.get("cards") or []
 
-    # Rappel des paramètres actifs
     p = st.session_state.params
     st.caption(
         f"Modèle **{p['modele']}**, Température **{p['temperature']}**, Langue **{p['langue']}** — "
@@ -434,7 +427,7 @@ with onglet_resultats:
             })
         )
 
-        # Exports
+        
         c1, c2, c3 = st.columns(3)
         with c1:
             st.download_button(

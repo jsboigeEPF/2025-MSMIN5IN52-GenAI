@@ -25,23 +25,7 @@
         </div>
       </div>
       
-      <div class="stat-card automation">
-        <div class="stat-value">{{ stats.autoCreatedApplications }}</div>
-        <div class="stat-label">Créées par l'IA</div>
-        <div class="stat-subtitle">
-          Taux d'automatisation&nbsp;: {{ stats.automationRate }}%
-        </div>
-      </div>
       
-      <div class="stat-card linked-emails">
-        <div class="stat-value">{{ stats.linkedEmails }}</div>
-        <div class="stat-label">Emails liés aux candidatures</div>
-      </div>
-      
-      <div class="stat-card pending-emails">
-        <div class="stat-value">{{ stats.unprocessedEmails }}</div>
-        <div class="stat-label">Emails à traiter</div>
-      </div>
     </div>
 
     <!-- Recent Applications & Status Overview -->
@@ -120,15 +104,7 @@
       </div>
       <div class="card-body">
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <a routerLink="/job-applications" class="btn btn-primary">
-            📋 Nouvelle candidature
-          </a>
-          <a routerLink="/companies" class="btn btn-success">
-            🏢 Ajouter une entreprise
-          </a>
-          <a routerLink="/job-offers" class="btn btn-warning">
-            💼 Nouvelle offre
-          </a>
+          
           <a routerLink="/nlp" class="btn btn-primary">
             🤖 Analyser les emails
           </a>

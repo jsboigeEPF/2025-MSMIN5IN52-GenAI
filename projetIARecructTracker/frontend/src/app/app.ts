@@ -19,10 +19,10 @@ export class App implements OnInit {
   menuItems = [
     { path: '/dashboard', icon: '📊', label: 'Dashboard' },
     { path: '/job-applications', icon: '📋', label: 'Candidatures' },
-    { path: '/companies', icon: '🏢', label: 'Entreprises' },
-    { path: '/job-offers', icon: '💼', label: 'Offres d\'Emploi' },
+    //{ path: '/companies', icon: '🏢', label: 'Entreprises' },
+  //  { path: '/job-offers', icon: '💼', label: 'Offres d\'Emploi' },
     { path: '/emails', icon: '📧', label: 'Emails' },
-    { path: '/gmail-connection', icon: '📬', label: 'Gmail OAuth' },
+    //{ path: '/gmail-connection', icon: '📬', label: 'Gmail OAuth' },
     { path: '/nlp', icon: '🧠', label: 'IA Dashboard' }
   ];
 

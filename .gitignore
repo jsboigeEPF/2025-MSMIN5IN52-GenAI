@@ -148,3 +148,10 @@ reports/
 
 # Git analysis
 git-analysis/
+
+# Additional environment files to ignore
+**/.env.example
+**/.env.shared
+**/.env.production
+**/login.py
+**/env.py

@@ -1,0 +1,10 @@
+Ce projet a été réalisé dans le cadre du module :
+MSMIN5IN52 – Intelligence Artificielle Générative
+à l’École d’Ingénieurs EPF, promotion 2025.
+
+Groupe Teta – Projet 14
+	•	 Emmanuel MINDONGO
+	•	 Ariel TCHAKOUNTE
+
+Ce projet vise à développer une application web intelligente, entièrement en français, capable de comparer automatiquement plusieurs CVs à une offre d’emploi à l’aide d’un modèle d’intelligence artificielle générative (OpenAI).
+L’application permet aux recruteurs de gagner du temps en obtenant un classement justifié des candidats, basé sur des critères objectifs et pondérés.

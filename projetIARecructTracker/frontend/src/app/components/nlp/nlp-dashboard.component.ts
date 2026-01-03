@@ -41,29 +41,7 @@ interface NLPStats {
           </div>
         </div>
 
-        <div class="stat-card success">
-          <div class="stat-icon">🎯</div>
-          <div class="stat-content">
-            <h3>{{ stats().accuracyRate }}%</h3>
-            <p>Précision de classification</p>
-          </div>
-        </div>
-
-        <div class="stat-card info">
-          <div class="stat-icon">⚡</div>
-          <div class="stat-content">
-            <h3>{{ getActiveModels().length }}</h3>
-            <p>Modèles Mistral actifs</p>
-          </div>
-        </div>
-
-        <div class="stat-card warning">
-          <div class="stat-icon">💰</div>
-          <div class="stat-content">
-            <h3>{{ getCostEstimate() }}€</h3>
-            <p>Coût estimé ce mois</p>
-          </div>
-        </div>
+        
       </div>
 
       <div class="nlp-features">
@@ -143,32 +121,7 @@ interface NLPStats {
           </div>
         </div>
 
-        <div class="recent-activity">
-          <h2>📈 Activité IA Récente</h2>
-          <div class="activity-list">
-            @if (stats().recentActivity.length === 0) {
-              <div class="no-activity">
-                <p>Aucune activité IA récente</p>
-                <button class="btn btn-secondary" routerLink="/emails">
-                  Tester la classification d'emails
-                </button>
-              </div>
-            } @else {
-              @for (activity of stats().recentActivity; track activity.id) {
-                <div class="activity-item">
-                  <div class="activity-icon">{{ getActivityIcon(activity.type) }}</div>
-                  <div class="activity-content">
-                    <div class="activity-description">{{ activity.description }}</div>
-                    <div class="activity-meta">
-                      <span class="timestamp">{{ formatTimestamp(activity.timestamp) }}</span>
-                      <span class="confidence">{{ (activity.confidence * 100).toFixed(1) }}% confiance</span>
-                    </div>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-        </div>
+        
 
         <div class="configuration-panel">
           <h2>⚙️ Configuration Mistral AI</h2>
@@ -200,38 +153,11 @@ interface NLPStats {
           </div>
         </div>
 
-        <div class="action-center">
-          <h2>🚀 Actions Rapides</h2>
-          <div class="actions-grid">
-            <button class="action-btn" routerLink="/emails">
-              <div class="btn-icon">📧</div>
-              <div class="btn-text">
-                <h3>Tester Classification</h3>
-                <p>Analyser un email avec l'IA</p>
-              </div>
-            </button>
-
-            <button class="action-btn" (click)="refreshStats()">
-              <div class="btn-icon">🔄</div>
-              <div class="btn-text">
-                <h3>Actualiser Stats</h3>
-                <p>Recharger les données</p>
-              </div>
-            </button>
-
-            <button class="action-btn" routerLink="/job-applications">
-              <div class="btn-icon">🎯</div>
-              <div class="btn-text">
-                <h3>Voir Matching</h3>
-                <p>Candidatures liées par IA</p>
-              </div>
-            </button>
-          </div>
-        </div>
+        
 
         <div class="email-ingestion-section">
           <h2>� Synchronisation Gmail</h2>
-          <p class="info-text">
+         <!-- <p class="info-text">
             🔒 Utilisez Gmail OAuth pour synchroniser vos emails en toute sécurité
           </p>
           <div class="ingestion-controls">
@@ -274,7 +200,7 @@ interface NLPStats {
                   <span>📧 Synchroniser les emails</span>
                 }
               </button>
-            </div>        <div class="email-analysis-section">
+            </div>        <div class="email-analysis-section"> -->
           <h2>🔍 Analyse des Emails</h2>
           <div class="analysis-controls">
             <div class="control-group">

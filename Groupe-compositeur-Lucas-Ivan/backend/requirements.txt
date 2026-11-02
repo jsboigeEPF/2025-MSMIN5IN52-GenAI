@@ -1,0 +1,6 @@
+transformers
+torch
+scipy
+flask
+flask-cors
+torchaudio

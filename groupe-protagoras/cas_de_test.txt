@@ -1,0 +1,11 @@
+# Cas 1: Argument valide et sans sophisme
+Tous les hommes sont mortels. Socrate est un homme. Donc Socrate est mortel.
+
+# Cas 2: Argument avec un sophisme (attaque personnelle)
+Tu ne connais rien à l'économie, donc ta proposition de réforme fiscale est forcément mauvaise.
+
+# Cas 3: Argument avec une incohérence logique
+J'aime les fruits. Les pommes sont des fruits. Je n'aime pas les pommes.
+
+# Cas 4: Argument avec une inférence invalide
+Les oiseaux peuvent voler. Les pingouins sont des oiseaux. Donc les pingouins peuvent voler.

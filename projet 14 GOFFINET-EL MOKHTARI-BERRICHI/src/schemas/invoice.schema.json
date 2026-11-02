@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Invoice Schema",
+  "type": "object",
+  "required": ["invoice_number", "client", "items", "total"],
+  "properties": {
+    "invoice_number": {
+      "type": "string"
+    },
+    "client": {
+      "type": "object",
+      "required": ["name", "address", "email"],
+      "properties": {
+        "name": {"type": "string"},
+        "address": {"type": "string"},
+        "email": {"type": "string", "format": "email"}
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "quantity", "unit_price"],
+        "properties": {
+          "description": {"type": "string"},
+          "quantity": {"type": "number"},
+          "unit_price": {"type": "number"}
+        }
+      }
+    },
+    "total": {
+      "type": "number"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    }
+  }
+}

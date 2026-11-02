@@ -1,0 +1,48 @@
+{
+  "personal_info": {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1 (555) 123-4567",
+    "address": "123 Main Street, Springfield, USA",
+    "summary": "Results-driven software engineer with 5+ years of experience in full-stack development and team leadership."
+  },
+  "work_experience": [
+    {
+      "company": "Tech Corp",
+      "position": "Senior Software Engineer",
+      "start_date": "2020-01-01",
+      "end_date": "Present",
+      "description": "Led a team of 5 developers to deliver a critical customer-facing application and implemented CI/CD pipeline."
+    }
+  ],
+  "education": [
+    {
+      "institution": "State University",
+      "degree": "Bachelor of Science in Computer Science",
+      "graduation_date": "2018-05-01",
+      "description": "Coursework included Data Structures, Database Systems, and Software Engineering."
+    }
+  ],
+  "skills": [
+    "Python",
+    "JavaScript",
+    "React",
+    "Node.js"
+  ],
+  "projects": [
+    {
+      "title": "Task Management System",
+      "description": "Developed a full-stack task management application with real-time collaboration",
+      "technologies": ["React", "Node.js", "MongoDB"]
+    }
+  ],
+  "languages": ["English", "French"],
+  "certifications": [
+    {
+      "title": "AWS Certified Developer",
+      "issuer": "Amazon Web Services",
+      "date": "2023-06-01"
+    }
+  ],
+  "interests": ["Open-source", "Traveling", "Photography"]
+}

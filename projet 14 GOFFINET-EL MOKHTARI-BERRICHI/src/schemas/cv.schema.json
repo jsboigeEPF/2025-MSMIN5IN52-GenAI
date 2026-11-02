@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CV Schema",
+  "type": "object",
+  "required": ["personal_info", "work_experience", "education", "skills"],
+  "properties": {
+    "personal_info": {
+      "type": "object",
+      "required": ["name", "email", "phone", "address"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "birth": { "type": "string" },
+        "title": { "type": "string" },
+        "photo": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "work_experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["company", "position", "start_date", "end_date", "description"],
+        "properties": {
+          "company": { "type": "string" },
+          "position": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution", "degree", "graduation_date", "description"],
+        "properties": {
+          "institution": { "type": "string" },
+          "degree": { "type": "string" },
+          "graduation_date": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+
+    "skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" },
+          "issuer": { "type": "string" },
+          "date": { "type": "string" }
+        }
+      }
+    },
+
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "technologies": { "type": "array", "items": { "type": "string" } },
+          "date": { "type": "string" }
+        }
+      }
+    },
+
+    "interests": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

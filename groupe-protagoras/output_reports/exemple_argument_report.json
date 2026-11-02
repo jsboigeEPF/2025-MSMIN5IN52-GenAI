@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "source_file": "exemple_argument.txt",
+    "generated_at": "2025-11-04T08:07:19.402935+00:00"
+  },
+  "analyses": [
+    {
+      "meta": {
+        "generated_at": "2025-11-04T08:07:06.477671+00:00",
+        "input_length": 91,
+        "original_text": "Si le feu est rouge, je m'arrête. Je ne me suis pas arrêté. Donc, le feu n'était pas rouge."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": 1,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": true,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": 1,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement valide et ne contient pas de sophismes apparents. C'est un argument solide."
+      },
+      "segments_raw": [
+        "Si le feu est rouge, je m'arrête",
+        "Je ne me suis pas arrêté",
+        "Donc, le feu n'était pas rouge"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "feu_rouge => arret",
+          "!arret"
+        ],
+        "conclusion": "!feu_rouge"
+      },
+      "formules": [
+        "feu_rouge => arret",
+        "!arret",
+        "!feu_rouge"
+      ],
+      "sophisms_raw": {
+        "overall_assessment": "Aucun sophisme détecté.",
+        "fallacies": []
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-11-04T08:07:07.946589+00:00",
+        "input_length": 83,
+        "original_text": "Si le feu est rouge, je m'arrête. Le feu n'est pas rouge. Donc, je ne m'arrête pas."
+      },
+      "segments": [],
+      "sophisms": [],
+      "formal": {
+        "is_valid": 0,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [],
+        "formal_validity": {
+          "is_valid": 0,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide, bien qu'il ne contienne pas de sophismes évidents. La structure logique est défaillante."
+      },
+      "segments_raw": [
+        "Si le feu est rouge, je m'arrête",
+        "Le feu n'est pas rouge",
+        "Donc, je ne m'arrête pas"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "feu_rouge => m_arrete",
+          "!feu_rouge"
+        ],
+        "conclusion": "!m_arrete"
+      },
+      "formules": [
+        "feu_rouge => m_arrete",
+        "!feu_rouge",
+        "!m_arrete"
+      ],
+      "sophisms_raw": {
+        "fallacies": [],
+        "overall_assessment": "Aucun sophisme détecté."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-11-04T08:07:10.000754+00:00",
+        "input_length": 817,
+        "original_text": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale ; grâce à des efforts acharnés, produit des substituts aux nombreux matériaux dont nous manquions, encouragé les nouvelles inventions, développé le trafic, fait construire de grandes routes et creuser des canaux, fait sortir de terre de gigantesques usines, tout en m'efforçant de promouvoir l'éducation et la culture de notre peuple pour développer notre communauté sociale. Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre, [...] à réaliser un nouvel épanouissement du commerce allemand et à développer considérablement les transports."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Appel à la flatterie",
+          "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+          "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment de confiance ou d'admiration sans fournir de preuves tangibles de ses réalisations."
+        },
+        {
+          "type": "Appel à la pitié",
+          "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant",
+          "explanation": "Le locuteur cherche à susciter la compassion en évoquant la situation difficile des chômeurs sans nécessairement prouver son implication dans leur embauche."
+        }
+      ],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Appel à la flatterie",
+            "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+            "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment de confiance ou d'admiration sans fournir de preuves tangibles de ses réalisations."
+          },
+          {
+            "type": "Appel à la pitié",
+            "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant",
+            "explanation": "Le locuteur cherche à susciter la compassion en évoquant la situation difficile des chômeurs sans nécessairement prouver son implication dans leur embauche."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale ; grâce à des efforts acharnés, produit des substituts aux nombreux matériaux dont nous manquions, encouragé les nouvelles inventions, développé le trafic, fait construire de grandes routes et creuser des canaux, fait sortir de terre de gigantesques usines, tout en m'efforçant de promouvoir l'éducation et la culture de notre peuple pour développer notre communauté sociale",
+        "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant, à maintenir le paysan allemand sur sa terre, [",
+        "] à réaliser un nouvel épanouissement du commerce allemand et à développer considérablement les transports"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "vaincu_chaos => ordre",
+          "augmente_production && produit_substituts && encourage_inventions && developpe_trafic && construit_routes && creuse_canaux && sort_usines && promeut_education"
+        ],
+        "conclusion": "travail_utile && maintient_paysan && nouvel_epanouissement_commerce && developpe_transports"
+      },
+      "formules": [
+        "vaincu_chaos => ordre",
+        "augmente_production && produit_substituts && encourage_inventions && developpe_trafic && construit_routes && creuse_canaux && sort_usines && promeut_education",
+        "travail_utile && maintient_paysan && nouvel_epanouissement_commerce && developpe_transports"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Appel à la flatterie",
+            "excerpt": "J'ai vaincu le chaos en Allemagne, j'ai rétabli l'ordre, considérablement augmenté la production dans tous les secteurs de notre économie nationale",
+            "explanation": "Le locuteur utilise des éloges exagérés pour susciter un sentiment de confiance ou d'admiration sans fournir de preuves tangibles de ses réalisations."
+          },
+          {
+            "type": "Appel à la pitié",
+            "excerpt": "Une fois encore, je suis parvenu à trouver un travail utile à la totalité des sept millions de chômeurs dont le sort nous touchait tant",
+            "explanation": "Le locuteur cherche à susciter la compassion en évoquant la situation difficile des chômeurs sans nécessairement prouver son implication dans leur embauche."
+          }
+        ],
+        "overall_assessment": "Ce discours contient des sophismes, notamment des appels à la flatterie et à la pitié pour renforcer l'image du locuteur sans fournir de preuves concrètes de ses réalisations."
+      }
+    },
+    {
+      "meta": {
+        "generated_at": "2025-11-04T08:07:14.473839+00:00",
+        "input_length": 630,
+        "original_text": "Je n'ai pas seulement uni politiquement le peuple allemand, je l'ai aussi réarmé et j'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains. J'ai rendu au Reich le provinces qui nous avaient été volées en 1919. j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés. J'ai recréé l'unité historique millénaire de l'espace vital allemand, et je me suis efforcé de faire tout cela sans verser le sang et sans infliger à mon peuple ou à d'autres les souffrances de la guerre."
+      },
+      "segments": [],
+      "sophisms": [
+        {
+          "type": "Appel à l'émotion",
+          "excerpt": "J'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains.",
+          "explanation": "Le locuteur utilise une forte charge émotionnelle en qualifiant le traité de 'viol le plus infâme jamais infligé', ce qui vise à manipuler les émotions de l'auditoire plutôt que de fournir un argument factuel ou logique."
+        }
+      ],
+      "formal": {
+        "is_valid": false,
+        "inconsistencies": [],
+        "logical_implications": []
+      },
+      "fusion": {
+        "overall_validity": false,
+        "informal_fallacies": [
+          {
+            "type": "Appel à l'émotion",
+            "excerpt": "J'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains.",
+            "explanation": "Le locuteur utilise une forte charge émotionnelle en qualifiant le traité de 'viol le plus infâme jamais infligé', ce qui vise à manipuler les émotions de l'auditoire plutôt que de fournir un argument factuel ou logique."
+          }
+        ],
+        "formal_validity": {
+          "is_valid": false,
+          "inconsistencies": [],
+          "logical_implications": []
+        },
+        "final_verdict": "L'argument est logiquement invalide et contient des sophismes. C'est un argument faible sur les deux plans."
+      },
+      "segments_raw": [
+        "Je n'ai pas seulement uni politiquement le peuple allemand, je l'ai aussi réarmé et j'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains",
+        "J'ai rendu au Reich le provinces qui nous avaient été volées en 1919",
+        "j'ai ramené dans leur patrie les millions d'Allemands profondément malheureux qui nous avaient été arrachés",
+        "J'ai recréé l'unité historique millénaire de l'espace vital allemand, et je me suis efforcé de faire tout cela sans verser le sang et sans infliger à mon peuple ou à d'autres les souffrances de la guerre"
+      ],
+      "extracted_logic": {
+        "premises": [
+          "unir_politiquement => rearmement",
+          "unir_politiquement => dechirer_traité",
+          "rearmement => provinces_rendues",
+          "rearmement => allemands_retournés",
+          "rearmement => unité_historique_recréée",
+          "rearmement => sans_guerre"
+        ],
+        "conclusion": "provinces_rendues && allemands_retournés && unité_historique_recréée && sans_guerre"
+      },
+      "formules": [
+        "unir_politiquement => rearmement",
+        "unir_politiquement => dechirer_traité",
+        "rearmement => provinces_rendues",
+        "rearmement => allemands_retournés",
+        "rearmement => unité_historique_recréée",
+        "rearmement => sans_guerre",
+        "provinces_rendues && allemands_retournés && unité_historique_recréée && sans_guerre"
+      ],
+      "sophisms_raw": {
+        "fallacies": [
+          {
+            "type": "Appel à l'émotion",
+            "excerpt": "J'ai entrepris de déchirer page par page ce traité qui contenait dans ces 448 articles le viol le plus infâme jamais infligé à des nations et à des êtres humains.",
+            "explanation": "Le locuteur utilise une forte charge émotionnelle en qualifiant le traité de 'viol le plus infâme jamais infligé', ce qui vise à manipuler les émotions de l'auditoire plutôt que de fournir un argument factuel ou logique."
+          }
+        ],
+        "overall_assessment": "Le discours contient un sophisme de type Appel à l'émotion."
+      }
+    }
+  ]
+}

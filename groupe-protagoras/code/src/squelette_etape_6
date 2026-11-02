@@ -1,0 +1,103 @@
+"""
+Évaluation et itération du pipeline hybride d'analyse d'arguments.
+Calcul des métriques pour :
+- Sophismes détectés (précision, rappel, F1)
+- Validité logique (cohérence et inférences)
+"""
+
+import json
+from collections import Counter
+from analyse_globale import analyse_argument_complete  # ton pipeline global
+
+# ---------------------------------------------------------------------
+# 1. Exemple de corpus annoté (à compléter avec de vrais textes)
+# ---------------------------------------------------------------------
+corpus = [
+    {
+        "texte": "Tous les hommes sont mortels. Socrate est un homme. Donc Socrate est mortel.",
+        "sophismes": [],  # aucun sophisme
+        "coherence": True,
+        "inferences": [
+            {"premisses": ["Tous les hommes sont mortels", "Socrate est un homme"],
+             "conclusion": "Socrate est mortel",
+             "valide": True}
+        ]
+    },
+    {
+        "texte": "Si tu ne votes pas pour moi, le pays s'effondrera.",
+        "sophismes": ["appel à la peur"],
+        "coherence": True,
+        "inferences": []
+    },
+    {
+        "texte": "Tous les chats sont des chiens. Aucun chien n'est un chat.",
+        "sophismes": [],
+        "coherence": False,
+        "inferences": []
+    }
+]
+
+# ---------------------------------------------------------------------
+# 2. Fonctions utilitaires pour les métriques
+# ---------------------------------------------------------------------
+def precision_recall_f1(preds, refs):
+    tp = sum(1 for p in preds if p in refs)
+    fp = sum(1 for p in preds if p not in refs)
+    fn = sum(1 for r in refs if r not in preds)
+    precision = tp / (tp + fp) if tp + fp > 0 else 0
+    recall = tp / (tp + fn) if tp + fn > 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall > 0 else 0
+    return precision, recall, f1
+
+# ---------------------------------------------------------------------
+# 3. Boucle d'évaluation
+# ---------------------------------------------------------------------
+results = []
+
+for item in corpus:
+    texte = item["texte"]
+    annotation_sophismes = item.get("sophismes", [])
+    annotation_coherence = item.get("coherence", True)
+
+    # Exécution du pipeline global
+    verdict = analyse_argument_complete(texte, llm_chain=None)  # llm_chain peut être simulé ou réel
+
+    # Sophismes
+    sophismes_detectes = verdict.get("sophismes_detectes", [])
+    prec, rec, f1 = precision_recall_f1(sophismes_detectes, annotation_sophismes)
+
+    # Cohérence
+    coherence_pred = verdict.get("coherence_logique", True)
+    coherence_correct = coherence_pred == annotation_coherence
+
+    results.append({
+        "texte": texte,
+        "sophismes_detectes": sophismes_detectes,
+        "precision_sophismes": prec,
+        "recall_sophismes": rec,
+        "f1_sophismes": f1,
+        "coherence_pred": coherence_pred,
+        "coherence_correct": coherence_correct
+    })
+
+# ---------------------------------------------------------------------
+# 4. Rapport synthétique
+# ---------------------------------------------------------------------
+print("\n=== Rapport d'évaluation ===\n")
+for r in results:
+    print(f"Texte : {r['texte']}")
+    print(f"  Sophismes détectés : {r['sophismes_detectes']}")
+    print(f"  Précision : {r['precision_sophismes']:.2f}, Recall : {r['recall_sophismes']:.2f}, F1 : {r['f1_sophismes']:.2f}")
+    print(f"  Cohérence prédite : {r['coherence_pred']} (correct : {r['coherence_correct']})\n")
+
+# Optionnel : statistiques globales
+avg_prec = sum(r['precision_sophismes'] for r in results)/len(results)
+avg_rec = sum(r['recall_sophismes'] for r in results)/len(results)
+avg_f1 = sum(r['f1_sophismes'] for r in results)/len(results)
+coherence_acc = sum(r['coherence_correct'] for r in results)/len(results)
+
+print(f"=== Résumé global ===")
+print(f"Précision moyenne sophismes : {avg_prec:.2f}")
+print(f"Rappel moyen sophismes : {avg_rec:.2f}")
+print(f"F1 moyen sophismes : {avg_f1:.2f}")
+print(f"Exactitude cohérence : {coherence_acc:.2f}")

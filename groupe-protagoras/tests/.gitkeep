@@ -1,0 +1,5 @@
+tests = [
+  "Si tu ne votes pas pour moi, le pays s'effondrera.",
+  "Tous les hommes sont mortels. Socrate est un homme. Donc Socrate est mortel.",
+  "Tu es trop jeune pour comprendre, donc tu as tort."
+]

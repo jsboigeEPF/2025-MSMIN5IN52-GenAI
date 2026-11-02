@@ -1,0 +1,27 @@
+{
+  "invoice_number": "INV-0001",
+  "client": {
+    "name": "Acme Corporation",
+    "address": "123 Business Ave, Suite 500, New York, NY 10001",
+    "email": "accounts@acmecorp.com"
+  },
+  "items": [
+    {
+      "description": "Website development services",
+      "quantity": 1,
+      "unit_price": 2500.00
+    },
+    {
+      "description": "Domain name registration",
+      "quantity": 1,
+      "unit_price": 15.00
+    },
+    {
+      "description": "SSL certificate installation",
+      "quantity": 1,
+      "unit_price": 300.00
+    }
+  ],
+  "total": 2815.00,
+  "due_date": "2025-11-12"
+}

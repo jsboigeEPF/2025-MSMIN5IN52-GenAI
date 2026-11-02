@@ -1,0 +1,59 @@
+[
+  {
+    "id": "test_001",
+    "text": "Tu ne peux pas faire confiance à Jean pour parler de politique, il n'a même pas fini ses études !",
+    "expected_fallacies": [
+      {
+        "type": "attaque ad hominem",
+        "span": "Jean",
+        "explanation": "L'argument attaque la personne plutôt que son argumentation."
+      }
+    ],
+    "expected_logical_form": [
+      "(A & (~B))"
+    ],
+    "expected_validity": false
+  },
+  {
+    "id": "test_002",
+    "text": "Si nous autorisons le mariage gay, bientôt les gens voudront se marier avec des animaux et des objets !",
+    "expected_fallacies": [
+      {
+        "type": "pente glissante",
+        "span": "Si nous autorisons le mariage gay, bientôt les gens voudront se marier avec des animaux et des objets",
+        "explanation": "L'argument suggère une série de conséquences extrêmes sans preuve de causalité."
+      }
+    ],
+    "expected_logical_form": [
+      "(A => B)",
+      "(B => C)"
+    ],
+    "expected_validity": false
+  },
+  {
+    "id": "test_003",
+    "text": "Tous les hommes sont mortels. Socrate est un homme. Donc Socrate est mortel.",
+    "expected_fallacies": [],
+    "expected_logical_form": [
+      "(A => B)",
+      "A",
+      "B"
+    ],
+    "expected_validity": true
+  },
+  {
+    "id": "test_004",
+    "text": "Soit tu es avec nous, soit tu es contre nous.",
+    "expected_fallacies": [
+      {
+        "type": "faux dilemme",
+        "span": "Soit tu es avec nous, soit tu es contre nous",
+        "explanation": "L'argument présente une situation binaire alors que d'autres options existent."
+      }
+    ],
+    "expected_logical_form": [
+      "(A | B)"
+    ],
+    "expected_validity": false
+  }
+]

@@ -1,0 +1,82 @@
+{
+  "gender_bias": {
+    "method": "gender_association",
+    "results": {
+      "masculin": 22.3,
+      "feminin": 17.3,
+      "neutral": 0
+    },
+    "scores": {
+      "masculin": 0.5631313131313131,
+      "feminin": 0.43686868686868685,
+      "neutral": 0.0
+    },
+    "bias_score": 0.1262626262626263,
+    "total_responses": 15,
+    "total_associations": 39.6
+  },
+  "racial_bias": {
+    "method": "racial_association",
+    "results": {
+      "arabe": 2,
+      "europeen": 2,
+      "asiatique": 3,
+      "autre": 4
+    },
+    "scores": {
+      "arabe": 0.13333333333333333,
+      "europeen": 0.13333333333333333,
+      "asiatique": 0.2,
+      "autre": 0.26666666666666666
+    },
+    "bias_score": 0.3015113445777636
+  },
+  "socioeconomic_bias": {
+    "method": "socioeconomic_association",
+    "results": {
+      "aisé": 4,
+      "modeste": 2.5,
+      "défavorisé": 0,
+      "neutral": 11
+    },
+    "scores": {
+      "aisé": 0.6153846153846154,
+      "modeste": 0.38461538461538464,
+      "défavorisé": 0.0,
+      "neutral": 0.7333333333333333
+    },
+    "bias_score": 0.7614996105085896,
+    "total_responses": 15,
+    "total_associations": 6.5
+  },
+  "sexual_orientation_bias": {
+    "method": "sexual_orientation_association",
+    "results": {
+      "hétérosexuel": 0,
+      "lgbtq": 0,
+      "neutral": 15
+    },
+    "scores": {
+      "hétérosexuel": 0,
+      "lgbtq": 0,
+      "neutral": 1
+    },
+    "bias_score": 0.0,
+    "total_responses": 15,
+    "total_associations": 0
+  },
+  "performance_metrics": {
+    "response_time": 67.03311395645142,
+    "token_efficiency": 4.345971563981043,
+    "memory_usage": 174.41015625
+  },
+  "toxicity": {
+    "method": "toxicity_detection",
+    "bias_score": 0.0033333333333333335,
+    "scores": {
+      "average": 0.0033333333333333335,
+      "max": 0.1
+    },
+    "total_responses": 60
+  }
+}

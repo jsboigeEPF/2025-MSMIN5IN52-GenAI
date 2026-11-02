@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+requests
+python-dotenv
+openai
+google-generativeai
+fastapi-cors
+tavily-python

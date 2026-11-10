@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card border-0 shadow p-4">
+  <h2 class="h5 text-primary mb-3">CVs traités avec succès</h2>
+  <p class="text-muted">{{ total_cvs }} CV(s) ont été traités et standardisés.</p>
+
+  <div class="alert alert-success mt-3">
+    <strong>✓ Fichier CSV généré :</strong> {{ csv_filename }}
+  </div>
+
+  <div class="table-responsive mt-3">
+    <table class="table table-hover align-middle">
+      <thead class="table-primary text-center">
+        <tr>
+          <th>ID</th>
+          <th>Aperçu de la description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview %}
+        <tr>
+          <td class="text-center fw-semibold">{{ row['ID'] }}</td>
+          <td>
+            <div class="small" style="max-height: 100px; overflow-y: auto;">
+              {{ row['Resume'][:300] }}{% if row['Resume']|length > 300 %}...{% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 mt-3">
+    <a class="btn btn-primary shadow-sm" href="{{ url_for('download', filename=csv_filename) }}">
+      ⬇️ Télécharger le CSV complet
+    </a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">↩️ Traiter d'autres CVs</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card border-0 shadow p-4">
+  <h2 class="h5 text-primary mb-4">Fiches de Poste Sauvegardées</h2>
+  {% if fiches %}
+    <div class="list-group">
+      {% for fiche in fiches %}
+      <div class="list-group-item mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-1">{{ fiche.title }}</h5>
+          <div>
+            <span class="badge bg-light text-muted small me-2">{{ fiche.created_at }}</span>
+            <button class="btn btn-sm btn-outline-primary" onclick="editFiche({{ fiche.id }}, '{{ fiche.title|replace("'", "\\'") }}', `{{ fiche.description|replace("`", "\\`")|replace("\n", "\\n") }}`)">
+              ✏️ Modifier
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteFiche({{ fiche.id }})">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-link p-0 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#fiche-{{ fiche.id }}" aria-expanded="false" aria-controls="fiche-{{ fiche.id }}">
+          Voir la description
+        </button>
+        <div class="collapse" id="fiche-{{ fiche.id }}">
+          <div class="mt-2 bg-light p-3 rounded small" style="white-space: pre-line;">{{ fiche.description }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">Aucune fiche de poste enregistrée pour le moment.</p>
+  {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Modifier la Fiche de Poste</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editFicheId">
+          <div class="mb-3">
+            <label for="editTitle" class="form-label">Titre du poste</label>
+            <input type="text" class="form-control" id="editTitle" required>
+          </div>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" rows="10" required></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" onclick="saveEdit()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function editFiche(id, title, description) {
+  document.getElementById('editFicheId').value = id;
+  document.getElementById('editTitle').value = title;
+  document.getElementById('editDescription').value = description;
+  new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+
+function saveEdit() {
+  const id = document.getElementById('editFicheId').value;
+  const title = document.getElementById('editTitle').value;
+  const description = document.getElementById('editDescription').value;
+  
+  fetch(`/edit_fiche/${id}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title: title, description: description})
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      alert('Erreur: ' + data.error);
+    }
+  })
+  .catch(error => alert('Erreur: ' + error));
+}
+
+function deleteFiche(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cette fiche ?')) {
+    fetch(`/delete_fiche/${id}`, {method: 'POST'})
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert('Erreur: ' + data.error);
+      }
+    })
+    .catch(error => alert('Erreur: ' + error));
+  }
+}
+</script>
+{% endblock %}

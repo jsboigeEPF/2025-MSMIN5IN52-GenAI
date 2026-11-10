@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card border-0 shadow p-4">
+  <h2 class="h5 text-primary mb-3">Générer une Fiche de Poste</h2>
+  <p class="text-muted">Décrivez le poste en termes simples, l'IA créera une description détaillée.</p>
+
+  <form id="generateForm" class="mb-4">
+    <div class="mb-3">
+      <label class="form-label">Clé API OpenAI</label>
+      <div class="input-group">
+        <input type="password" class="form-control" id="openai_key_generate" placeholder="sk-..." autocomplete="off">
+        <button class="btn btn-outline-secondary" type="button" id="toggleKeyGenerate">&#128065;</button>
+      </div>
+      <small class="form-text text-muted">Votre clé n'est jamais stockée côté serveur.</small>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Description basique du poste</label>
+      <textarea class="form-control shadow-sm" id="basic_desc" rows="4" 
+                placeholder="Ex: Développeur Python avec 3 ans d'expérience pour startup IA"></textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Niveau de détail</label>
+      <select class="form-select" id="verbosity">
+        <option value="long">Long (détaillé)</option>
+        <option value="medium">Moyen</option>
+        <option value="short">Court (résumé)</option>
+      </select>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary px-4 shadow">
+        <span class="spinner-border spinner-border-sm d-none me-2" id="spinner"></span>
+        Générer la description
+      </button>
+    </div>
+  </form>
+
+  <div id="result" class="d-none">
+    <hr>
+    <h3 class="h6 text-primary mb-3">Description générée:</h3>
+    <div id="viewMode">
+      <div class="bg-light p-3 rounded" id="generated_desc"></div>
+      <div class="text-center mt-3">
+        <button class="btn btn-outline-primary btn-sm" onclick="enableEdit()">
+          ✏️ Modifier
+        </button>
+        <button class="btn btn-outline-primary btn-sm" onclick="copyToClipboard()">
+          📋 Copier
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="useDescription()">
+          ✅ Utiliser cette description
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="addToDatabase()">
+          💾 Ajouter à la base
+        </button>
+      </div>
+    </div>
+    
+    <div id="editMode" class="d-none">
+      <textarea class="form-control mb-3" id="edit_desc" rows="12"></textarea>
+      <div class="text-center">
+        <button class="btn btn-success btn-sm" onclick="saveEdit()">
+          ✅ Enregistrer
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelEdit()">
+          ❌ Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// OpenAI key toggle and localStorage for generate page
+document.addEventListener('DOMContentLoaded', function() {
+  const keyInput = document.getElementById('openai_key_generate');
+  const toggleBtn = document.getElementById('toggleKeyGenerate');
+  keyInput.value = localStorage.getItem('openai_key') || '';
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (keyInput.type === 'password') {
+      keyInput.type = 'text';
+      this.innerHTML = '&#128584;'; // Closed eye (see-no-evil)
+    } else {
+      keyInput.type = 'password';
+      this.innerHTML = '&#128065;'; // Open eye
+    }
+  });
+  keyInput.addEventListener('input', function() {
+    localStorage.setItem('openai_key', keyInput.value);
+  });
+});
+document.getElementById('generateForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const spinner = document.getElementById('spinner');
+  const resultDiv = document.getElementById('result');
+  const basicDesc = document.getElementById('basic_desc').value;
+  const verbosity = document.getElementById('verbosity').value;
+  const apiKey = document.getElementById('openai_key_generate').value;
+  
+  if (!apiKey) {
+    alert('Veuillez entrer votre clé API OpenAI');
+    return;
+  }
+  
+  spinner.classList.remove('d-none');
+  resultDiv.classList.add('d-none');
+  
+  try {
+    const response = await fetch('/generate_description', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({basic_desc: basicDesc, verbosity: verbosity, api_key: apiKey})
+    });
+    
+    const data = await response.json();
+    if (data.error) {
+      alert(data.error);
+    } else {
+      // Render description as HTML (convert markdown bold and paragraphs)
+      document.getElementById('generated_desc').innerHTML = renderDescription(data.description);
+      resultDiv.classList.remove('d-none');
+    }
+  } catch (err) {
+    alert('Error generating description: ' + err);
+  } finally {
+    spinner.classList.add('d-none');
+  }
+});
+
+function addToDatabase() {
+  // Extract title from the generated description
+  const text = document.getElementById('generated_desc').textContent || '';
+  let title = 'Fiche de poste';
+  
+  // Look for patterns like "FICHE DE POSTE : Something" or just the job title
+  const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  
+  for (let line of lines) {
+    // Match "FICHE DE POSTE : Title" or "FICHE DE POSTE: Title"
+    const ficheMatch = line.match(/FICHE\s+DE\s+POSTE\s*[:：]\s*(.+)/i);
+    if (ficheMatch) {
+      title = ficheMatch[1].trim();
+      break;
+    }
+    // Match "Intitulé du poste : Title" or similar
+    const intituleMatch = line.match(/Intitulé.*?[:：]\s*(.+)/i);
+    if (intituleMatch) {
+      title = intituleMatch[1].trim();
+      break;
+    }
+    // If no pattern matches, use first substantial line (more than 5 chars, not a heading marker)
+    if (line.length > 5 && !line.startsWith('#') && !line.startsWith('*')) {
+      title = line.length > 100 ? line.substring(0, 100) + '...' : line;
+      break;
+    }
+  }
+  
+  const desc = text;
+  fetch('/add_fiche', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title: title, description: desc})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('Fiche de poste ajoutée à la base !');
+    } else {
+      alert('Erreur lors de l\'ajout : ' + (data.error || 'inconnue'));
+    }
+  })
+  .catch(e => alert('Erreur lors de l\'ajout : ' + e));
+}
+
+function copyToClipboard() {
+  const text = document.getElementById('generated_desc').textContent;
+  navigator.clipboard.writeText(text);
+}
+
+function useDescription() {
+  // Store generated description in localStorage and navigate back to the main form
+  const text = document.getElementById('generated_desc').textContent;
+  try {
+    localStorage.setItem('generated_jd', text);
+    // redirect to index where the description will be loaded into the form
+    window.location.href = '/';
+  } catch (e) {
+    alert('Unable to transfer description to the main form: ' + e);
+  }
+}
+
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderDescription(raw) {
+  // Convert markdown-like bold **text** into <strong>, and preserve paragraphs
+  if (!raw) return '';
+  let s = escapeHtml(raw);
+  // bold
+  s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // convert double newlines to paragraph breaks
+  const paragraphs = s.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  return paragraphs.map(p => '<p>' + p.replace(/\n/g, '<br>') + '</p>').join('\n');
+}
+
+function enableEdit() {
+  document.getElementById('viewMode').classList.add('d-none');
+  document.getElementById('editMode').classList.remove('d-none');
+  const text = document.getElementById('generated_desc').textContent;
+  document.getElementById('edit_desc').value = text;
+}
+
+function saveEdit() {
+  const newText = document.getElementById('edit_desc').value;
+  document.getElementById('generated_desc').innerHTML = renderDescription(newText);
+  document.getElementById('editMode').classList.add('d-none');
+  document.getElementById('viewMode').classList.remove('d-none');
+}
+
+function cancelEdit() {
+  document.getElementById('editMode').classList.add('d-none');
+  document.getElementById('viewMode').classList.remove('d-none');
+}
+
+</script>
+{% endblock %}
